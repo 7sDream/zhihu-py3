@@ -288,7 +288,7 @@ for collection in author.collections:
 
 Collection 代表一个收藏夹，处理收藏夹相关操作。创建一个 Collection 对象需传入该收藏夹的 url ，如：
 
-```
+```python
 from zhihu import Collection
 
 url = 'http://www.zhihu.com/collection/37770691'
@@ -297,7 +297,7 @@ collection = Collection(url)
 
 得到 Collection 对象后，可以获取该收藏夹的一些信息：
 
-```
+```python
 # 获取收藏夹名字
 print(collection.name)
 # 教学精品。
@@ -358,11 +358,14 @@ savecookies 默认为 True
 - 增加答案发布时间和更新时间的获取
 
 ## 联系我
-Github: [@7sDream][github-url]
-知乎： [@7sDream][zhihu-url]
-新浪微博：[@Dilover][weibo-url]
-邮箱: [给我发邮件][mail-to-me]
 
+Github: [@7sDream][github-url]
+
+知乎： [@7sDream][zhihu-url]
+
+新浪微博：[@Dilover][weibo-url]
+
+邮箱: [给我发邮件][mail-to-me]
 
 [zhihu-python-url]: https://github.com/egrcc/zhihu-python
 [req-url]: https://pypi.python.org/pypi/requests/2.5.1
