@@ -17,7 +17,7 @@ pip install requests
 pip install beautifulsoup4
 ```
 
-** 以下代码在 Windows 8.1 + Python3.4 + Beautifulsoup4 + requests 环境下测试通过，其他环境未测试。**
+**以下代码在 Windows 8.1 + Python3.4 + Beautifulsoup4 + requests 环境下测试通过，其他环境未测试。**
 
 ## 使用说明
 
