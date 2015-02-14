@@ -12,12 +12,12 @@
 
 **依赖 [requests][req-url] 、[BeautifulSoup4][bs4-url] 使用前请先安装**
 
-```
+```bash
 pip install requests
 pip install beautifulsoup4
 ```
 
-**以下代码在 Windows 8.1 + Python3.4 + Beautifulsoup4 + requests 环境下测试通过，其他环境未测试**
+** 以下代码在 Windows 8.1 + Python3.4 + Beautifulsoup4 + requests 环境下测试通过，其他环境未测试。**
 
 ## 使用说明
 
@@ -26,7 +26,7 @@ pip install beautifulsoup4
 
 首次使用之前请先运行以下代码生成cookies文件：
 
-```
+```python
 import zhihu
 
 zhihu.create_cookies()
@@ -34,7 +34,7 @@ zhihu.create_cookies()
 
 运行结果
 
-```
+```python
 In [1]: import zhihu
 no cookies file, this may make something wrong.
 if you will run create_cookies or login next, please ignore me.
@@ -56,7 +56,7 @@ cookies file created!
 
 #### 备份某问题所有答案：
 
-```
+```python
 import zhihu
 
 question = zhihu.Question('http://www.zhihu.com/question/28092572')
@@ -70,7 +70,7 @@ save函数默认目录为当前目录下以问题标题开头的目录，默认�
 
 #### 备份某用户所有答案：
 
-```
+```Python
 import zhihu
 
 author = zhihu.Author('http://www.zhihu.com/people/7sdream')
@@ -83,7 +83,7 @@ for answer in author.answers:
 
 #### 备份某收藏夹所有答案：
 
-```
+```Python
 import zhihu
 
 collection = zhihu.Collection('http://www.zhihu.com/collection/37770691')
@@ -104,7 +104,7 @@ zhihu-python 主要文件为 `zhihu.py`，配置文件为 `cookies.json` , 将�
 
 Question 代表一个问题，处理知乎问题相关操作。创建一个 Question 对象需传入该问题的 url ，如：
 
-```
+```python
 from zhihu import Question
 
 url = 'http://www.zhihu.com/question/24825703'
@@ -113,7 +113,7 @@ question = Question(url)
 
 取得问题对象后可以获取一些信息
 
-```
+```python
 # 获取该问题的详细描述
 print(question.title)
 # 亲密关系之间要说「谢谢」吗？
@@ -161,7 +161,7 @@ url 形如：http://www.zhihu.com/question/24825703/answer/30975949
 
 此链接可从答案最后【编辑于 xxxx-xx-xx】处，右键-复制链接获得。
 
-```
+```python
 from zhihu import Answer
 
 url = 'http://www.zhihu.com/question/24825703'
@@ -170,7 +170,7 @@ answer = Answer(url)
 
 取得答案对象后可以获取一些信息
 
-```
+```python
 from zhihu import Answer
 
 url = 'http://www.zhihu.com/question/24825703/answer/30975949'
@@ -212,7 +212,7 @@ print(answer.author.name)
 
 Author 代表一个用户，处理用户相关操作。创建一个 Author 对象需传入该用户的 url ，如：
 
-```
+```python
 from zhihu import Author
 
 url = 'http://www.zhihu.com/people/7sdream'
@@ -221,7 +221,7 @@ author = Author(url)
 
 得到 Author 对象后，可以获取该用户的一些信息：
 
-```
+```python
 # 获取用户名称
 print(author.name)
 # 7sDream
