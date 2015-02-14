@@ -281,7 +281,7 @@ class Question:
 
     @property
     def answers(self):
-        self.__make_soup()
+        self.make_soup()
         for i in range(0, (self.answers_num - 1) // 50 + 1):
             if i == 0:
                 authors = self.soup.find_all(
@@ -334,12 +334,12 @@ class Question:
             return a
 
     def top_i_answer(self, i):
-        for j, a in enumerate(self.answers()):
+        for j, a in enumerate(self.answers):
             if j == i - 1:
                 return a
 
     def top_i_answers(self, i):
-        for j, a in enumerate(self.answers()):
+        for j, a in enumerate(self.answers):
             if j <= i - 1:
                 yield a
 
