@@ -45,7 +45,7 @@ def _check_soup(attr):
             # noinspection PyTypeChecker
             value = getattr(self, attr) if hasattr(self, attr) else None
             if value is None:
-                self.__make_soup()
+                self.make_soup()
                 value = func(self)
                 setattr(self, attr, value)
                 return value
@@ -111,7 +111,6 @@ def login(email: str='', password: str='', captcha: str='',
     j = r.json()
     c = int(j['r'])
     m = j['msg']
-    print(m.__class__)
     if c == 0 and savecookies is True:
         with open(_Cookies_File_Name, 'w') as f:
             json.dump(_session.cookies.get_dict(), f)
@@ -225,7 +224,7 @@ class Question:
             self._answers_num = answers_num
             self._followers_num = followers_num
 
-    def __make_soup(self) -> None:
+    def make_soup(self) -> None:
         if self.soup is None:
             r = _session.get(self.url)
             self.soup = BeautifulSoup(r.content)
@@ -643,7 +642,7 @@ class Collection():
         return int(self.soup.find('a', href=href + 'followers').text)
 
     @property
-    def qusetions(self):
+    def questions(self):
         self.make_soup()
         # noinspection PyTypeChecker
         for qusetion in self.__page_get_questions(self.soup):
@@ -722,4 +721,3 @@ class Collection():
 
 
 _init()
-login()

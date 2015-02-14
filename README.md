@@ -284,6 +284,43 @@ for collection in author.collections:
 # Read it later
 ```
 
+### Collection 收藏夹类
+
+Collection 代表一个收藏夹，处理收藏夹相关操作。创建一个 Collection 对象需传入该收藏夹的 url ，如：
+
+```
+from zhihu import Collection
+
+url = 'http://www.zhihu.com/collection/37770691'
+collection = Collection(url)
+```
+
+得到 Collection 对象后，可以获取该收藏夹的一些信息：
+
+```
+# 获取收藏夹名字
+print(collection.name)
+# 教学精品。
+
+# 获取收藏夹关注人数
+print(collection.followers_num)
+# 教学精品。
+
+# 获取收藏夹创建者
+print(collection.owner)
+# <zhihu.Author object at 0x03EFDB70>
+
+# 获取收藏夹内所有答案
+print(collection.answers)
+# <generator object answers at 0x03F00620>
+
+# 获取收藏夹内所有问题
+print(collection.qusetions)
+# <generator object qusetions at 0x03F00620>
+
+# Author 对象 和 qusetions generator 用法见前文
+```
+
 ### 其他常用方法
 
 #### create_cookies
