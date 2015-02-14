@@ -333,12 +333,12 @@ print(collection.questions)
 
 #### login
 
-手动登陆方法，用于其他项目中方便手动无需cookies登陆
-参数为：
-email
-password
-captcha
-savecookies 默认为 True
+手动登陆方法，用于其他项目中方便手动无需cookies登陆，参数为：
+
+ - email
+ - password
+ - captcha
+ - savecookies 默认为 True
 
 #### remove_invalid_char
 
@@ -351,11 +351,11 @@ savecookies 默认为 True
 
 ## TODO List
 
-- 写文档 T^T
-- 增加用户最近X个答案，X个问题的获取函数
-- 增加导出为markdown功能
-- 增加专栏类和文章类
-- 增加答案发布时间和更新时间的获取
+ - 写文档 T^T
+ - 增加用户最近X个答案，X个问题的获取函数
+ - 增加导出为markdown功能
+ - 增加专栏类和文章类
+ - 增加答案发布时间和更新时间的获取
 
 ## 联系我
 
