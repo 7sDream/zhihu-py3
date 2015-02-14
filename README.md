@@ -164,18 +164,13 @@ url 形如：http://www.zhihu.com/question/24825703/answer/30975949
 ```python
 from zhihu import Answer
 
-url = 'http://www.zhihu.com/question/24825703'
+url = 'http://www.zhihu.com/question/24825703/answer/30975949'
 answer = Answer(url)
 ```
 
 取得答案对象后可以获取一些信息
 
 ```python
-from zhihu import Answer
-
-url = 'http://www.zhihu.com/question/24825703/answer/30975949'
-answer = Answer(url)
-
 # 获取该答案所在问题
 print(answer.question)
 # <zhihu.Question object at 0x02E7E4F0>
@@ -208,6 +203,7 @@ print(answer.question.title)
 print(answer.author.name)
 # 甜阁下
 ```
+
 #### Author 用户类
 
 Author 代表一个用户，处理用户相关操作。创建一个 Author 对象需传入该用户的 url ，如：
