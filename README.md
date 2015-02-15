@@ -47,7 +47,7 @@ captcha: <captcha>
 cookies file created!
 ```
 
-运行成功后会在目录下生成cookies.json文件，请保持此文件和zhihu.py在用一目录下。
+运行成功后会在目录下生成cookies.json文件，请保持此文件和zhihu.py在同一目录下。
 
 以下示例皆以正确生成了cookies文件为前提。
 
@@ -155,7 +155,7 @@ for answer in question.answers:
 
 #### Answer 答案类
 
-Question 代表一个问题，处理知乎问题相关操作。创建一个 Question 对象需传入该问题的 url
+Answer 代表一个问题，处理知乎答案相关操作。创建一个 Answer 对象需传入该答案的 url
 
 url 形如：http://www.zhihu.com/question/24825703/answer/30975949
 
@@ -300,7 +300,7 @@ print(collection.name)
 
 # 获取收藏夹关注人数
 print(collection.followers_num)
-# 教学精品。
+# 0
 
 # 获取收藏夹创建者
 print(collection.owner)
