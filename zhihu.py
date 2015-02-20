@@ -201,7 +201,7 @@ def _text2int(text):
 
 
 class Question:
-    """Qusetion class, init with a url, another param is optianal"""
+    """Question class, init with a url, another param is optional"""
     def __init__(self, url: str, title: str=None, followers_num: int=None,
                  answers_num: int=None):
         """
@@ -284,13 +284,17 @@ class Question:
         self.make_soup()
         for i in range(0, (self.answers_num - 1) // 50 + 1):
             if i == 0:
+                # 修正各种建议修改的回答……
+                error_answers = self.soup.find_all('div', id='answer-status')
+                for each in error_answers:
+                    each['class'] = ' zm-editable-content clearfix'
+                # 正式处理
                 authors = self.soup.find_all(
                     'h3', class_='zm-item-answer-author-wrap')
                 urls = self.soup.find_all('a', class_='answer-date-link')
                 upvotes = self.soup.find_all('span', class_='count')
                 contents = self.soup.find_all(
                     'div', class_=' zm-editable-content clearfix')
-
                 for author, url, upvote, content in \
                         zip(authors, urls, upvotes, contents):
                     author_obj = _parser_author_from_tag(author)
@@ -684,9 +688,9 @@ class Collection():
         else:
             for question_tag in question_tags:
                 if question_tag.h2 is not None:
-                    qusetion_title = question_tag.h2.a.text
+                    question_title = question_tag.h2.a.text
                     question_url = _Zhihu_URL + question_tag.h2.a['href']
-                    yield Question(question_url, qusetion_title)
+                    yield Question(question_url, question_title)
 
     @staticmethod
     def __page_get_answers(soup: BeautifulSoup):
@@ -697,16 +701,22 @@ class Collection():
         else:
             question = None
             for tag in answer_tags:
+
+                # 判断是否是'建议修改的回答'等情况
+                url_tag = tag.find('a', class_='answer-date-link')
+                if url_tag is None:
+                    reason = tag.find('div', id='answer-status').p.text
+                    print("pass a answer, reason %s ." % reason)
+                    continue
+
                 author_name = '匿名用户'
                 author_motto = ''
                 author_url = None
                 if tag.h2 is not None:
-                    qusetion_title = tag.h2.a.text
+                    question_title = tag.h2.a.text
                     question_url = _Zhihu_URL + tag.h2.a['href']
-                    question = Question(question_url, qusetion_title)
-
-                answer_url = _Zhihu_URL + tag.find(
-                    'a', class_='answer-date-link')['href']
+                    question = Question(question_url, question_title)
+                answer_url = _Zhihu_URL + url_tag['href']
                 h3 = tag.find('h3')
                 if h3.text != '匿名用户':
                     author_url = _Zhihu_URL + h3.a['href']
