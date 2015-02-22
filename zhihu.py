@@ -82,25 +82,24 @@ def _init() -> None:
         raise Exception('call init func two times')
 
 
-def get_captcha_url() -> str:
-    """get captcha image url
+def get_captcha_url():
+    """获取验证码网址
 
-    :return: captcha url
+    :return: 验证码网址
     :rtype: str
     """
     return _Captcha_URL_Prefix + str(int(time.time() * 1000))
 
 
-def login(email: str='', password: str='', captcha: str='',
-          savecookies: bool=True) -> tuple:
-    """login zhihu.com
+def login(email='', password='', captcha='',
+          savecookies=True):
+    """不使用cookies.json，手动登陆知乎
 
-    :param email: your email
-    :param password: your password
-    :param captcha: captcha string
-    :param savecookies: if you want save cookies file
-    :return: a tuple with 2 elements , first show result(0 for success)
-        second show the error message if not success
+    :param str email: 邮箱
+    :param str password: 密码
+    :param str captcha: 验证码
+    :param bool savecookies: 是否要储存cookies文件
+    :return: 一个二元素元祖 , 第一个元素代表是否成功（0表示成功），如果未成功则第二个元素表示失败原因
     :rtype: (int, dict)
     """
     global _session
@@ -117,8 +116,8 @@ def login(email: str='', password: str='', captcha: str='',
     return c, m
 
 
-def create_cookies() -> None:
-    """create cookies file
+def create_cookies():
+    """创建cookies文件, 请跟随提示操作
 
     :return: None
     :rtype: None
@@ -141,12 +140,11 @@ def create_cookies() -> None:
         print('Please delete [' + _Cookies_File_Name + '] first.')
 
 
-def remove_invalid_char(text) -> str:
-    """remove invalid char from given string, usually use while you want save
-files.
+def remove_invalid_char(text):
+    """去除字符串中的无效字符，一般用于保存文件时保证文件名的有效性
 
-    :param text: the string you want process
-    :return: the string that deleted invalid char
+    :param str text: 待处理的字符串
+    :return: 处理后的字符串
     :rtype: str
     """
     invalid_char_list = ['/', '\\', ':', '*', '?', '"', '<', '>', '|', '\n']
@@ -201,15 +199,15 @@ def _text2int(text):
 
 
 class Question:
-    """Question class, init with a url, another param is optional"""
-    def __init__(self, url: str, title: str=None, followers_num: int=None,
-                 answers_num: int=None):
+    """问题类，用一个问题的网址来构造对象,其他参数皆为可选"""
+    def __init__(self, url, title=None, followers_num=None, answers_num=None):
         """
-        :param url: question url, like http://www.zhihu.com/question/27936038
-        :param title: optional, question title
-        :param followers_num: optional, question followers number
-        :param answers_num: optional, question answers number
-        :return: Question object
+
+        :param str url: 问题地址，形如： http://www.zhihu.com/question/27936038
+        :param str title: 可选, 问题标题
+        :param int followers_num: 可选，问题关注人数
+        :param int answers_num: 可选，问题答案数
+        :return: Question对象
         :rtype: Question
         """
         global _session
@@ -224,25 +222,31 @@ class Question:
             self._answers_num = answers_num
             self._followers_num = followers_num
 
-    def make_soup(self) -> None:
+    def make_soup(self):
+        """**请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用**
+        当然你非要调用我也没办法……
+
+        :return: None
+        :rtype: None
+        """
         if self.soup is None:
             r = _session.get(self.url)
             self.soup = BeautifulSoup(r.content)
 
     @property
     @_check_soup('_html')
-    def html(self) -> str:
-        """get page html
+    def html(self):
+        """获取页面HTML源码
 
-        :return: the html string
+        :return: html源码
         :rtype: str
         """
         return self.soup.prettify()
 
     @property
     @_check_soup('_title')
-    def title(self) -> str:
-        """Get title of the question
+    def title(self):
+        """获取问题标题
 
         :return: title of question
         :rtype: str
@@ -252,28 +256,45 @@ class Question:
 
     @property
     @_check_soup('_details')
-    def details(self) -> str:
-        """Get detailed description of the question
+    def details(self):
+        """获取问题详细描述。
+        **目前实现方法只是直接获取文本，效果不满意……等更新**
 
-        :return: question detail
+        :return: 问题详细描述文本
         :rtype: str
         """
         return self.soup.find("div", id="zh-question-detail").div.text
 
     @property
     @_check_soup('_answers_num')
-    def answers_num(self) -> int:
-        return int(
+    def answers_num(self):
+        """获取问题答案数量
+
+        :return: 答案数量
+        :rtype: int
+        """
+        return _text2int(
             self.soup.find('h3', id='zh-question-answer-num')['data-num'])
 
     @property
     @_check_soup('_followers_num')
-    def followers_num(self) -> int:
-        return int(self.soup.find('div', class_='zg-gray-normal').strong.text)
+    def followers_num(self):
+        """获取问题关注人数
+
+        :return: 问题关注人数
+        :rtype: int
+        """
+        return _text2int(self.soup.find(
+            'div', class_='zg-gray-normal').strong.text)
 
     @property
     @_check_soup('_topics')
-    def topics(self) -> list:
+    def topics(self):
+        """获取问题所属话题
+
+        :return: 问题所属话题列表
+        :rtype: list(str)
+        """
         topics_list = []
         for topic in self.soup.find_all('a', class_='zm-item-tag'):
             topics_list.append(topic.text.replace('\n', ''))
@@ -281,6 +302,11 @@ class Question:
 
     @property
     def answers(self):
+        """获取问题的所有答案，返回可迭代生成器
+
+        :return: 每次迭代返回一个Answer对象
+        :rtype: Answer.Iterable
+        """
         self.make_soup()
         for i in range(0, (self.answers_num - 1) // 50 + 1):
             if i == 0:
@@ -320,6 +346,10 @@ class Question:
                 answer_list = r.json()['msg']
                 for answer_html in answer_list:
                     soup = BeautifulSoup(answer_html)
+                    # 修正各种建议修改的回答……
+                    error_answers = soup.find_all('div', id='answer-status')
+                    for each in error_answers:
+                        each['class'] = ' zm-editable-content clearfix'
                     answer_url = \
                         self.url + 'answer/' + soup.div['data-atoken']
                     author = soup.find(
@@ -334,15 +364,32 @@ class Question:
 
     @property
     def top_answer(self):
+        """获取排名第一的答案
+
+        :return: 排名第一的答案对象
+        :rtype: Answer
+        """
         for a in self.answers:
             return a
 
     def top_i_answer(self, i):
+        """获取排名某一位的答案
+
+        :param int i: 要获取的答案的排名
+        :return: 答案对象
+        :rtype: Answer
+        """
         for j, a in enumerate(self.answers):
             if j == i - 1:
                 return a
 
     def top_i_answers(self, i):
+        """获取排名在前几位的答案
+
+        :param int i: 获取高位排名答案数量
+        :return: 答案对象生成器
+        :rtype: Answer.iterable
+        """
         for j, a in enumerate(self.answers):
             if j <= i - 1:
                 yield a
