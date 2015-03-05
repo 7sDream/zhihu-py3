@@ -763,8 +763,8 @@ class Answer():
     def save(self, path=None, filename=None):
         """保存答案为Html文档
 
-        :param path: 要保存的文件所在的绝对目录或相对目录，不填或"."为当前目录
-        :param filename: 要保存的文件名，不填则默认为 所在问题标题 - 答主名.html
+        :param str path: 要保存的文件所在的绝对目录或相对目录，不填或"."为当前目录
+        :param str filename: 要保存的文件名，不填则默认为 所在问题标题 - 答主名.html
             如果文件已存在，自动在后面加上数字区分。
             自定义文件名时请不要输入后缀 .html
         :return: None

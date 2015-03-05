@@ -1,0 +1,1108 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>zhihu &mdash; zhihu-py3 1.0 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="zhihu-py3 1.0 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> zhihu-py3</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="simple">
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">zhihu-py3</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>zhihu</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for zhihu</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;7sDream&#39;</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+
+<span class="c"># Setting</span>
+
+<span class="n">_Zhihu_URL</span> <span class="o">=</span> <span class="s">&#39;http://www.zhihu.com&#39;</span>
+<span class="n">_Login_URL</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="s">&#39;/login&#39;</span>
+<span class="n">_Captcha_URL_Prefix</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="s">&#39;/captcha.gif?r=&#39;</span>
+<span class="n">_Cookies_File_Name</span> <span class="o">=</span> <span class="s">&#39;cookies.json&#39;</span>
+<span class="n">_Get_More_Answer_URL</span> <span class="o">=</span> <span class="s">&#39;http://www.zhihu.com/node/QuestionAnswerListV2&#39;</span>
+
+<span class="c"># global var</span>
+<span class="n">_session</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">_header</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;X-Requested-With&#39;</span><span class="p">:</span> <span class="s">&#39;XMLHttpRequest&#39;</span><span class="p">,</span>
+           <span class="s">&#39;Referer&#39;</span><span class="p">:</span> <span class="s">&#39;http://www.zhihu.com&#39;</span><span class="p">,</span>
+           <span class="s">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="s">&#39;Mozilla/5.0 (Windows NT 6.3; WOW64; &#39;</span>
+                         <span class="s">&#39;Trident/7.0; Touch; LCJB; rv:11.0)&#39;</span>
+                         <span class="s">&#39; like Gecko&#39;</span><span class="p">,</span>
+           <span class="s">&#39;Host&#39;</span><span class="p">:</span> <span class="s">&#39;www.zhihu.com&#39;</span><span class="p">}</span>
+
+<span class="n">_re_question_url</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;http://www\.zhihu\.com/question/\d+/?&#39;</span><span class="p">)</span>
+<span class="n">_re_ans_url</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="s">r&#39;http://www\.zhihu\.com/question/\d+/answer/\d+/?&#39;</span><span class="p">)</span>
+<span class="n">_re_author_url</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;http://www\.zhihu\.com/people/.*/?&#39;</span><span class="p">)</span>
+<span class="n">_re_collection_url</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;http://www\.zhihu\.com/collection/\d+/?&#39;</span><span class="p">)</span>
+<span class="n">_re_a2q</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;(.*)/a.*&#39;</span><span class="p">)</span>
+<span class="n">_re_collection_url_split</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;.*(/c.*)&#39;</span><span class="p">)</span>
+<span class="n">_re_get_number</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;[^\d]*(\d+).*&#39;</span><span class="p">)</span>
+<span class="n">_re_del_empty_line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;\n*(.*)\n*&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_check_soup</span><span class="p">(</span><span class="n">attr</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">real</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="c"># noinspection PyTypeChecker</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="k">else</span> <span class="bp">None</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">make_soup</span><span class="p">()</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">real</span>
+
+
+<span class="k">def</span> <span class="nf">_save_captcha</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">_session</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;code.gif&#39;</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_init</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">_session</span>
+    <span class="k">if</span> <span class="n">_session</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">_session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">session</span><span class="p">()</span>
+        <span class="n">_session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_header</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">_Cookies_File_Name</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_Cookies_File_Name</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">cookies_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="n">_session</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">cookies_dict</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&#39;no cookies file, this may make something wrong.&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&#39;if you will run create_cookies or login next, &#39;</span>
+                  <span class="s">&#39;please ignore me.&#39;</span><span class="p">)</span>
+            <span class="n">_session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">_Login_URL</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;call init func two times&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_captcha_url"><a class="viewcode-back" href="../zhihu.html#zhihu.get_captcha_url">[docs]</a><span class="k">def</span> <span class="nf">get_captcha_url</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;获取验证码网址</span>
+
+<span class="sd">    :return: 验证码网址</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_Captcha_URL_Prefix</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="login"><a class="viewcode-back" href="../zhihu.html#zhihu.login">[docs]</a><span class="k">def</span> <span class="nf">login</span><span class="p">(</span><span class="n">email</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">captcha</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">savecookies</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;不使用cookies.json，手动登陆知乎</span>
+
+<span class="sd">    :param str email: 邮箱</span>
+<span class="sd">    :param str password: 密码</span>
+<span class="sd">    :param str captcha: 验证码</span>
+<span class="sd">    :param bool savecookies: 是否要储存cookies文件</span>
+<span class="sd">    :return: 一个二元素元祖 , 第一个元素代表是否成功（0表示成功），</span>
+<span class="sd">        如果未成功则第二个元素表示失败原因</span>
+<span class="sd">    :rtype: (int, dict)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_session</span>
+    <span class="k">global</span> <span class="n">_header</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;email&#39;</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span> <span class="s">&#39;password&#39;</span><span class="p">:</span> <span class="n">password</span><span class="p">,</span>
+            <span class="s">&#39;rememberme&#39;</span><span class="p">:</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;captcha&#39;</span><span class="p">:</span> <span class="n">captcha</span><span class="p">}</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">_Login_URL</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="s">&#39;r&#39;</span><span class="p">])</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s">&#39;msg&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">savecookies</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_Cookies_File_Name</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">_session</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get_dict</span><span class="p">(),</span> <span class="n">f</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">c</span><span class="p">,</span> <span class="n">m</span>
+
+</div>
+<div class="viewcode-block" id="create_cookies"><a class="viewcode-back" href="../zhihu.html#zhihu.create_cookies">[docs]</a><span class="k">def</span> <span class="nf">create_cookies</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;创建cookies文件, 请跟随提示操作</span>
+
+<span class="sd">    :return: None</span>
+<span class="sd">    :rtype: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">_Cookies_File_Name</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+        <span class="n">email</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">&#39;email: &#39;</span><span class="p">)</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">&#39;password: &#39;</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">get_captcha_url</span><span class="p">()</span>
+        <span class="n">_save_captcha</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;please check code.gif for captcha&#39;</span><span class="p">)</span>
+        <span class="n">captcha</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">&#39;captcha: &#39;</span><span class="p">)</span>
+        <span class="n">code</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">login</span><span class="p">(</span><span class="n">email</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">captcha</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&#39;cookies file created!&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;code.gif&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Please delete [&#39;</span> <span class="o">+</span> <span class="n">_Cookies_File_Name</span> <span class="o">+</span> <span class="s">&#39;] first.&#39;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="remove_invalid_char"><a class="viewcode-back" href="../zhihu.html#zhihu.remove_invalid_char">[docs]</a><span class="k">def</span> <span class="nf">remove_invalid_char</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;去除字符串中的无效字符，一般用于保存文件时保证文件名的有效性</span>
+
+<span class="sd">    :param str text: 待处理的字符串</span>
+<span class="sd">    :return: 处理后的字符串</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">invalid_char_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;:&#39;</span><span class="p">,</span> <span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="s">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;&#39;</span><span class="p">,</span> <span class="s">&#39;&gt;&#39;</span><span class="p">,</span> <span class="s">&#39;|&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">]</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">char</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">invalid_char_list</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="n">char</span>
+    <span class="k">return</span> <span class="n">res</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_parser_author_from_tag</span><span class="p">(</span><span class="n">author</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">author</span><span class="o">.</span><span class="n">text</span> <span class="o">==</span> <span class="s">&#39;匿名用户&#39;</span><span class="p">:</span>
+        <span class="n">author_name</span> <span class="o">=</span> <span class="s">&#39;匿名用户&#39;</span>
+        <span class="c"># noinspection PyTypeChecker</span>
+        <span class="n">author_obj</span> <span class="o">=</span> <span class="n">Author</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">author_name</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">author_name</span> <span class="o">=</span> <span class="n">author</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+        <span class="n">author_motto</span> <span class="o">=</span> <span class="n">author</span><span class="o">.</span><span class="n">strong</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">]</span> \
+            <span class="k">if</span> <span class="n">author</span><span class="o">.</span><span class="n">strong</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&#39;&#39;</span>
+        <span class="n">author_url</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="n">author</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s">&#39;href&#39;</span><span class="p">]</span>
+        <span class="n">author_obj</span> <span class="o">=</span> <span class="n">Author</span><span class="p">(</span><span class="n">author_url</span><span class="p">,</span> <span class="n">author_name</span><span class="p">,</span> <span class="n">author_motto</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">author_obj</span>
+
+
+<span class="k">def</span> <span class="nf">_answer_content_process</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+    <span class="k">del</span> <span class="n">content</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span>
+        <span class="s">&#39;&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;/body&gt;&lt;/html&gt;&#39;</span><span class="p">)</span>
+    <span class="n">soup</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="n">no_script_list</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&quot;noscript&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">no_script</span> <span class="ow">in</span> <span class="n">no_script_list</span><span class="p">:</span>
+        <span class="n">no_script</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span>
+    <span class="n">img_list</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span>
+        <span class="s">&quot;img&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&quot;origin_image zh-lightbox-thumb lazy&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">img_list</span><span class="p">:</span>
+        <span class="n">new_img</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">new_tag</span><span class="p">(</span><span class="s">&#39;img&#39;</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">img</span><span class="p">[</span><span class="s">&#39;data-original&#39;</span><span class="p">])</span>
+        <span class="n">img</span><span class="o">.</span><span class="n">replace_with</span><span class="p">(</span><span class="n">new_img</span><span class="p">)</span>
+        <span class="n">new_img</span><span class="o">.</span><span class="n">insert_after</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">new_tag</span><span class="p">(</span><span class="s">&#39;br&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">previous_sibling</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">img</span><span class="o">.</span><span class="n">previous_sibling</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s">&#39;br&#39;</span><span class="p">:</span>
+            <span class="n">new_img</span><span class="o">.</span><span class="n">insert_before</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">new_tag</span><span class="p">(</span><span class="s">&#39;br&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">soup</span><span class="o">.</span><span class="n">prettify</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_text2int</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">text</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;K&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">text</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;W&#39;</span><span class="p">:</span>  <span class="c"># 知乎有没有赞同数用万做单位的回答来着？？先写着吧~</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mi">10000</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Question"><a class="viewcode-back" href="../zhihu.html#zhihu.Question">[docs]</a><span class="k">class</span> <span class="nc">Question</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;问题类，用一个问题的网址来构造对象,其他参数皆为可选&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">followers_num</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">answers_num</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param str url: 问题地址，形如： http://www.zhihu.com/question/27936038</span>
+<span class="sd">        :param str title: 可选, 问题标题</span>
+<span class="sd">        :param int followers_num: 可选，问题关注人数</span>
+<span class="sd">        :param int answers_num: 可选，问题答案数</span>
+<span class="sd">        :return: Question对象</span>
+<span class="sd">        :rtype: Question</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">_session</span>
+        <span class="k">if</span> <span class="n">_re_question_url</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;URL invalid&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+                <span class="n">url</span> <span class="o">+=</span> <span class="s">&#39;/&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">soup</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="n">title</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_answers_num</span> <span class="o">=</span> <span class="n">answers_num</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_followers_num</span> <span class="o">=</span> <span class="n">followers_num</span>
+
+<div class="viewcode-block" id="Question.make_soup"><a class="viewcode-back" href="../zhihu.html#zhihu.Question.make_soup">[docs]</a>    <span class="k">def</span> <span class="nf">make_soup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;**请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用**</span>
+<span class="sd">        当然你非要调用我也没办法……</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_html&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Question.html"><a class="viewcode-back" href="../zhihu.html#zhihu.Question.html">[docs]</a>    <span class="k">def</span> <span class="nf">html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取页面HTML源码</span>
+
+<span class="sd">        :return: html源码</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">prettify</span><span class="p">()</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_title&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Question.title"><a class="viewcode-back" href="../zhihu.html#zhihu.Question.title">[docs]</a>    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取问题标题</span>
+
+<span class="sd">        :return: title of question</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;h2&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-item-title&#39;</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_details&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Question.details"><a class="viewcode-back" href="../zhihu.html#zhihu.Question.details">[docs]</a>    <span class="k">def</span> <span class="nf">details</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取问题详细描述。</span>
+<span class="sd">        **目前实现方法只是直接获取文本，效果不满意……等更新**</span>
+
+<span class="sd">        :return: 问题详细描述文本</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;div&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s">&quot;zh-question-detail&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="o">.</span><span class="n">text</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_answers_num&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Question.answers_num"><a class="viewcode-back" href="../zhihu.html#zhihu.Question.answers_num">[docs]</a>    <span class="k">def</span> <span class="nf">answers_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取问题答案数量</span>
+
+<span class="sd">        :return: 答案数量</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_text2int</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;h3&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s">&#39;zh-question-answer-num&#39;</span><span class="p">)[</span><span class="s">&#39;data-num&#39;</span><span class="p">])</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_followers_num&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Question.followers_num"><a class="viewcode-back" href="../zhihu.html#zhihu.Question.followers_num">[docs]</a>    <span class="k">def</span> <span class="nf">followers_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取问题关注人数</span>
+
+<span class="sd">        :return: 问题关注人数</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_text2int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+            <span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zg-gray-normal&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strong</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_topics&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Question.topics"><a class="viewcode-back" href="../zhihu.html#zhihu.Question.topics">[docs]</a>    <span class="k">def</span> <span class="nf">topics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取问题所属话题</span>
+
+<span class="sd">        :return: 问题所属话题列表</span>
+<span class="sd">        :rtype: list(str)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">topics_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-item-tag&#39;</span><span class="p">):</span>
+            <span class="n">topics_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topic</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">topics_list</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Question.answers"><a class="viewcode-back" href="../zhihu.html#zhihu.Question.answers">[docs]</a>    <span class="k">def</span> <span class="nf">answers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取问题的所有答案，返回可迭代生成器</span>
+
+<span class="sd">        :return: 每次迭代返回一个Answer对象， 获取到的Answer对象自带所在问题、答主、赞同数量、</span>
+<span class="sd">            回答内容四个属性。获取其他属性需要解析另外的网页。</span>
+<span class="sd">        :rtype: Answer.Iterable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_soup</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">answers_num</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">50</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># 修正各种建议修改的回答……</span>
+                <span class="n">error_answers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s">&#39;answer-status&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">each</span> <span class="ow">in</span> <span class="n">error_answers</span><span class="p">:</span>
+                    <span class="n">each</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; zm-editable-content clearfix&#39;</span>
+                <span class="c"># 正式处理</span>
+                <span class="n">authors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span>
+                    <span class="s">&#39;h3&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-item-answer-author-wrap&#39;</span><span class="p">)</span>
+                <span class="n">urls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;answer-date-link&#39;</span><span class="p">)</span>
+                <span class="n">upvotes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;span&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;count&#39;</span><span class="p">)</span>
+                <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span>
+                    <span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39; zm-editable-content clearfix&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">author</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">upvote</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> \
+                        <span class="nb">zip</span><span class="p">(</span><span class="n">authors</span><span class="p">,</span> <span class="n">urls</span><span class="p">,</span> <span class="n">upvotes</span><span class="p">,</span> <span class="n">contents</span><span class="p">):</span>
+                    <span class="n">author_obj</span> <span class="o">=</span> <span class="n">_parser_author_from_tag</span><span class="p">(</span><span class="n">author</span><span class="p">)</span>
+                    <span class="n">url</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="n">url</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">]</span>
+                    <span class="n">upvote</span> <span class="o">=</span> <span class="n">_text2int</span><span class="p">(</span><span class="n">upvote</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="n">_answer_content_process</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">Answer</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">author_obj</span><span class="p">,</span> <span class="n">upvote</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">global</span> <span class="n">_session</span>
+                <span class="k">global</span> <span class="n">_header</span>
+                <span class="n">_xsrf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                    <span class="s">&#39;input&#39;</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;_xsrf&#39;</span><span class="p">})[</span><span class="s">&#39;value&#39;</span><span class="p">]</span>
+                <span class="n">new_header</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_header</span><span class="p">)</span>
+                <span class="n">new_header</span><span class="p">[</span><span class="s">&#39;Referer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;url_token&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_qid</span><span class="p">(),</span>
+                          <span class="s">&#39;pagesize&#39;</span><span class="p">:</span> <span class="s">&#39;50&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;offset&#39;</span><span class="p">:</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">50</span><span class="p">}</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;_xsrf&#39;</span><span class="p">:</span> <span class="n">_xsrf</span><span class="p">,</span>
+                        <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="s">&#39;next&#39;</span><span class="p">,</span>
+                        <span class="s">&#39;params&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">params</span><span class="p">)}</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">_session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">_Get_More_Answer_URL</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                                  <span class="n">headers</span><span class="o">=</span><span class="n">_header</span><span class="p">)</span>
+                <span class="n">answer_list</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">&#39;msg&#39;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">answer_html</span> <span class="ow">in</span> <span class="n">answer_list</span><span class="p">:</span>
+                    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">answer_html</span><span class="p">)</span>
+                    <span class="c"># 修正各种建议修改的回答……</span>
+                    <span class="n">error_answers</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s">&#39;answer-status&#39;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">each</span> <span class="ow">in</span> <span class="n">error_answers</span><span class="p">:</span>
+                        <span class="n">each</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; zm-editable-content clearfix&#39;</span>
+                    <span class="n">answer_url</span> <span class="o">=</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;answer/&#39;</span> <span class="o">+</span> <span class="n">soup</span><span class="o">.</span><span class="n">div</span><span class="p">[</span><span class="s">&#39;data-atoken&#39;</span><span class="p">]</span>
+                    <span class="n">author</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                        <span class="s">&#39;h3&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-item-answer-author-wrap&#39;</span><span class="p">)</span>
+                    <span class="n">upvote</span> <span class="o">=</span> <span class="n">_text2int</span><span class="p">(</span>
+                        <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;span&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;count&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                        <span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39; zm-editable-content clearfix&#39;</span><span class="p">)</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="n">_answer_content_process</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+                    <span class="n">author_obj</span> <span class="o">=</span> <span class="n">_parser_author_from_tag</span><span class="p">(</span><span class="n">author</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">Answer</span><span class="p">(</span><span class="n">answer_url</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">author_obj</span><span class="p">,</span> <span class="n">upvote</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Question.top_answer"><a class="viewcode-back" href="../zhihu.html#zhihu.Question.top_answer">[docs]</a>    <span class="k">def</span> <span class="nf">top_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取排名第一的答案</span>
+
+<span class="sd">        :return: 排名第一的答案对象，能直接获取的属性参见answers方法</span>
+<span class="sd">        :rtype: Answer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">a</span>
+</div>
+<div class="viewcode-block" id="Question.top_i_answer"><a class="viewcode-back" href="../zhihu.html#zhihu.Question.top_i_answer">[docs]</a>    <span class="k">def</span> <span class="nf">top_i_answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取排名某一位的答案</span>
+
+<span class="sd">        :param int i: 要获取的答案的排名</span>
+<span class="sd">        :return: 答案对象，能直接获取的属性参见answers方法</span>
+<span class="sd">        :rtype: Answer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">answers</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">a</span>
+</div>
+<div class="viewcode-block" id="Question.top_i_answers"><a class="viewcode-back" href="../zhihu.html#zhihu.Question.top_i_answers">[docs]</a>    <span class="k">def</span> <span class="nf">top_i_answers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取排名在前几位的答案</span>
+
+<span class="sd">        :param int i: 获取高位排名答案数量</span>
+<span class="sd">        :return: 答案对象生成器，这些对象能直接获取的属性参见answers方法</span>
+<span class="sd">        :rtype: Answer.iterable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">answers</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">a</span>
+</div>
+    <span class="k">def</span> <span class="nf">__get_qid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r&#39;.*/(\d+)&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="Author"><a class="viewcode-back" href="../zhihu.html#zhihu.Author">[docs]</a><span class="k">class</span> <span class="nc">Author</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;用户类，用用户主页地址作为参数来构造对象，其他参数可选&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">motto</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream</span>
+<span class="sd">        :param str name: 用户名字，可选</span>
+<span class="sd">        :param str motto: 可选</span>
+<span class="sd">        :return: Author</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_re_author_url</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;URL invalid&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+                <span class="n">url</span> <span class="o">+=</span> <span class="s">&#39;/&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">soup</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nav_list</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_motto</span> <span class="o">=</span> <span class="n">motto</span>
+
+<div class="viewcode-block" id="Author.make_soup"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.make_soup">[docs]</a>    <span class="k">def</span> <span class="nf">make_soup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;**请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用**</span>
+<span class="sd">        当然你非要调用我也没办法……</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nav_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                <span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;profile-navbar clearfix&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_name&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Author.name"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.name">[docs]</a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取用户名字</span>
+
+<span class="sd">        :return: 用户名字</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;匿名用户&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;title-section ellipsis&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">text</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_motto&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Author.motto"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.motto">[docs]</a>    <span class="k">def</span> <span class="nf">motto</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取用户自我介绍？那段话是叫啥……是自我介绍还是签名？？？算了由于历史原因</span>
+<span class="sd">        我还是把这个属性叫做motto吧……</span>
+
+<span class="sd">        :return: 用户自我介绍</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                <span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;title-section ellipsis&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s">&#39;&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">bar</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_followees_num&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Author.followees_num"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.followees_num">[docs]</a>    <span class="k">def</span> <span class="nf">followees_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取追随者数量，就是获取关注此人的人数</span>
+
+<span class="sd">        :return: 追随者数量</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="n">_text2int</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                    <span class="s">&#39;div&#39;</span><span class="p">,</span>
+                    <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-profile-side-following zg-clear&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">strong</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">number</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_followers_num&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Author.followers_num"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.followers_num">[docs]</a>    <span class="k">def</span> <span class="nf">followers_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取关注数量。</span>
+
+<span class="sd">        :return: 关注人数</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="n">_text2int</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                    <span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-profile-side-following zg-clear&#39;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strong</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">number</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_agree_num&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Author.agree_num"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.agree_num">[docs]</a>    <span class="k">def</span> <span class="nf">agree_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取收到的的赞同数量</span>
+
+<span class="sd">        :return: 收到的的赞同数量</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                <span class="s">&#39;span&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-profile-header-user-agree&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strong</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">number</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_thanks_num&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Author.thanks_num"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.thanks_num">[docs]</a>    <span class="k">def</span> <span class="nf">thanks_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取收到的感谢数量</span>
+
+<span class="sd">        :return: 收到的感谢数量</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                <span class="s">&#39;span&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-profile-header-user-thanks&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strong</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">number</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_asks_num&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Author.questions_num"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.questions_num">[docs]</a>    <span class="k">def</span> <span class="nf">questions_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取提问数量</span>
+
+<span class="sd">        :return: 提问数量</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nav_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_answers_num&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Author.answers_num"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.answers_num">[docs]</a>    <span class="k">def</span> <span class="nf">answers_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取答案数量</span>
+
+<span class="sd">        :return: 答案数量</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nav_list</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_post_num&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Author.post_num"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.post_num">[docs]</a>    <span class="k">def</span> <span class="nf">post_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取专栏文章数量</span>
+
+<span class="sd">        :return: 专栏文章数量</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nav_list</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_collections_num&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Author.collections_num"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.collections_num">[docs]</a>    <span class="k">def</span> <span class="nf">collections_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取收藏夹数量</span>
+
+<span class="sd">        :return: 收藏夹数量</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nav_list</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Author.questions"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.questions">[docs]</a>    <span class="k">def</span> <span class="nf">questions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取此人问过的所有问题对象，返回生成器</span>
+
+<span class="sd">        :return: 每次迭代返回一个问题对象，获取到的问题对象自带标题，关注人数，答案数量三个属性</span>
+<span class="sd">        :rtype: Question.Iterable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">questions_num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">page_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">questions_num</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">global</span> <span class="n">_session</span>
+            <span class="n">html</span> <span class="o">=</span> <span class="n">_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;asks?page=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">page_index</span><span class="p">))</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+            <span class="n">questions_links</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;question_link&#39;</span><span class="p">)</span>
+            <span class="n">question_datas</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span>
+                <span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-profile-section-main&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">link</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">questions_links</span><span class="p">,</span> <span class="n">question_datas</span><span class="p">):</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="n">link</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">]</span>
+                <span class="n">title</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">text</span>
+                <span class="n">answers_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">_re_get_number</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">div</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">followers_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">_re_get_number</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">div</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="n">Question</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">followers_num</span><span class="p">,</span> <span class="n">answers_num</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">q</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Author.answers"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.answers">[docs]</a>    <span class="k">def</span> <span class="nf">answers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取此人写的所有答案对象，返回生成器</span>
+
+<span class="sd">        :return: 此人的所有答案，能直接获取所在问题，答主，赞同数三个属性。</span>
+<span class="sd">            其中所在问题对象可以直接获取标题。答主对象即为此对象本身。</span>
+<span class="sd">        :rtype: Answer.iterable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">answers_num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_soup</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">page_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">answers_num</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">global</span> <span class="n">_session</span>
+            <span class="n">html</span> <span class="o">=</span> <span class="n">_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;answers?page=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">page_index</span><span class="p">))</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+            <span class="n">questions</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;question_link&#39;</span><span class="p">)</span>
+            <span class="n">upvotes</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-item-vote-count&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">upvote</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">questions</span><span class="p">,</span> <span class="n">upvotes</span><span class="p">):</span>
+                <span class="n">answer_url</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="n">q</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">]</span>
+                <span class="n">question_url</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="n">_re_a2q</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">question_title</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">text</span>
+                <span class="n">upvote</span> <span class="o">=</span> <span class="n">_text2int</span><span class="p">(</span><span class="n">upvote</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">Answer</span><span class="p">(</span><span class="n">answer_url</span><span class="p">,</span>
+                             <span class="n">Question</span><span class="p">(</span><span class="n">question_url</span><span class="p">,</span> <span class="n">question_title</span><span class="p">),</span>
+                             <span class="bp">self</span><span class="p">,</span> <span class="n">upvote</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Author.collections"><a class="viewcode-back" href="../zhihu.html#zhihu.Author.collections">[docs]</a>    <span class="k">def</span> <span class="nf">collections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取此人收藏夹对象集合，返回生成器</span>
+
+<span class="sd">        :return: 此人所有的收藏夹， 能直接获取拥有者，收藏夹名字，关注人数三个属性。</span>
+<span class="sd">            其中拥有者即为此对象本身。</span>
+<span class="sd">        :rtype: Collection.Iterable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">collections_num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">global</span> <span class="n">_session</span>
+            <span class="n">collection_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collections_num</span>
+            <span class="k">for</span> <span class="n">page_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">collection_num</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="n">html</span> <span class="o">=</span> <span class="n">_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;collections?page=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">page_index</span><span class="p">))</span><span class="o">.</span><span class="n">text</span>
+                <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+                <span class="n">collections_names</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span>
+                    <span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-profile-fav-item-title&#39;</span><span class="p">)</span>
+                <span class="n">collections_followers_nums</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span>
+                    <span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-profile-fav-bio&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">collections_names</span><span class="p">,</span> <span class="n">collections_followers_nums</span><span class="p">):</span>
+                    <span class="n">c_url</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">]</span>
+                    <span class="n">c_name</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">text</span>
+                    <span class="n">c_fn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_re_get_number</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="k">yield</span> <span class="n">Collection</span><span class="p">(</span><span class="n">c_url</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">c_name</span><span class="p">,</span> <span class="n">c_fn</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="Answer"><a class="viewcode-back" href="../zhihu.html#zhihu.Answer">[docs]</a><span class="k">class</span> <span class="nc">Answer</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;答案类，用一个答案的网址作为参数构造对象&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">question</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">upvote</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">content</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param str url: 答案网址，形如</span>
+<span class="sd">            http://www.zhihu.com/question/28297599/answer/40327808</span>
+<span class="sd">        :param Question question: 答案所在的问题对象，自己构造对象不需要此参数</span>
+<span class="sd">        :param Author author: 答案的回答者对象，同上。</span>
+<span class="sd">        :param int upvote: 此答案的赞同数量，同上。</span>
+<span class="sd">        :param str content: 此答案内容，同上。</span>
+<span class="sd">        :return: 答案对象。</span>
+<span class="sd">        :rtype: Answer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_re_ans_url</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;URL invalid&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">+=</span> <span class="s">&#39;/&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">soup</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_question</span> <span class="o">=</span> <span class="n">question</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_author</span> <span class="o">=</span> <span class="n">author</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_upvote</span> <span class="o">=</span> <span class="n">upvote</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_content</span> <span class="o">=</span> <span class="n">content</span>
+
+<div class="viewcode-block" id="Answer.make_soup"><a class="viewcode-back" href="../zhihu.html#zhihu.Answer.make_soup">[docs]</a>    <span class="k">def</span> <span class="nf">make_soup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;不要调用！！！不要调用！！！不要调用！！！</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_html&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Answer.html"><a class="viewcode-back" href="../zhihu.html#zhihu.Answer.html">[docs]</a>    <span class="k">def</span> <span class="nf">html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取网页html源码……话说我写这个属性是为了干啥来着</span>
+
+<span class="sd">        :return: 网页源码</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">prettify</span><span class="p">()</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_author&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Answer.author"><a class="viewcode-back" href="../zhihu.html#zhihu.Answer.author">[docs]</a>    <span class="k">def</span> <span class="nf">author</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取答案作者对象</span>
+
+<span class="sd">        :return: 答案作者对象</span>
+<span class="sd">        :rtype: Author</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">author</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;h3&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-item-answer-author-wrap&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_parser_author_from_tag</span><span class="p">(</span><span class="n">author</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_question&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Answer.question"><a class="viewcode-back" href="../zhihu.html#zhihu.Answer.question">[docs]</a>    <span class="k">def</span> <span class="nf">question</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取答案所在问题对象</span>
+
+<span class="sd">        :return: 答案所在问题</span>
+<span class="sd">        :rtype: Question</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">question_link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+            <span class="s">&quot;h2&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&quot;zm-item-title zm-editable-content&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">a</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="n">question_link</span><span class="p">[</span><span class="s">&quot;href&quot;</span><span class="p">]</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">question_link</span><span class="o">.</span><span class="n">text</span>
+        <span class="n">followers_num</span> <span class="o">=</span> <span class="n">_text2int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+            <span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zh-question-followers-sidebar&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">strong</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">answers_num</span> <span class="o">=</span> <span class="n">_text2int</span><span class="p">(</span><span class="n">_re_get_number</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+            <span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zh-answers-title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">h3</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Question</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">followers_num</span><span class="p">,</span> <span class="n">answers_num</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_upvote&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Answer.upvote"><a class="viewcode-back" href="../zhihu.html#zhihu.Answer.upvote">[docs]</a>    <span class="k">def</span> <span class="nf">upvote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取答案赞同数量</span>
+
+<span class="sd">        :return: 答案赞同数量</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_text2int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;span&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;count&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_content&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Answer.content"><a class="viewcode-back" href="../zhihu.html#zhihu.Answer.content">[docs]</a>    <span class="k">def</span> <span class="nf">content</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;返回答案内容，以处理过的Html代码形式</span>
+
+<span class="sd">        :return: 答案内容</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39; zm-editable-content clearfix&#39;</span><span class="p">)</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">_answer_content_process</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">content</span>
+</div>
+<div class="viewcode-block" id="Answer.save"><a class="viewcode-back" href="../zhihu.html#zhihu.Answer.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;保存答案为Html文档</span>
+
+<span class="sd">        :param str path: 要保存的文件所在的绝对目录或相对目录，不填或&quot;.&quot;为当前目录</span>
+<span class="sd">        :param str filename: 要保存的文件名，不填则默认为 所在问题标题 - 答主名.html</span>
+<span class="sd">            如果文件已存在，自动在后面加上数字区分。</span>
+<span class="sd">            自定义文件名时请不要输入后缀 .html</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">remove_invalid_char</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">question</span><span class="o">.</span><span class="n">title</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">remove_invalid_char</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">question</span><span class="o">.</span><span class="n">title</span> <span class="o">+</span> <span class="s">&#39; - &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">tempfilepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">tempfilepath</span><span class="p">[:]</span> <span class="o">+</span> <span class="s">&#39;.html&#39;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">tempfilepath</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;.html&#39;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+
+</div></div>
+<div class="viewcode-block" id="Collection"><a class="viewcode-back" href="../zhihu.html#zhihu.Collection">[docs]</a><span class="k">class</span> <span class="nc">Collection</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;收藏夹类，用收藏夹主页网址为参数来构造对象</span>
+<span class="sd">    由于一些原因，没有提供收藏夹答案数量这个属性。&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">followers_num</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param str url: 收藏夹主页网址，必须</span>
+<span class="sd">        :param Author owner: 收藏夹拥有者，可选，最好不要自己设置</span>
+<span class="sd">        :param str name: 收藏夹标题，可选，可以自己设置</span>
+<span class="sd">        :param str followers_num: 收藏夹关注人数，可选，可以自己设置</span>
+<span class="sd">        :return: 收藏夹对象</span>
+<span class="sd">        :rtype: Collection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_re_collection_url</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;URL invalid&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+                <span class="n">url</span> <span class="o">+=</span> <span class="s">&#39;/&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">soup</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_owner</span> <span class="o">=</span> <span class="n">owner</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_followers_num</span> <span class="o">=</span> <span class="n">followers_num</span>
+
+<div class="viewcode-block" id="Collection.make_soup"><a class="viewcode-back" href="../zhihu.html#zhihu.Collection.make_soup">[docs]</a>    <span class="k">def</span> <span class="nf">make_soup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;没用的东西，不要调用。</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">global</span> <span class="n">_session</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_name&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Collection.name"><a class="viewcode-back" href="../zhihu.html#zhihu.Collection.name">[docs]</a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取收藏夹名字</span>
+
+<span class="sd">        :return: 收藏夹名字</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_re_del_empty_line</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;h2&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s">&#39;zh-fav-head-title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_owner&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Collection.owner"><a class="viewcode-back" href="../zhihu.html#zhihu.Collection.owner">[docs]</a>    <span class="k">def</span> <span class="nf">owner</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取收藏夹拥有者，返回Author对象</span>
+
+<span class="sd">        :return: 收藏夹拥有者</span>
+<span class="sd">        :rtype: Author</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;h2&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-list-content-title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">a</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">text</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">]</span>
+        <span class="n">motto</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+            <span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s">&#39;zh-single-answer-author-info&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">return</span> <span class="n">Author</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">motto</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="nd">@_check_soup</span><span class="p">(</span><span class="s">&#39;_followers_num&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Collection.followers_num"><a class="viewcode-back" href="../zhihu.html#zhihu.Collection.followers_num">[docs]</a>    <span class="k">def</span> <span class="nf">followers_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取关注此收藏夹的人数</span>
+
+<span class="sd">        :return: 关注此收藏夹的人数</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">href</span> <span class="o">=</span> <span class="n">_re_collection_url_split</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">href</span><span class="o">=</span><span class="n">href</span> <span class="o">+</span> <span class="s">&#39;followers&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Collection.questions"><a class="viewcode-back" href="../zhihu.html#zhihu.Collection.questions">[docs]</a>    <span class="k">def</span> <span class="nf">questions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取收藏夹内所有问题对象</span>
+
+<span class="sd">        :return: 收藏夹内所有问题，以生成器形式返回</span>
+<span class="sd">        :rtype: Question.Iterable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_soup</span><span class="p">()</span>
+        <span class="c"># noinspection PyTypeChecker</span>
+        <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__page_get_questions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">question</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">global</span> <span class="n">_session</span>
+            <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39;?page=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__page_get_questions</span><span class="p">(</span><span class="n">soup</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">question</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span>
+                <span class="k">yield</span> <span class="n">question</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Collection.answers"><a class="viewcode-back" href="../zhihu.html#zhihu.Collection.answers">[docs]</a>    <span class="k">def</span> <span class="nf">answers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;获取收藏夹内所有答案对象</span>
+
+<span class="sd">        :return: 收藏夹内所有答案，以生成器形式返回</span>
+<span class="sd">        :rtype: Answer.Iterable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_soup</span><span class="p">()</span>
+        <span class="c"># noinspection PyTypeChecker</span>
+        <span class="k">for</span> <span class="n">answer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__page_get_answers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soup</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">answer</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">global</span> <span class="n">_session</span>
+            <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39;?page=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">answer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__page_get_answers</span><span class="p">(</span><span class="n">soup</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">answer</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span>
+                <span class="k">yield</span> <span class="n">answer</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+</div>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__page_get_questions</span><span class="p">(</span><span class="n">soup</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">):</span>
+        <span class="n">question_tags</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&quot;div&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&quot;zm-item&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">question_tags</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="mi">0</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">question_tag</span> <span class="ow">in</span> <span class="n">question_tags</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">question_tag</span><span class="o">.</span><span class="n">h2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">question_title</span> <span class="o">=</span> <span class="n">question_tag</span><span class="o">.</span><span class="n">h2</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">text</span>
+                    <span class="n">question_url</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="n">question_tag</span><span class="o">.</span><span class="n">h2</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">]</span>
+                    <span class="k">yield</span> <span class="n">Question</span><span class="p">(</span><span class="n">question_url</span><span class="p">,</span> <span class="n">question_title</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__page_get_answers</span><span class="p">(</span><span class="n">soup</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">):</span>
+        <span class="n">answer_tags</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&quot;div&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&quot;zm-item&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">answer_tags</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="mi">0</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">question</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">answer_tags</span><span class="p">:</span>
+
+                <span class="c"># 判断是否是&#39;建议修改的回答&#39;等情况</span>
+                <span class="n">url_tag</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;answer-date-link&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">url_tag</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">reason</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;div&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s">&#39;answer-status&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">text</span>
+                    <span class="k">print</span><span class="p">(</span><span class="s">&quot;pass a answer, reason </span><span class="si">%s</span><span class="s"> .&quot;</span> <span class="o">%</span> <span class="n">reason</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="n">author_name</span> <span class="o">=</span> <span class="s">&#39;匿名用户&#39;</span>
+                <span class="n">author_motto</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+                <span class="n">author_url</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="k">if</span> <span class="n">tag</span><span class="o">.</span><span class="n">h2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">question_title</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">h2</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">text</span>
+                    <span class="n">question_url</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="n">tag</span><span class="o">.</span><span class="n">h2</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">]</span>
+                    <span class="n">question</span> <span class="o">=</span> <span class="n">Question</span><span class="p">(</span><span class="n">question_url</span><span class="p">,</span> <span class="n">question_title</span><span class="p">)</span>
+                <span class="n">answer_url</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="n">url_tag</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">]</span>
+                <span class="n">h3</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;h3&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">h3</span><span class="o">.</span><span class="n">text</span> <span class="o">!=</span> <span class="s">&#39;匿名用户&#39;</span><span class="p">:</span>
+                    <span class="n">author_url</span> <span class="o">=</span> <span class="n">_Zhihu_URL</span> <span class="o">+</span> <span class="n">h3</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="s">&#39;href&#39;</span><span class="p">]</span>
+                    <span class="n">author_name</span> <span class="o">=</span> <span class="n">h3</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+                    <span class="k">if</span> <span class="n">h3</span><span class="o">.</span><span class="n">strong</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                        <span class="n">author_motto</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;h3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strong</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">]</span>
+                <span class="n">author</span> <span class="o">=</span> <span class="n">Author</span><span class="p">(</span><span class="n">author_url</span><span class="p">,</span> <span class="n">author_name</span><span class="p">,</span> <span class="n">author_motto</span><span class="p">)</span>
+                <span class="n">upvote</span> <span class="o">=</span> <span class="n">_text2int</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                    <span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s">&#39;zm-item-vote-count&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="n">answer</span> <span class="o">=</span> <span class="n">Answer</span><span class="p">(</span><span class="n">answer_url</span><span class="p">,</span> <span class="n">question</span><span class="p">,</span> <span class="n">author</span><span class="p">,</span> <span class="n">upvote</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">answer</span>
+
+</div>
+<span class="n">_init</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, 7sDream.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
