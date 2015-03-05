@@ -343,13 +343,17 @@ print(collection.questions)
 
 ## 文档
 
-详细文档正在编写中……
+*详细文档正在编写中……*
+
+终于搞定了，Sphinx还是不会用…………= = 先随意弄成这样吧：
+Read The Docs: [点击这里查看文档][doc-rtd-url]
 
 ## TODO List
 
- - 写文档 T^T
- - 增加用户最近X个答案，X个问题的获取函数
+ - *写文档 T^T*
  - 增加导出为markdown功能
+ - 增加获取答案点赞用户，用户关注者，用户追随者，收藏夹关注者，问题关注者等
+ - 增加用户最近X个答案，X个问题的获取函数
  - 增加专栏类和文章类
  - 增加答案发布时间和更新时间的获取
 
@@ -367,6 +371,7 @@ Github: [@7sDream][github-url]
 [req-url]: https://pypi.python.org/pypi/requests/2.5.1
 [bs4-url]: http://www.crummy.com/software/BeautifulSoup
 [pillow-url]: https://pypi.python.org/pypi/Pillow/2.7.0
+[doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/latest/zhihu.html#module-zhihu
 [github-url]: https://github.com/7sDream
 [weibo-url]: http://weibo.com/didilover
 [zhihu-url]: http://www.zhihu.com/people/7sdream
