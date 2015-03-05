@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 
 
 # Setting
+
 _Zhihu_URL = 'http://www.zhihu.com'
 _Login_URL = _Zhihu_URL + '/login'
 _Captcha_URL_Prefix = _Zhihu_URL + '/captcha.gif?r='
@@ -27,6 +28,7 @@ _header = {'X-Requested-With': 'XMLHttpRequest',
                          'Trident/7.0; Touch; LCJB; rv:11.0)'
                          ' like Gecko',
            'Host': 'www.zhihu.com'}
+
 _re_question_url = re.compile(r'http://www\.zhihu\.com/question/\d+/?')
 _re_ans_url = re.compile(
     r'http://www\.zhihu\.com/question/\d+/answer/\d+/?')
@@ -34,7 +36,7 @@ _re_author_url = re.compile(r'http://www\.zhihu\.com/people/.*/?')
 _re_collection_url = re.compile(r'http://www\.zhihu\.com/collection/\d+/?')
 _re_a2q = re.compile(r'(.*)/a.*')
 _re_collection_url_split = re.compile(r'.*(/c.*)')
-_re_get_munber = re.compile(r'[^\d]*(\d+).*')
+_re_get_number = re.compile(r'[^\d]*(\d+).*')
 _re_del_empty_line = re.compile(r'\n*(.*)\n*')
 
 
@@ -91,15 +93,15 @@ def get_captcha_url():
     return _Captcha_URL_Prefix + str(int(time.time() * 1000))
 
 
-def login(email='', password='', captcha='',
-          savecookies=True):
+def login(email='', password='', captcha='', savecookies=True):
     """不使用cookies.json，手动登陆知乎
 
     :param str email: 邮箱
     :param str password: 密码
     :param str captcha: 验证码
     :param bool savecookies: 是否要储存cookies文件
-    :return: 一个二元素元祖 , 第一个元素代表是否成功（0表示成功），如果未成功则第二个元素表示失败原因
+    :return: 一个二元素元祖 , 第一个元素代表是否成功（0表示成功），
+        如果未成功则第二个元素表示失败原因
     :rtype: (int, dict)
     """
     global _session
@@ -304,7 +306,8 @@ class Question:
     def answers(self):
         """获取问题的所有答案，返回可迭代生成器
 
-        :return: 每次迭代返回一个Answer对象
+        :return: 每次迭代返回一个Answer对象， 获取到的Answer对象自带所在问题、答主、赞同数量、
+            回答内容四个属性。获取其他属性需要解析另外的网页。
         :rtype: Answer.Iterable
         """
         self.make_soup()
@@ -366,7 +369,7 @@ class Question:
     def top_answer(self):
         """获取排名第一的答案
 
-        :return: 排名第一的答案对象
+        :return: 排名第一的答案对象，能直接获取的属性参见answers方法
         :rtype: Answer
         """
         for a in self.answers:
@@ -376,7 +379,7 @@ class Question:
         """获取排名某一位的答案
 
         :param int i: 要获取的答案的排名
-        :return: 答案对象
+        :return: 答案对象，能直接获取的属性参见answers方法
         :rtype: Answer
         """
         for j, a in enumerate(self.answers):
@@ -387,7 +390,7 @@ class Question:
         """获取排名在前几位的答案
 
         :param int i: 获取高位排名答案数量
-        :return: 答案对象生成器
+        :return: 答案对象生成器，这些对象能直接获取的属性参见answers方法
         :rtype: Answer.iterable
         """
         for j, a in enumerate(self.answers):
@@ -399,7 +402,15 @@ class Question:
 
 
 class Author():
+    """用户类，用用户主页地址作为参数来构造对象，其他参数可选"""
     def __init__(self, url: str, name: str=None, motto: str=None):
+        """
+
+        :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream
+        :param str name: 用户名字，可选
+        :param str motto: 可选
+        :return: Author
+        """
         if url is not None:
             if _re_author_url.match(url) is None:
                 raise Exception('URL invalid')
@@ -412,6 +423,12 @@ class Author():
         self._motto = motto
 
     def make_soup(self) -> None:
+        """**请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用**
+        当然你非要调用我也没办法……
+
+        :return: None
+        :rtype: None
+        """
         if self.soup is None and self.url is not None:
             r = _session.get(self.url)
             self.soup = BeautifulSoup(r.content)
@@ -420,14 +437,25 @@ class Author():
 
     @property
     @_check_soup('_name')
-    def name(self) -> str:
+    def name(self):
+        """获取用户名字
+
+        :return: 用户名字
+        :rtype: str
+        """
         if self.url is None:
             return '匿名用户'
         return self.soup.find('div', class_='title-section ellipsis').span.text
 
     @property
     @_check_soup('_motto')
-    def motto(self) -> str:
+    def motto(self):
+        """获取用户自我介绍？那段话是叫啥……是自我介绍还是签名？？？算了由于历史原因
+        我还是把这个属性叫做motto吧……
+
+        :return: 用户自我介绍
+        :rtype: str
+        """
         if self.url is None:
             return ''
         else:
@@ -440,11 +468,16 @@ class Author():
 
     @property
     @_check_soup('_followees_num')
-    def followees_num(self) -> int:
+    def followees_num(self):
+        """获取追随者数量，就是获取关注此人的人数
+
+        :return: 追随者数量
+        :rtype: int
+        """
         if self.url is None:
             return 0
         else:
-            number = int(
+            number = _text2int(
                 self.soup.find(
                     'div',
                     class_='zm-profile-side-following zg-clear').a.strong.text)
@@ -452,11 +485,16 @@ class Author():
 
     @property
     @_check_soup('_followers_num')
-    def followers_num(self) -> int:
+    def followers_num(self):
+        """获取关注数量。
+
+        :return: 关注人数
+        :rtype: int
+        """
         if self.url is None:
             return 0
         else:
-            number = int(
+            number = _text2int(
                 self.soup.find(
                     'div', class_='zm-profile-side-following zg-clear')
                 .find_all('a')[1].strong.text)
@@ -465,6 +503,11 @@ class Author():
     @property
     @_check_soup('_agree_num')
     def agree_num(self):
+        """获取收到的的赞同数量
+
+        :return: 收到的的赞同数量
+        :rtype: int
+        """
         if self.url is None:
             return 0
         else:
@@ -475,6 +518,11 @@ class Author():
     @property
     @_check_soup('_thanks_num')
     def thanks_num(self):
+        """获取收到的感谢数量
+
+        :return: 收到的感谢数量
+        :rtype: int
+        """
         if self.url is None:
             return 0
         else:
@@ -485,6 +533,11 @@ class Author():
     @property
     @_check_soup('_asks_num')
     def questions_num(self):
+        """获取提问数量
+
+        :return: 提问数量
+        :rtype: int
+        """
         if self.url is None:
             return 0
         else:
@@ -493,6 +546,11 @@ class Author():
     @property
     @_check_soup('_answers_num')
     def answers_num(self):
+        """获取答案数量
+
+        :return: 答案数量
+        :rtype: int
+        """
         if self.url is None:
             return 0
         else:
@@ -501,6 +559,11 @@ class Author():
     @property
     @_check_soup('_post_num')
     def post_num(self):
+        """获取专栏文章数量
+
+        :return: 专栏文章数量
+        :rtype: int
+        """
         if self.url is None:
             return 0
         else:
@@ -509,6 +572,11 @@ class Author():
     @property
     @_check_soup('_collections_num')
     def collections_num(self):
+        """获取收藏夹数量
+
+        :return: 收藏夹数量
+        :rtype: int
+        """
         if self.url is None:
             return 0
         else:
@@ -516,6 +584,11 @@ class Author():
 
     @property
     def questions(self):
+        """获取此人问过的所有问题对象，返回生成器
+
+        :return: 每次迭代返回一个问题对象，获取到的问题对象自带标题，关注人数，答案数量三个属性
+        :rtype: Question.Iterable
+        """
         if self.url is None or self.questions_num == 0:
             return
         for page_index in range(1, (self.questions_num - 1) // 20 + 2):
@@ -529,14 +602,20 @@ class Author():
                 url = _Zhihu_URL + link['href']
                 title = link.text
                 answers_num = int(
-                    _re_get_munber.match(data.div.contents[4]).group(1))
+                    _re_get_number.match(data.div.contents[4]).group(1))
                 followers_num = int(
-                    _re_get_munber.match(data.div.contents[6]).group(1))
+                    _re_get_number.match(data.div.contents[6]).group(1))
                 q = Question(url, title, followers_num, answers_num)
                 yield q
 
     @property
     def answers(self):
+        """获取此人写的所有答案对象，返回生成器
+
+        :return: 此人的所有答案，能直接获取所在问题，答主，赞同数三个属性。
+            其中所在问题对象可以直接获取标题。答主对象即为此对象本身。
+        :rtype: Answer.iterable
+        """
         if self.url is None or self.answers_num == 0:
             return
         self.make_soup()
@@ -558,6 +637,12 @@ class Author():
 
     @property
     def collections(self):
+        """获取此人收藏夹对象集合，返回生成器
+
+        :return: 此人所有的收藏夹， 能直接获取拥有者，收藏夹名字，关注人数三个属性。
+            其中拥有者即为此对象本身。
+        :rtype: Collection.Iterable
+        """
         if self.url is None or self.collections_num == 0:
             return
         else:
@@ -574,25 +659,42 @@ class Author():
                 for c, f in zip(collections_names, collections_followers_nums):
                     c_url = _Zhihu_URL + c['href']
                     c_name = c.text
-                    c_fn = int(_re_get_munber.match(f.contents[2]).group(1))
+                    c_fn = int(_re_get_number.match(f.contents[2]).group(1))
                     yield Collection(c_url, self, c_name, c_fn)
 
 
 class Answer():
-    def __init__(self, url: str, question: Question=None, author: Author=None,
-                 upvote: int=None, content: str=None):
+    """答案类，用一个答案的网址作为参数构造对象"""
+    def __init__(self, url, question=None, author=None, upvote=None,
+                 content=None):
+        """
+
+        :param str url: 答案网址，形如
+            http://www.zhihu.com/question/28297599/answer/40327808
+        :param Question question: 答案所在的问题对象，自己构造对象不需要此参数
+        :param Author author: 答案的回答者对象，同上。
+        :param int upvote: 此答案的赞同数量，同上。
+        :param str content: 此答案内容，同上。
+        :return: 答案对象。
+        :rtype: Answer
+        """
         if _re_ans_url.match(url) is None:
             raise Exception('URL invalid')
         if url.endswith('/') is False:
             url += '/'
         self.url = url
         self.soup = None
-        self._qusetion = question
+        self._question = question
         self._author = author
         self._upvote = upvote
         self._content = content
 
     def make_soup(self):
+        """不要调用！！！不要调用！！！不要调用！！！
+
+        :return: None
+        :rtype: None
+        """
         if self.soup is None:
             r = _session.get(self.url)
             self.soup = BeautifulSoup(r.content)
@@ -600,40 +702,74 @@ class Answer():
     @property
     @_check_soup('_html')
     def html(self):
+        """获取网页html源码……话说我写这个属性是为了干啥来着
+
+        :return: 网页源码
+        :rtype: str
+        """
         return self.soup.prettify()
 
     @property
     @_check_soup('_author')
     def author(self):
+        """获取答案作者对象
+
+        :return: 答案作者对象
+        :rtype: Author
+        """
         author = self.soup.find('h3', class_='zm-item-answer-author-wrap')
         return _parser_author_from_tag(author)
 
     @property
-    @_check_soup('_qusetion')
+    @_check_soup('_question')
     def question(self):
+        """获取答案所在问题对象
+
+        :return: 答案所在问题
+        :rtype: Question
+        """
         question_link = self.soup.find(
             "h2", class_="zm-item-title zm-editable-content").a
         url = _Zhihu_URL + question_link["href"]
         title = question_link.text
-        followers_num = int(self.soup.find(
+        followers_num = _text2int(self.soup.find(
             'div', class_='zh-question-followers-sidebar').div.a.strong.text)
-        answers_num = int(_re_get_munber.match(self.soup.find(
+        answers_num = _text2int(_re_get_number.match(self.soup.find(
             'div', class_='zh-answers-title').h3.a.text).group(1))
         return Question(url, title, followers_num, answers_num)
 
     @property
     @_check_soup('_upvote')
     def upvote(self):
-        return int(self.soup.find('span', class_='count').text)
+        """获取答案赞同数量
+
+        :return: 答案赞同数量
+        :rtype: int
+        """
+        return _text2int(self.soup.find('span', class_='count').text)
 
     @property
     @_check_soup('_content')
     def content(self):
+        """返回答案内容，以处理过的Html代码形式
+
+        :return: 答案内容
+        :rtype: str
+        """
         content = self.soup.find('div', class_=' zm-editable-content clearfix')
         content = _answer_content_process(content)
         return content
 
     def save(self, path=None, filename=None):
+        """保存答案为Html文档
+
+        :param path: 要保存的文件所在的绝对目录或相对目录，不填或"."为当前目录
+        :param filename: 要保存的文件名，不填则默认为 所在问题标题 - 答主名.html
+            如果文件已存在，自动在后面加上数字区分。
+            自定义文件名时请不要输入后缀 .html
+        :return: None
+        :rtype: None
+        """
         if path is None:
             path = os.path.join(
                 os.getcwd(), remove_invalid_char(self.question.title))
@@ -652,8 +788,18 @@ class Answer():
 
 
 class Collection():
-    def __init__(self, url: str, owner: Author=None, name: str=None,
-                 followers_num: int=None):
+    """收藏夹类，用收藏夹主页网址为参数来构造对象
+    由于一些原因，没有提供收藏夹答案数量这个属性。"""
+    def __init__(self, url, owner=None, name=None, followers_num=None):
+        """
+
+        :param str url: 收藏夹主页网址，必须
+        :param Author owner: 收藏夹拥有者，可选，最好不要自己设置
+        :param str name: 收藏夹标题，可选，可以自己设置
+        :param str followers_num: 收藏夹关注人数，可选，可以自己设置
+        :return: 收藏夹对象
+        :rtype: Collection
+        """
         if _re_collection_url.match(url) is None:
             raise Exception('URL invalid')
         else:
@@ -666,6 +812,11 @@ class Collection():
             self._followers_num = followers_num
 
     def make_soup(self):
+        """没用的东西，不要调用。
+
+        :return: None
+        :rtype: None
+        """
         if self.soup is None:
             global _session
             self.soup = BeautifulSoup(_session.get(self.url).text)
@@ -673,12 +824,22 @@ class Collection():
     @property
     @_check_soup('_name')
     def name(self):
+        """获取收藏夹名字
+
+        :return: 收藏夹名字
+        :rtype: str
+        """
         return _re_del_empty_line.match(
             self.soup.find('h2', id='zh-fav-head-title').text).group(1)
 
     @property
     @_check_soup('_owner')
     def owner(self):
+        """获取收藏夹拥有者，返回Author对象
+
+        :return: 收藏夹拥有者
+        :rtype: Author
+        """
         a = self.soup.find('h2', class_='zm-list-content-title').a
         name = a.text
         url = _Zhihu_URL + a['href']
@@ -689,28 +850,43 @@ class Collection():
     @property
     @_check_soup('_followers_num')
     def followers_num(self):
+        """获取关注此收藏夹的人数
+
+        :return: 关注此收藏夹的人数
+        :rtype: int
+        """
         href = _re_collection_url_split.match(self.url).group(1)
         return int(self.soup.find('a', href=href + 'followers').text)
 
     @property
     def questions(self):
+        """获取收藏夹内所有问题对象
+
+        :return: 收藏夹内所有问题，以生成器形式返回
+        :rtype: Question.Iterable
+        """
         self.make_soup()
         # noinspection PyTypeChecker
-        for qusetion in self.__page_get_questions(self.soup):
-            yield qusetion
+        for question in self.__page_get_questions(self.soup):
+            yield question
         i = 2
         while True:
             global _session
             soup = BeautifulSoup(_session.get(
                 self.url[:-1] + '?page=' + str(i)).text)
-            for qusetion in self.__page_get_questions(soup):
-                if qusetion == 0:
+            for question in self.__page_get_questions(soup):
+                if question == 0:
                     return
-                yield qusetion
+                yield question
             i += 1
 
     @property
     def answers(self):
+        """获取收藏夹内所有答案对象
+
+        :return: 收藏夹内所有答案，以生成器形式返回
+        :rtype: Answer.Iterable
+        """
         self.make_soup()
         # noinspection PyTypeChecker
         for answer in self.__page_get_answers(self.soup):
