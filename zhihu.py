@@ -66,7 +66,7 @@ def _save_captcha(url):
         f.write(r.content)
 
 
-def _init() -> None:
+def _init():
     global _session
     if _session is None:
         _session = requests.session()
@@ -796,7 +796,7 @@ class Collection():
         :param str url: 收藏夹主页网址，必须
         :param Author owner: 收藏夹拥有者，可选，最好不要自己设置
         :param str name: 收藏夹标题，可选，可以自己设置
-        :param str followers_num: 收藏夹关注人数，可选，可以自己设置
+        :param int followers_num: 收藏夹关注人数，可选，可以自己设置
         :return: 收藏夹对象
         :rtype: Collection
         """
