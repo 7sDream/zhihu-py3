@@ -19,6 +19,11 @@ pip install beautifulsoup4
 
 **以下代码在 Windows 8.1 + Python3.4 + Beautifulsoup4 + requests 环境下测试通过，其他环境未测试。**
 
+2015.03.08 更新
+
+**以下代码在 Kali Linux 1.1.0 (Debian 4.7.2-5) + Python 3.2.3 + Beautifulsoup4 + 环境下测试也通过了**
+
+
 ## 使用说明
 
 ### 准备工作
@@ -50,6 +55,8 @@ cookies file created!
 运行成功后会在目录下生成cookies.json文件，请保持此文件和zhihu.py在同一目录下。
 
 以下示例皆以正确生成了cookies文件为前提。
+
+建议在正式使用之前运行zhihu-test.py测试一下。
 
 
 ### 快速备份
@@ -373,7 +380,7 @@ Github: [@7sDream][github-url]
 [req-url]: https://pypi.python.org/pypi/requests/2.5.1
 [bs4-url]: http://www.crummy.com/software/BeautifulSoup
 [pillow-url]: https://pypi.python.org/pypi/Pillow/2.7.0
-[doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/latest/zhihu.html#module-zhihu
+[doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/latest/
 [github-url]: https://github.com/7sDream
 [weibo-url]: http://weibo.com/didilover
 [zhihu-url]: http://www.zhihu.com/people/7sdream
