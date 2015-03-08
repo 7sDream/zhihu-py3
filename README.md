@@ -21,7 +21,7 @@ pip install beautifulsoup4
 
 2015.03.08 更新
 
-**以下代码在 Kali Linux 1.1.0 (Debian 4.7.2-5) + Python 3.2.3 + Beautifulsoup4 + 环境下测试也通过了**
+**以下代码在 Kali Linux 1.1.0 (Debian 4.7.2-5) + Python 3.2.3 + Beautifulsoup4 + requests 环境下测试也通过了**
 
 
 ## 使用说明
