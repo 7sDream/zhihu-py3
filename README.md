@@ -6,18 +6,21 @@
 
 功能和 [zhihu-python][zhihu-python-url] 类似，可以获取知乎上的信息和批量导出答案。
 
-目前只提供导出html，导出为markdown功能正在施工中。
+目前~~只~~提供导出html和markdown功能~~，导出为markdown功能正在施工中~~。
 
 ## 依赖
 
-**依赖 [requests][req-url] 、[BeautifulSoup4][bs4-url] 使用前请先安装**
+**依赖 [requests][req-url] 、[BeautifulSoup4][bs4-url]、[html2text][html2text-url] 使用前请先安装**
+
+**PS： html2text 只在导出为 markdown 格式功能被使用时才会被 import，如果没有此模块其他功能也能正常完成。**
 
 ```bash
 pip install requests
 pip install beautifulsoup4
+pip install html2text
 ```
 
-**以下代码在 Windows 8.1 + Python3.4 + Beautifulsoup4 + requests 环境下测试通过，其他环境未测试。**
+**以下代码在 Windows 8.1 + Python3.4 + Beautifulsoup4 + requests + html2text环境下测试通过，其他环境未测试。**
 
 2015.03.08 更新
 
@@ -73,7 +76,12 @@ for answer in question.answers:
 
 会在当前目录下新建以问题标题命名的文件夹，并将所有html文件保存到该文件夹。
 
-save函数默认目录为当前目录下以问题标题开头的目录，默认文件名为问题标题加上答题者昵称，有相同昵称的情况下自动加上序号。
+save函数默认目录为当前目录下以问题标题命名的目录，默认文件名为问题标题加上答题者昵称，有相同昵称的情况下自动加上序号。
+
+```python
+answer.save(mode="md")
+```
+将会导出为markdown格式，下同。
 
 #### 备份某用户所有答案：
 
@@ -198,9 +206,12 @@ print(answer.content)
 # </html>
 
 # 保存HTML
-from os import getcwd
-answer.save(getcwd())
+answer.save(path='.')
 # 当前目录下生成 "亲密关系之间要说「谢谢」吗？ - 甜阁下.html"
+
+# 保存markdown
+answer.save(path='.', mode="md")
+# 当前目录下生成 "亲密关系之间要说「谢谢」吗？ - 甜阁下.md"
 
 # Question 和 Author object 可执行相应操作，如：
 
@@ -359,10 +370,9 @@ Read The Docs： [点击这里查看文档][doc-rtd-url]
 
 ## TODO List
 
- - ~~写文档 T^T~~
- - 增加导出为markdown功能
+ - 写文档 T^T √
+ - 增加导出为markdown功能 √
  - 增加获取答案点赞用户，用户关注者，用户追随者，收藏夹关注者，问题关注者等
- - 增加用户最近X个答案，X个问题的获取函数
  - 增加专栏类和文章类
  - 增加答案发布时间和更新时间的获取
 
@@ -379,7 +389,7 @@ Github: [@7sDream][github-url]
 [zhihu-python-url]: https://github.com/egrcc/zhihu-python
 [req-url]: https://pypi.python.org/pypi/requests/2.5.1
 [bs4-url]: http://www.crummy.com/software/BeautifulSoup
-[pillow-url]: https://pypi.python.org/pypi/Pillow/2.7.0
+[html2text-url]: https://github.com/aaronsw/html2text
 [doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/latest/
 [github-url]: https://github.com/7sDream
 [weibo-url]: http://weibo.com/didilover

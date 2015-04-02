@@ -761,16 +761,19 @@ class Answer():
         content = _answer_content_process(content)
         return content
 
-    def save(self, path=None, filename=None):
-        """保存答案为Html文档
+    def save(self, path=None, filename=None, mode="html"):
+        """保存答案为Html文档或markdown文档
 
-        :param str path: 要保存的文件所在的绝对目录或相对目录，不填或"."为当前目录
-        :param str filename: 要保存的文件名，不填则默认为 所在问题标题 - 答主名.html
+        :param str path: 要保存的文件所在的绝对目录或相对目录，不填或"."为当前目录下以问题
+            标题命名的目录
+        :param str filename: 要保存的文件名，不填则默认为 所在问题标题 - 答主名.html/md
             如果文件已存在，自动在后面加上数字区分。
-            自定义文件名时请不要输入后缀 .html
+            自定义文件名时请不要输入后缀 .html 或 .md
         :return: None
         :rtype: None
         """
+        if mode not in ["html", "md", "markdown"]:
+            return
         if path is None:
             path = os.path.join(
                 os.getcwd(), remove_invalid_char(self.question.title))
@@ -780,12 +783,16 @@ class Answer():
         if os.path.exists(path) is False:
             os.makedirs(path)
         tempfilepath = os.path.join(path, filename)
-        filepath = tempfilepath[:] + '.html'
+        filepath = tempfilepath[:] + '.' + mode
         i = 1
         while os.path.isfile(filepath) is True:
-            filepath = tempfilepath + str(i) + '.html'
+            filepath = tempfilepath + str(i) + '.' + mode
         with open(filepath, 'wb') as f:
-            f.write(self.content.encode('utf-8'))
+            if mode == "html":
+                f.write(self.content.encode('utf-8'))
+            else:
+                import html2text
+                f.write(html2text.html2text(self.content).encode('utf-8'))
 
 
 class Collection():

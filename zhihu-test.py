@@ -4,6 +4,7 @@
 __author__ = '7sDream'
 
 import zhihu
+import os
 
 
 def test_question():
@@ -76,9 +77,12 @@ def test_answer():
     # </html>
 
     # 保存HTML
-    from os import getcwd
-    answer.save(getcwd())
+    answer.save(path='.')
     # 当前目录下生成 "亲密关系之间要说「谢谢」吗？ - 甜阁下.html"
+
+    # 保存markdown
+    answer.save(path='.', mode="md")
+    # 当前目录下生成 "亲密关系之间要说「谢谢」吗？ - 甜阁下.md"
 
     # Question 和 Author object 可执行相应操作，如：
 
@@ -180,6 +184,8 @@ def test_collection():
 
     # Author 对象 和 questions generator 用法见前文
 
+os.mkdir("test")
+os.chdir("test")
 
 test_question()
 test_answer()
