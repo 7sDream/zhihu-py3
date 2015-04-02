@@ -188,6 +188,9 @@ def _answer_content_process(content):
         new_img.insert_after(soup.new_tag('br'))
         if img.previous_sibling is None or img.previous_sibling.name != 'br':
             new_img.insert_before(soup.new_tag('br'))
+    useless_list = soup.find_all("i", class_="icon-external")
+    for useless in useless_list:
+        useless.extract()
     return soup.prettify()
 
 
@@ -764,8 +767,8 @@ class Answer():
     def save(self, path=None, filename=None, mode="html"):
         """保存答案为Html文档或markdown文档
 
-        :param str path: 要保存的文件所在的绝对目录或相对目录，不填或"."为当前目录下以问题
-            标题命名的目录
+        :param str path: 要保存的文件所在的绝对目录或相对目录，不填为当前目录下以问题
+            标题命名的目录, 设为"."则为当前目录
         :param str filename: 要保存的文件名，不填则默认为 所在问题标题 - 答主名.html/md
             如果文件已存在，自动在后面加上数字区分。
             自定义文件名时请不要输入后缀 .html 或 .md
@@ -792,7 +795,9 @@ class Answer():
                 f.write(self.content.encode('utf-8'))
             else:
                 import html2text
-                f.write(html2text.html2text(self.content).encode('utf-8'))
+                X = html2text.HTML2Text()
+                X.body_width = 0
+                f.write(X.handle(self.content).encode('utf-8'))
 
 
 class Collection():
