@@ -77,11 +77,11 @@ def test_answer():
     # </html>
 
     # 保存HTML
-    answer.save(path='.')
+    answer.save(filepath='.')
     # 当前目录下生成 "亲密关系之间要说「谢谢」吗？ - 甜阁下.html"
 
     # 保存markdown
-    answer.save(path='.', mode="md")
+    answer.save(filepath='.', mode="md")
     # 当前目录下生成 "亲密关系之间要说「谢谢」吗？ - 甜阁下.md"
 
     # Question 和 Author object 可执行相应操作，如：
@@ -157,6 +157,13 @@ def test_author():
     # 一句。
     # Read it later
 
+    # 获取用户专栏文章
+    print(author.books)
+
+    # books 也可以进行迭代操作
+    for book in author.books:
+        print(book.name)
+
 
 def test_collection():
     url = 'http://www.zhihu.com/collection/37770691'
@@ -184,6 +191,67 @@ def test_collection():
 
     # Author 对象 和 questions generator 用法见前文
 
+
+def test_book():
+    url = 'http://zhuanlan.zhihu.com/xiepanda'
+    book = zhihu.Book(url)
+
+    # 获取专栏名
+    print(book.name)
+    # 谢熊猫出没注意
+
+    # 获取关注人数
+    print(book.followers_num)
+    # 63742
+
+    # 获取文章数量
+    print(book.article_num)
+    # 66
+
+    # 获取所有文章
+    print(book.posts)
+    # <generator object posts at 0x0521F2D8>
+
+    # posts 是可迭代的 Article 对象集合
+    for post in book.posts:
+        print(post.title)
+    # 伦敦，再见。London, Pride.
+    # 为什么你来到伦敦?——没有抽到h1b
+    # “城邦之国”新加坡强在哪？
+    # ...
+    # 华盛顿纪念碑综合症
+
+
+def test_article():
+    url = 'http://zhuanlan.zhihu.com/xiepanda/19950456'
+    article = zhihu.Article(url)
+
+    # 获取文章标题
+    print(article.title)
+    # 为什么最近有很多名人，比如比尔盖茨，马斯克、霍金等，让人们警惕人工智能？
+
+    # 获取所在专栏
+    print(article.book)
+    # <zhihu.Book object at 0x0600AF90>
+
+    # 获取作者
+    print(article.author)
+    # <zhihu.Author object at 0x0600AD90>
+
+    # 获取赞同数
+    print(article.agree_num)
+    # 15326
+
+    # 获取评论数
+    print(article.comment_num)
+    # 1517
+
+    # 保存为 markdown
+    article.save(filepath='.')
+    # 当前目录下生成
+    # 为什么最近有很多名人，比如比尔盖茨，马斯克、霍金等，让人们警惕人工智能？ - 谢熊猫君.md
+
+
 os.mkdir("test")
 os.chdir("test")
 
@@ -191,3 +259,5 @@ test_question()
 test_answer()
 test_author()
 test_collection()
+test_book()
+test_article()

@@ -21,6 +21,13 @@ _Captcha_URL_Prefix = _Zhihu_URL + '/captcha.gif?r='
 _Cookies_File_Name = 'cookies.json'
 _Get_More_Answer_URL = 'http://www.zhihu.com/node/QuestionAnswerListV2'
 
+# Zhihu Columns API
+_Columns_Prefix = 'http://zhuanlan.zhihu.com/'
+_Columns_Base_Data = _Columns_Prefix + 'api/columns/{0}'
+_Columns_Posts_Data = _Columns_Prefix + 'api/columns/{0}/posts' \
+                                        '?limit=10&offset={1}'
+_Columns_Post_Data = _Columns_Prefix + 'api/columns/{0}/posts/{1}'
+
 # global var
 _session = None
 _header = {'X-Requested-With': 'XMLHttpRequest',
@@ -30,11 +37,13 @@ _header = {'X-Requested-With': 'XMLHttpRequest',
                          ' like Gecko',
            'Host': 'www.zhihu.com'}
 
-_re_question_url = re.compile(r'http://www\.zhihu\.com/question/\d+/?')
+_re_question_url = re.compile(r'http://www\.zhihu\.com/question/\d+/?$')
 _re_ans_url = re.compile(
-    r'http://www\.zhihu\.com/question/\d+/answer/\d+/?')
-_re_author_url = re.compile(r'http://www\.zhihu\.com/people/.*/?')
-_re_collection_url = re.compile(r'http://www\.zhihu\.com/collection/\d+/?')
+    r'http://www\.zhihu\.com/question/\d+/answer/\d+/?$')
+_re_author_url = re.compile(r'http://www\.zhihu\.com/people/[^/]+/?$')
+_re_collection_url = re.compile(r'http://www\.zhihu\.com/collection/\d+/?$')
+_re_book_url = re.compile(r'http://zhuanlan\.zhihu\.com/([^/]+)/?$')
+_re_article_url = re.compile(r'http://zhuanlan.zhihu.com/([^/]+)/(\d+)/?$')
 _re_a2q = re.compile(r'(.*)/a.*')
 _re_collection_url_split = re.compile(r'.*(/c.*)')
 _re_get_number = re.compile(r'[^\d]*(\d+).*')
@@ -204,6 +213,22 @@ def _text2int(text):
             return int(float(text[:-1]) * 10000)
 
 
+def _get_path(path, filename, mode, defaultpath, defaultname):
+    if path is None:
+        path = os.path.join(
+            os.getcwd(), remove_invalid_char(defaultpath))
+    if filename is None:
+        filename = remove_invalid_char(defaultname)
+    if os.path.isdir(path) is False:
+        os.makedirs(path)
+    temp = filename
+    i = 0
+    while os.path.isfile(os.path.join(path, temp) + '.' + mode):
+        i += 1
+        temp = filename + str(i)
+    return os.path.join(path, temp) + '.' + mode
+
+
 class Question:
     """问题类，用一个问题的网址来构造对象,其他参数皆为可选"""
     def __init__(self, url, title=None, followers_num=None, answers_num=None):
@@ -223,7 +248,7 @@ class Question:
             if url.endswith('/') is False:
                 url += '/'
             self.soup = None
-            self.url = url
+            self._url = url
             self._title = title
             self._answers_num = answers_num
             self._followers_num = followers_num
@@ -236,7 +261,7 @@ class Question:
         :rtype: None
         """
         if self.soup is None:
-            r = _session.get(self.url)
+            r = _session.get(self._url)
             self.soup = BeautifulSoup(r.content)
 
     @property
@@ -341,7 +366,7 @@ class Question:
                 _xsrf = self.soup.find(
                     'input', attrs={'name': '_xsrf'})['value']
                 new_header = dict(_header)
-                new_header['Referer'] = self.url
+                new_header['Referer'] = self._url
                 params = {"url_token": self.__get_qid(),
                           'pagesize': '50',
                           'offset': i * 50}
@@ -358,7 +383,7 @@ class Question:
                     for each in error_answers:
                         each['class'] = ' zm-editable-content clearfix'
                     answer_url = \
-                        self.url + 'answer/' + soup.div['data-atoken']
+                        self._url + 'answer/' + soup.div['data-atoken']
                     author = soup.find(
                         'h3', class_='zm-item-answer-author-wrap')
                     upvote = _text2int(
@@ -402,14 +427,13 @@ class Question:
                 yield a
 
     def __get_qid(self):
-        return int(re.match(r'.*/(\d+)', self.url).group(1))
+        return int(re.match(r'.*/(\d+)', self._url).group(1))
 
 
 class Author():
     """用户类，用用户主页地址作为参数来构造对象，其他参数可选"""
-    def __init__(self, url: str, name: str=None, motto: str=None):
+    def __init__(self, url, name=None, motto=None):
         """
-
         :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream
         :param str name: 用户名字，可选
         :param str motto: 可选
@@ -420,7 +444,7 @@ class Author():
                 raise Exception('URL invalid')
             if url.endswith('/') is False:
                 url += '/'
-        self.url = url
+        self._url = url
         self.soup = None
         self._nav_list = None
         self._name = name
@@ -433,8 +457,8 @@ class Author():
         :return: None
         :rtype: None
         """
-        if self.soup is None and self.url is not None:
-            r = _session.get(self.url)
+        if self.soup is None and self._url is not None:
+            r = _session.get(self._url)
             self.soup = BeautifulSoup(r.content)
             self._nav_list = self.soup.find(
                 'div', class_='profile-navbar clearfix').find_all('a')
@@ -447,7 +471,7 @@ class Author():
         :return: 用户名字
         :rtype: str
         """
-        if self.url is None:
+        if self._url is None:
             return '匿名用户'
         return self.soup.find('div', class_='title-section ellipsis').span.text
 
@@ -460,7 +484,7 @@ class Author():
         :return: 用户自我介绍
         :rtype: str
         """
-        if self.url is None:
+        if self._url is None:
             return ''
         else:
             bar = self.soup.find(
@@ -478,7 +502,7 @@ class Author():
         :return: 追随者数量
         :rtype: int
         """
-        if self.url is None:
+        if self._url is None:
             return 0
         else:
             number = _text2int(
@@ -495,7 +519,7 @@ class Author():
         :return: 关注人数
         :rtype: int
         """
-        if self.url is None:
+        if self._url is None:
             return 0
         else:
             number = _text2int(
@@ -512,7 +536,7 @@ class Author():
         :return: 收到的的赞同数量
         :rtype: int
         """
-        if self.url is None:
+        if self._url is None:
             return 0
         else:
             number = int(self.soup.find(
@@ -527,7 +551,7 @@ class Author():
         :return: 收到的感谢数量
         :rtype: int
         """
-        if self.url is None:
+        if self._url is None:
             return 0
         else:
             number = int(self.soup.find(
@@ -542,7 +566,7 @@ class Author():
         :return: 提问数量
         :rtype: int
         """
-        if self.url is None:
+        if self._url is None:
             return 0
         else:
             return int(self._nav_list[1].span.text)
@@ -555,7 +579,7 @@ class Author():
         :return: 答案数量
         :rtype: int
         """
-        if self.url is None:
+        if self._url is None:
             return 0
         else:
             return int(self._nav_list[2].span.text)
@@ -568,7 +592,7 @@ class Author():
         :return: 专栏文章数量
         :rtype: int
         """
-        if self.url is None:
+        if self._url is None:
             return 0
         else:
             return int(self._nav_list[3].span.text)
@@ -581,7 +605,7 @@ class Author():
         :return: 收藏夹数量
         :rtype: int
         """
-        if self.url is None:
+        if self._url is None:
             return 0
         else:
             return int(self._nav_list[4].span.text)
@@ -593,11 +617,11 @@ class Author():
         :return: 每次迭代返回一个问题对象，获取到的问题对象自带标题，关注人数，答案数量三个属性
         :rtype: Question.Iterable
         """
-        if self.url is None or self.questions_num == 0:
+        if self._url is None or self.questions_num == 0:
             return
         for page_index in range(1, (self.questions_num - 1) // 20 + 2):
             global _session
-            html = _session.get(self.url + 'asks?page=' + str(page_index)).text
+            html = _session.get(self._url + 'asks?page=' + str(page_index)).text
             soup = BeautifulSoup(html)
             questions_links = soup.find_all('a', class_='question_link')
             question_datas = soup.find_all(
@@ -620,13 +644,12 @@ class Author():
             其中所在问题对象可以直接获取标题。答主对象即为此对象本身。
         :rtype: Answer.iterable
         """
-        if self.url is None or self.answers_num == 0:
+        if self._url is None or self.answers_num == 0:
             return
-        self.make_soup()
         for page_index in range(1, (self.answers_num - 1) // 20 + 2):
             global _session
             html = _session.get(
-                self.url + 'answers?page=' + str(page_index)).text
+                self._url + 'answers?page=' + str(page_index)).text
             soup = BeautifulSoup(html)
             questions = soup.find_all('a', class_='question_link')
             upvotes = soup.find_all('a', class_='zm-item-vote-count')
@@ -647,14 +670,14 @@ class Author():
             其中拥有者即为此对象本身。
         :rtype: Collection.Iterable
         """
-        if self.url is None or self.collections_num == 0:
+        if self._url is None or self.collections_num == 0:
             return
         else:
             global _session
             collection_num = self.collections_num
             for page_index in range(1, (collection_num - 1) // 20 + 2):
                 html = _session.get(
-                    self.url + 'collections?page=' + str(page_index)).text
+                    self._url + 'collections?page=' + str(page_index)).text
                 soup = BeautifulSoup(html)
                 collections_names = soup.find_all(
                     'a', class_='zm-profile-fav-item-title')
@@ -665,6 +688,31 @@ class Author():
                     c_name = c.text
                     c_fn = int(_re_get_number.match(f.contents[2]).group(1))
                     yield Collection(c_url, self, c_name, c_fn)
+
+    @property
+    def books(self):
+        """获取此人专栏，返回生成器
+
+        :return: 此人所有的专栏，能直接获取拥有者，名字，网址，文章数，关注人数。
+        :rtype: Book.iterable
+        """
+        if self._url is None or self.post_num == 0:
+            return
+        global _session
+        soup = BeautifulSoup(_session.get(self._url + 'posts').text)
+        booktags = soup.find_all('div', class_='column')
+        for booktag in booktags:
+            name = booktag.div.a.span.text
+            url = booktag.div.a['href']
+            followers = _text2int(_re_get_number.match(
+                booktag.div.div.a.text).group(1))
+            footer = booktag.find('div', class_='footer')
+            if footer is None:
+                article_num = 0
+            else:
+                article_num = _text2int(
+                    _re_get_number.match(footer.a.text).group(1))
+            yield Book(url, name, followers, article_num)
 
 
 class Answer():
@@ -686,7 +734,7 @@ class Answer():
             raise Exception('URL invalid')
         if url.endswith('/') is False:
             url += '/'
-        self.url = url
+        self._url = url
         self.soup = None
         self._question = question
         self._author = author
@@ -700,7 +748,7 @@ class Answer():
         :rtype: None
         """
         if self.soup is None:
-            r = _session.get(self.url)
+            r = _session.get(self._url)
             self.soup = BeautifulSoup(r.content)
 
     @property
@@ -764,10 +812,10 @@ class Answer():
         content = _answer_content_process(content)
         return content
 
-    def save(self, path=None, filename=None, mode="html"):
+    def save(self, filepath=None, filename=None, mode="html"):
         """保存答案为Html文档或markdown文档
 
-        :param str path: 要保存的文件所在的绝对目录或相对目录，不填为当前目录下以问题
+        :param str filepath: 要保存的文件所在的绝对目录或相对目录，不填为当前目录下以问题
             标题命名的目录, 设为"."则为当前目录
         :param str filename: 要保存的文件名，不填则默认为 所在问题标题 - 答主名.html/md
             如果文件已存在，自动在后面加上数字区分。
@@ -777,27 +825,17 @@ class Answer():
         """
         if mode not in ["html", "md", "markdown"]:
             return
-        if path is None:
-            path = os.path.join(
-                os.getcwd(), remove_invalid_char(self.question.title))
-        if filename is None:
-            filename = remove_invalid_char(
-                self.question.title + ' - ' + self.author.name)
-        if os.path.exists(path) is False:
-            os.makedirs(path)
-        tempfilepath = os.path.join(path, filename)
-        filepath = tempfilepath[:] + '.' + mode
-        i = 1
-        while os.path.isfile(filepath) is True:
-            filepath = tempfilepath + str(i) + '.' + mode
-        with open(filepath, 'wb') as f:
+        file = _get_path(filepath, filename, mode,
+                         self.question.title,
+                         self.question.title + '-' + self.author.name)
+        with open(file, 'wb') as f:
             if mode == "html":
                 f.write(self.content.encode('utf-8'))
             else:
                 import html2text
-                X = html2text.HTML2Text()
-                X.body_width = 0
-                f.write(X.handle(self.content).encode('utf-8'))
+                h2t = html2text.HTML2Text()
+                h2t.body_width = 0
+                f.write(h2t.handle(self.content).encode('utf-8'))
 
 
 class Collection():
@@ -818,7 +856,7 @@ class Collection():
         else:
             if url.endswith('/') is False:
                 url += '/'
-            self.url = url
+            self._url = url
             self.soup = None
             self._name = name
             self._owner = owner
@@ -832,7 +870,7 @@ class Collection():
         """
         if self.soup is None:
             global _session
-            self.soup = BeautifulSoup(_session.get(self.url).text)
+            self.soup = BeautifulSoup(_session.get(self._url).text)
 
     @property
     @_check_soup('_name')
@@ -868,7 +906,7 @@ class Collection():
         :return: 关注此收藏夹的人数
         :rtype: int
         """
-        href = _re_collection_url_split.match(self.url).group(1)
+        href = _re_collection_url_split.match(self._url).group(1)
         return int(self.soup.find('a', href=href + 'followers').text)
 
     @property
@@ -886,7 +924,7 @@ class Collection():
         while True:
             global _session
             soup = BeautifulSoup(_session.get(
-                self.url[:-1] + '?page=' + str(i)).text)
+                self._url[:-1] + '?page=' + str(i)).text)
             for question in self.__page_get_questions(soup):
                 if question == 0:
                     return
@@ -908,7 +946,7 @@ class Collection():
         while True:
             global _session
             soup = BeautifulSoup(_session.get(
-                self.url[:-1] + '?page=' + str(i)).text)
+                self._url[:-1] + '?page=' + str(i)).text)
             for answer in self.__page_get_answers(soup):
                 if answer == 0:
                     return
@@ -965,5 +1003,215 @@ class Collection():
                 answer = Answer(answer_url, question, author, upvote)
                 yield answer
 
+
+class Book():
+    """专栏类，用专栏网址为参数来构造对象
+    """
+    def __init__(self, url, name=None, followers_num=None,
+                 article_num=None):
+        """
+        :param str url: 专栏网址
+        :param str name: 专栏名
+        :param int followers_num: 关注者数量
+        :param int article_num: 文章数量
+        :return: 专栏对象
+        :rtype: Book
+        """
+        match = _re_book_url.match(url)
+        if match is None:
+            raise Exception('URL invalid')
+        else:
+            self._in_name = match.group(1)
+        if url.endswith('/') is False:
+            url += '/'
+        self._url = url
+        self.soup = None
+        self._name = name
+        self._followers_num = followers_num
+        self._article_num = article_num
+
+    def make_soup(self):
+        """不要调用！不要调用！！不要调用！！
+        """
+        global _session
+        if self.soup is None:
+            assert isinstance(_session, requests.Session)
+            origin_host = _session.headers.get('Host')
+            _session.headers.update(Host='zhuanlan.zhihu.com')
+            res = _session.get(_Columns_Base_Data.format(self._in_name))
+            _session.headers.update(Host=origin_host)
+            self.soup = res.json()
+
+    @property
+    @_check_soup('_name')
+    def name(self):
+        """获取专栏名称
+
+        :return: 专栏名称
+        :rtype: str
+        """
+        return self.soup['name']
+
+    @property
+    @_check_soup('_followers_num')
+    def followers_num(self):
+        """获取关注人数
+
+        :return: 关注人数
+        :rtype: int
+        """
+        return _text2int(self.soup['followersCount'])
+
+    @property
+    @_check_soup('_article_num')
+    def article_num(self):
+        """获取专栏文章数
+
+        :return: 专栏文章数
+        :rtype: int
+        """
+        return _text2int(self.soup['postsCount'])
+
+    @property
+    def posts(self):
+        """获取专栏的所有文章
+
+        :return: 专栏所有文章的迭代器
+        :rtype: Article.iterable
+        """
+        global _session
+        origin_host = _session.headers.get('Host')
+        for offset in range(0, (self.article_num - 1) // 10 + 1):
+            _session.headers.update(Host='zhuanlan.zhihu.com')
+            res = _session.get(
+                _Columns_Posts_Data.format(self._in_name, offset*10))
+            soup = res.json()
+            _session.headers.update(Host=origin_host)
+            for article in soup:
+                url = _Columns_Prefix + article['url'][1:]
+                author = Author(article['author']['profileUrl'],
+                                article['author']['name'],
+                                article['author']['bio'])
+                title = article['title']
+                agree_num = article['likesCount']
+                comment_num = article['commentsCount']
+                yield Article(url, self, author, title, agree_num, comment_num)
+
+
+class Article():
+    """知乎专栏的文章类，以文章网址为参数构造对象
+    """
+    def __init__(self, url, book=None, author=None, title=None, agree_num=None,
+                 comment_num=None):
+        """
+        :param str url: 文章所在URL
+        :param Book book: 所属专栏
+        :param Author author: 文章作者
+        :param str title: 文章标题
+        :param int agree_num: 赞同数
+        :param int comment_num: 评论数
+        :return: Article
+        """
+        match = _re_article_url.match(url)
+        if match is None:
+            raise Exception('URL invalid')
+        if url.endswith('/') is False:
+            url += '/'
+        self._url = url
+        self._book_in_name = match.group(1)
+        self._slug = match.group(2)
+        self._book = book
+        self._author = author
+        self._title = title
+        self._agree_num = agree_num
+        self._comment_num = comment_num
+        self.soup = None
+
+    def make_soup(self):
+        """不要调用！不要调用！！不要调用！！！
+        """
+        if self.soup is None:
+            global _session
+            origin_host = _session.headers.get('Host')
+            _session.headers.update(Host='zhuanlan.zhihu.com')
+            self.soup = _session.get(
+                _Columns_Post_Data.format(
+                    self._book_in_name, self._slug)).json()
+            _session.headers.update(Host=origin_host)
+
+    @property
+    @_check_soup('_book')
+    def book(self):
+        """获取文章所在专栏
+
+        :return: 文章所在专栏
+        :rtype: Book
+        """
+        url = _Columns_Prefix + self.soup['column']['slug']
+        name = self.soup['column']['name']
+        return Book(url, name)
+
+    @property
+    @_check_soup('_author')
+    def author(self):
+        """获取文章作者
+
+        :return: 文章作者
+        :rtype: Author
+        """
+        url = self.soup['author']['profileUrl']
+        name = self.soup['author']['name']
+        motto = self.soup['author']['bio']
+        return Author(url, name, motto)
+
+    @property
+    @_check_soup('_title')
+    def title(self):
+        """获取文章标题
+
+        :return: 文章标题
+        :rtype: str
+        """
+        return self.soup['title']
+
+    @property
+    @_check_soup('_agree_num')
+    def agree_num(self):
+        """获取文章赞同数量
+
+        :return: 文章赞同数
+        :rtype: int
+        """
+        return _text2int(self.soup['likesCount'])
+
+    @property
+    @_check_soup('_comment_num')
+    def comment_num(self):
+        """获取评论数量
+
+        :return: 评论数量
+        :rtype: int
+        """
+        return self.soup['commentsCount']
+
+    def save(self, filepath=None, filename=None):
+        """将文章保存为 markdown 格式
+
+        :param str filepath: 要保存的文件所在的绝对目录或相对目录，不填为当前目录下以专栏名
+            命名的目录, 设为"."则为当前目录
+        :param str filename: 要保存的文件名，不填则默认为 文章标题 - 作者名.md
+            如果文件已存在，自动在后面加上数字区分。
+            自定义参数时请不要输入扩展名 .md
+        :return:
+        """
+        self.make_soup()
+        file = _get_path(filepath, filename, 'md',
+                         self.book.name,
+                         self.title + ' - ' + self.author.name)
+        with open(file, 'wb') as f:
+            import html2text
+            h2t = html2text.HTML2Text()
+            h2t.body_width = 0
+            f.write(h2t.handle(self.soup['content']).encode('utf-8'))
 
 _init()
