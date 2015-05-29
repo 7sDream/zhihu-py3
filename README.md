@@ -180,6 +180,14 @@ Read The Docs： [点击这里查看文档][doc-rtd-url]
  - 增加专栏类和文章类 √
  - 增加答案发布时间和更新时间的获取
 
+## 更新日志
+
+想了想还是加上这个吧，虽然经常一些小问题的修复也懒得写出来…………
+
+2015.05.29：
+
+修复了当问题关注人数为0时、问题答案数为0时的崩溃问题。（感谢：[段晓晨][thanks-zh-duan-xiao-chen-39]）
+
 ## 联系我
 
 Github: [@7sDream][github-url]
@@ -200,3 +208,5 @@ Github: [@7sDream][github-url]
 [zhihu-url]: http://www.zhihu.com/people/7sdream
 [mail-to-me]: mailto:xixihaha.xiha@qq.com
 [zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/master/zhihu-test.py
+
+[thanks-zh-duan-xiao-chen-39]: http://www.zhihu.com/people/duan-xiao-chen-39
