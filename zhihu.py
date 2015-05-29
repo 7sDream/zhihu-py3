@@ -304,8 +304,15 @@ class Question:
         :return: 答案数量
         :rtype: int
         """
-        return _text2int(
-            self.soup.find('h3', id='zh-question-answer-num')['data-num'])
+        answer_num_block = self.soup.find('h3', id='zh-question-answer-num')
+        # 当0人回答或1回答时，都会找不到 answer_num_block，通过找答案的赞同数block来判断
+        # 到底有没有答案。（感谢知乎用户 段晓晨 提出此问题）
+        if answer_num_block is None:
+            if self.soup.find('span', class_='count') is not None:
+                return 1
+            else:
+                return 0
+        return _text2int(answer_num_block['data-num'])
 
     @property
     @_check_soup('_followers_num')
@@ -315,8 +322,11 @@ class Question:
         :return: 问题关注人数
         :rtype: int
         """
-        return _text2int(self.soup.find(
-            'div', class_='zg-gray-normal').strong.text)
+        followers_num_block = self.soup.find('div', class_='zg-gray-normal')
+        # 无人关注时 找不到对应block，直接返回0 （感谢知乎用户 段晓晨 提出此问题）
+        if followers_num_block.strong is None:
+            return 0
+        return _text2int(followers_num_block.strong.text)
 
     @property
     @_check_soup('_topics')
