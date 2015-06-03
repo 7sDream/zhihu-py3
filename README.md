@@ -38,7 +38,7 @@ sudo apt-get install python3-html2text
 
 2015.06.03 更新  
 
-**以下代码在 Ubuntu14.10 + Python3.4 + python3-bs4 + python3-html2text 测试通过
+**以下代码在 Ubuntu14.10 + Python3.4 + python3-bs4 + python3-html2text 测试通过**
 
 ## 使用说明
 
