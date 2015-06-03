@@ -36,6 +36,8 @@ sudo apt-get install python3-html2text
 
 **以下代码在 Kali Linux 1.1.0 (Debian 4.7.2-5) + Python 3.2.3 + Beautifulsoup4 + requests 环境下测试也通过了**
 
+2015.06.03
+**以下代码在 Ubuntu14.10 + Python3.4 + python3-bs4 + python3-html2text 测试通过
 
 ## 使用说明
 
