@@ -38,7 +38,7 @@ sudo apt-get install python3-html2text
 
 2015.06.03 更新  
 
-**以下代码在 Ubuntu14.10 + Python3.4 + python3-bs4 + python3-html2text 测试通过**
+**以下代码在 Ubuntu 14.10 + Python3.4 + python3-bs4 + python3-html2text 测试通过**
 
 ## 使用说明
 
@@ -197,6 +197,10 @@ Read The Docs： [点击这里查看文档][doc-rtd-url]
 
 修复了当问题关注人数为0时、问题答案数为0时的崩溃问题。（感谢：[段晓晨][thanks-zh-duan-xiao-chen-39]）
 
+20.5.06.04：
+
+由[Gracker][thanks-gb-gracker]补充了在 ubuntu 14.04 下的测试结果，并添加了补充说明。
+
 ## 联系我
 
 Github: [@7sDream][github-url]
@@ -219,3 +223,4 @@ Github: [@7sDream][github-url]
 [zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/master/zhihu-test.py
 
 [thanks-zh-duan-xiao-chen-39]: http://www.zhihu.com/people/duan-xiao-chen-39
+[thanks-gb-gracker]: https://github.com/Gracker
