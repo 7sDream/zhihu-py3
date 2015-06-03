@@ -24,7 +24,8 @@ pip install beautifulsoup4
 pip install html2text
 ```
 
-在Ubuntu上,如果你同时安装了Pytho3和Pytho2,那么在impor zhihu的时候,会显示找不到bs4,之后还会有htm2tex的问题,这时候需要使用下面的命令安装:
+在 Ubuntu 上，如果你同时安装了 Pytho3 和 Pytho2，那么在`impor zhihu`的时候，会显示找不到 bs4，之后还会有 htm2text 的问题,这时候需要使用下面的命令安装：
+
 ```bash
 sudo apt-get install python3-bs4
 sudo apt-get install python3-html2text
@@ -199,7 +200,7 @@ Read The Docs： [点击这里查看文档][doc-rtd-url]
 
 20.5.06.04：
 
-由[Gracker][thanks-gb-gracker]补充了在 ubuntu 14.04 下的测试结果，并添加了补充说明。
+由[Gracker][thanks-gb-gracker]补充了在 Ubuntu 14.04 下的测试结果，并添加了补充说明。
 
 ## 联系我
 
