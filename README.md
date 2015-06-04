@@ -10,7 +10,7 @@
 
 嘛，刚刚去增加了导出专栏文章的功能， markdown 格式。
 
-因为写的急急忙忙可能会稍微有点小bug，如果有什么问题欢迎提 issue，当然 pull request 更好啦~
+因为写的急急忙忙可能会稍微有点小 bug，如果有什么问题欢迎提 issue，当然 pull request 更好啦~
 
 ## 依赖
 
@@ -24,20 +24,20 @@ pip install beautifulsoup4
 pip install html2text
 ```
 
-在 Ubuntu 上，如果你同时安装了 Pytho3 和 Pytho2，那么在`impor zhihu`的时候，会显示找不到 bs4，之后还会有 htm2text 的问题,这时候需要使用下面的命令安装：
+在 Ubuntu 上，如果你同时安装了 Python3 和 Python2，那么在`impor zhihu`的时候，会显示找不到 bs4，之后还会有 htm2text 的问题，这时候需要使用下面的命令安装：
 
 ```bash
 sudo apt-get install python3-bs4
 sudo apt-get install python3-html2text
 ```
 
-**以下代码在 Windows 8.1 + Python3.4 + Beautifulsoup4 + requests + html2text环境下测试通过，其他环境未测试。**
+**以下代码在 Windows 8.1 + Python3.4 + Beautifulsoup4 + requests + html2text 环境下测试通过，其他环境未测试。**
 
 2015.03.08 更新
 
-**以下代码在 Kali Linux 1.1.0 (Debian 4.7.2-5) + Python 3.2.3 + Beautifulsoup4 + requests 环境下测试也通过了**
+**以下代码在 Kali Linux 1.1.0 (Debian 4.7.2-5) + Python 3.2.3 + Beautifulsoup4 + requests + html2text 环境下测试也通过了**
 
-2015.06.03 更新  
+2015.06.03 更新
 
 **以下代码在 Ubuntu 14.10 + Python3.4 + python3-bs4 + python3-html2text 测试通过**
 
@@ -47,11 +47,11 @@ sudo apt-get install python3-html2text
 
 因为很重要所以说三遍
 
-首次使用之前请先运行以下代码生成cookies文件：
+首次使用之前请先运行以下代码生成 cookies 文件：
 
-首次使用之前请先运行以下代码生成cookies文件：
+首次使用之前请先运行以下代码生成 cookies 文件：
 
-首次使用之前请先运行以下代码生成cookies文件：
+首次使用之前请先运行以下代码生成 cookies 文件：
 
 
 ```python
@@ -75,11 +75,11 @@ captcha: <captcha>
 cookies file created!
 ```
 
-运行成功后会在目录下生成cookies.json文件，请保持此文件和zhihu.py在同一目录下。
+运行成功后会在目录下生成`cookies.json`文件，请保持此文件和`zhihu.py`在同一目录下。
 
-以下示例皆以正确生成了cookies文件为前提。
+以下示例皆以正确生成了 cookies 文件为前提。
 
-建议在正式使用之前运行zhihu-test.py测试一下。
+建议在正式使用之前运行`zhihu-test.py`测试一下。
 
 
 ### 快速备份
@@ -96,16 +96,16 @@ for answer in question.answers:
 
 会在当前目录下新建以问题标题命名的文件夹，并将所有html文件保存到该文件夹。
 
-save函数默认目录为当前目录下以问题标题命名的目录，默认文件名为问题标题加上答题者昵称，有相同昵称的情况下自动加上序号。
+save 函数默认目录为当前目录下以问题标题命名的目录，默认文件名为问题标题加上答题者昵称，有相同昵称的情况下自动加上序号。
 
 ```python
 answer.save(mode="md")
 ```
-将会导出为markdown格式，下同。
+将会导出为 markdown 格式，下同。
 
 #### 备份某用户所有答案：
 
-```Python
+```python
 import zhihu
 
 author = zhihu.Author('http://www.zhihu.com/people/7sdream')
@@ -114,11 +114,11 @@ for answer in author.answers:
     answer.save(filepath=author.name)
 ```
 
-会在当前目录下新建以作者昵称命名的文件夹，并将所有html文件保存到该文件夹。
+会在当前目录下新建以作者昵称命名的文件夹，并将所有 html 文件保存到该文件夹。
 
 #### 备份某收藏夹所有答案：
 
-```Python
+```python
 import zhihu
 
 collection = zhihu.Collection('http://www.zhihu.com/collection/37770691')
@@ -127,11 +127,11 @@ for answer in collection.answers:
     answer.save(filepath=collection.name)
 ```
 
-会在当前目录下新建以收藏夹名称命名的文件夹，并将所有html文件保存到该文件夹。
+会在当前目录下新建以收藏夹名称命名的文件夹，并将所有 html 文件保存到该文件夹。
 
 #### 备份某专栏所有文章：
 
-```Python
+```python
 import zhihu
 
 book = zhihu.Book('http://zhuanlan.zhihu.com/xiepanda')
@@ -141,13 +141,13 @@ for article in book.posts:
     article.save(filepath=book.name)
 ```
 
-会在当前目录下新建以专栏名命名的文件夹，并将所有md文件保存到该文件夹。
+会在当前目录下新建以专栏名命名的文件夹，并将所有 md 文件保存到该文件夹。
 
 ### 类简单用法说明
 
-zhihu-py3 主要文件为 `zhihu.py`，配置文件为 `cookies.json` , 将这两个文件放到工作目录。
+zhihu-py3 主要文件为`zhihu.py`，配置文件为`cookies.json`, 将这两个文件放到工作目录。
 
-注：`cookies.json` 一般由 `create_cookies()` 函数创建，但也自己从浏览器中获取。
+注：`cookies.json`一般由`create_cookies()`函数创建，但也自己从浏览器中获取。
 
 **嗯！类的用法请看 [zhihu-test.py][zhihu-test-py-url]，或者看[文档][doc-rtd-url]，就不在这里写啦**
 
@@ -155,15 +155,15 @@ zhihu-py3 主要文件为 `zhihu.py`，配置文件为 `cookies.json` , 将这�
 
 #### create_cookies
 
-用于生成cookies，用法见前面的介绍
+用于生成 cookies，用法见前面的介绍
 
 #### get_captcha_url
 
-获取验证码url, 当用于其他项目时方便手动获取验证码图片进行处理
+获取验证码 url, 当用于其他项目时方便手动获取验证码图片进行处理
 
 #### login
 
-手动登陆方法，用于其他项目中方便手动无需cookies登陆，参数为：
+手动登陆方法，用于其他项目中方便手动无需 cookies 登陆，参数为：
 
  - email
  - password
@@ -174,21 +174,21 @@ zhihu-py3 主要文件为 `zhihu.py`，配置文件为 `cookies.json` , 将这�
 
 删除字符串中不能出现在文件名中的字符，参数为要处理的字符串
 
-可修改代码中的invalid_char_list来定义非法字符
+可修改代码中的`invalid_char_list`来定义非法字符
 
 ## 文档
 
-终于搞定了文档这个磨人的小妖精，可惜Sphinx还是不会用………… = = 先随意弄成这样吧：
+终于搞定了文档这个磨人的小妖精，可惜 Sphinx 还是不会用 T^T 先随意弄成这样吧：
 
 Read The Docs： [点击这里查看文档][doc-rtd-url]
 
 ## TODO List
 
  - 写文档 T^T √
- - 增加导出为markdown功能 √
- - 增加获取答案点赞用户，用户关注者，用户追随者，收藏夹关注者，问题关注者等
+ - 增加导出为 markdown 功能 √
  - 增加专栏类和文章类 √
- - 增加答案发布时间和更新时间的获取
+ - 增加获取答案点赞用户，用户关注者，用户追随者，收藏夹关注者，问题关注者等
+ - 增加答案发布时间和更新时间的获取（这俩个TODO准备暑假写掉，欢迎大家一起来 耶）
 
 ## 更新日志
 
