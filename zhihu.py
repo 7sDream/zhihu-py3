@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 # Setting
 
 _Zhihu_URL = 'http://www.zhihu.com'
-_Login_URL = _Zhihu_URL + '/login'
+_Login_URL = _Zhihu_URL + '/login/email'
 _Captcha_URL_Prefix = _Zhihu_URL + '/captcha.gif?r='
 _Cookies_File_Name = 'cookies.json'
 _Get_More_Answer_URL = 'http://www.zhihu.com/node/QuestionAnswerListV2'
@@ -440,7 +440,7 @@ class Question:
         return int(re.match(r'.*/(\d+)', self._url).group(1))
 
 
-class Author():
+class Author:
     """用户类，用用户主页地址作为参数来构造对象，其他参数可选"""
     def __init__(self, url, name=None, motto=None):
         """
@@ -725,7 +725,7 @@ class Author():
             yield Book(url, name, followers, article_num)
 
 
-class Answer():
+class Answer:
     """答案类，用一个答案的网址作为参数构造对象"""
     def __init__(self, url, question=None, author=None, upvote=None,
                  content=None):
@@ -848,7 +848,7 @@ class Answer():
                 f.write(h2t.handle(self.content).encode('utf-8'))
 
 
-class Collection():
+class Collection:
     """收藏夹类，用收藏夹主页网址为参数来构造对象
     由于一些原因，没有提供收藏夹答案数量这个属性。"""
     def __init__(self, url, owner=None, name=None, followers_num=None):
@@ -1014,7 +1014,7 @@ class Collection():
                 yield answer
 
 
-class Book():
+class Book:
     """专栏类，用专栏网址为参数来构造对象
     """
     def __init__(self, url, name=None, followers_num=None,
@@ -1108,7 +1108,7 @@ class Book():
                 yield Article(url, self, author, title, agree_num, comment_num)
 
 
-class Article():
+class Article:
     """知乎专栏的文章类，以文章网址为参数构造对象
     """
     def __init__(self, url, book=None, author=None, title=None, agree_num=None,
