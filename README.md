@@ -213,13 +213,13 @@ Read The Docs： [点击这里查看文档][doc-rtd-url]
 
 Hotfix， 知乎更换了登录网址，做了简单的跟进，过了Test，等待Bug汇报中。
 
+2015.06.04：
+
+由[Gracker][thanks-gb-gracker]补充了在 Ubuntu 14.04 下的测试结果，并添加了补充说明。
+
 2015.05.29：
 
 修复了当问题关注人数为0时、问题答案数为0时的崩溃问题。（感谢：[段晓晨][thanks-zh-duan-xiao-chen-39]）
-
-20.5.06.04：
-
-由[Gracker][thanks-gb-gracker]补充了在 Ubuntu 14.04 下的测试结果，并添加了补充说明。
 
 ## 联系我
 
