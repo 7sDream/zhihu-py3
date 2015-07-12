@@ -57,7 +57,7 @@ def _check_soup(attr):
             # noinspection PyTypeChecker
             value = getattr(self, attr) if hasattr(self, attr) else None
             if value is None:
-                self.make_soup()
+                self._make_soup()
                 value = func(self)
                 setattr(self, attr, value)
                 return value
@@ -67,13 +67,6 @@ def _check_soup(attr):
         return wrapper
 
     return real
-
-
-def _save_captcha(url):
-    global _session
-    r = _session.get(url)
-    with open('code.gif', 'wb') as f:
-        f.write(r.content)
 
 
 def _init():
@@ -94,46 +87,50 @@ def _init():
         raise Exception('call init func two times')
 
 
-def get_captcha_url():
-    """获取验证码网址
-
-    :return: 验证码网址
-    :rtype: str
-    """
-    return _Captcha_URL_Prefix + str(int(time.time() * 1000))
-
-
-def login(email='', password='', captcha='', savecookies=True):
-    """不使用cookies.json，手动登陆知乎
-
-    :param str email: 邮箱
-    :param str password: 密码
-    :param str captcha: 验证码
-    :param bool savecookies: 是否要储存cookies文件
-    :return: 一个二元素元祖 , 第一个元素代表是否成功（0表示成功），
-        如果未成功则第二个元素表示失败原因
-    :rtype: (int, dict)
-    """
-    global _session
-    global _header
-    data = {'email': email, 'password': password,
-            'rememberme': 'y', 'captcha': captcha}
-    r = _session.post(_Login_URL, data=data)
-    j = r.json()
-    c = int(j['r'])
-    m = j['msg']
-    if c == 0 and savecookies is True:
-        with open(_Cookies_File_Name, 'w') as f:
-            json.dump(_session.cookies.get_dict(), f)
-    return c, m
-
-
 def create_cookies():
     """创建cookies文件, 请跟随提示操作
 
     :return: None
     :rtype: None
     """
+
+    def get_captcha_url():
+        """获取验证码网址
+        :return: 验证码网址
+        :rtype: str
+        """
+        return _Captcha_URL_Prefix + str(int(time.time() * 1000))
+
+    def _save_captcha(url):
+        global _session
+        r = _session.get(url)
+        with open('code.gif', 'wb') as f:
+            f.write(r.content)
+
+    def login(email='', password='', captcha='', savecookies=True):
+        """不使用cookies.json，手动登陆知乎
+
+        :param str email: 邮箱
+        :param str password: 密码
+        :param str captcha: 验证码
+        :param bool savecookies: 是否要储存cookies文件
+        :return: 一个二元素元祖 , 第一个元素代表是否成功（0表示成功），
+            如果未成功则第二个元素表示失败原因
+        :rtype: (int, dict)
+        """
+        global _session
+        global _header
+        data = {'email': email, 'password': password,
+                'rememberme': 'y', 'captcha': captcha}
+        r = _session.post(_Login_URL, data=data)
+        j = r.json()
+        c = int(j['r'])
+        m = j['msg']
+        if c == 0 and savecookies is True:
+            with open(_Cookies_File_Name, 'w') as f:
+                json.dump(_session.cookies.get_dict(), f)
+        return c, m
+
     if os.path.isfile(_Cookies_File_Name) is False:
         email = input('email: ')
         password = input('password: ')
@@ -146,7 +143,7 @@ def create_cookies():
         if code == 0:
             print('cookies file created!')
         else:
-            print(msg)
+            print('failed to create cookies :', msg)
         os.remove('code.gif')
     else:
         print('Please delete [' + _Cookies_File_Name + '] first.')
@@ -231,6 +228,7 @@ def _get_path(path, filename, mode, defaultpath, defaultname):
 
 class Question:
     """问题类，用一个问题的网址来构造对象,其他参数皆为可选"""
+
     def __init__(self, url, title=None, followers_num=None, answers_num=None):
         """
 
@@ -253,7 +251,7 @@ class Question:
             self._answers_num = answers_num
             self._followers_num = followers_num
 
-    def make_soup(self):
+    def _make_soup(self):
         """**请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用**
         当然你非要调用我也没办法……
 
@@ -349,7 +347,7 @@ class Question:
             回答内容四个属性。获取其他属性需要解析另外的网页。
         :rtype: Answer.Iterable
         """
-        self.make_soup()
+        self._make_soup()
         for i in range(0, (self.answers_num - 1) // 50 + 1):
             if i == 0:
                 # 修正各种建议修改的回答……
@@ -442,6 +440,7 @@ class Question:
 
 class Author:
     """用户类，用用户主页地址作为参数来构造对象，其他参数可选"""
+
     def __init__(self, url, name=None, motto=None):
         """
         :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream
@@ -460,7 +459,7 @@ class Author:
         self._name = name
         self._motto = motto
 
-    def make_soup(self) -> None:
+    def _make_soup(self) -> None:
         """**请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用**
         当然你非要调用我也没办法……
 
@@ -535,7 +534,7 @@ class Author:
             number = _text2int(
                 self.soup.find(
                     'div', class_='zm-profile-side-following zg-clear')
-                .find_all('a')[1].strong.text)
+                    .find_all('a')[1].strong.text)
             return number
 
     @property
@@ -727,6 +726,7 @@ class Author:
 
 class Answer:
     """答案类，用一个答案的网址作为参数构造对象"""
+
     def __init__(self, url, question=None, author=None, upvote=None,
                  content=None):
         """
@@ -751,7 +751,7 @@ class Answer:
         self._upvote = upvote
         self._content = content
 
-    def make_soup(self):
+    def _make_soup(self):
         """不要调用！！！不要调用！！！不要调用！！！
 
         :return: None
@@ -843,6 +843,7 @@ class Answer:
                 f.write(self.content.encode('utf-8'))
             else:
                 import html2text
+
                 h2t = html2text.HTML2Text()
                 h2t.body_width = 0
                 f.write(h2t.handle(self.content).encode('utf-8'))
@@ -851,6 +852,7 @@ class Answer:
 class Collection:
     """收藏夹类，用收藏夹主页网址为参数来构造对象
     由于一些原因，没有提供收藏夹答案数量这个属性。"""
+
     def __init__(self, url, owner=None, name=None, followers_num=None):
         """
 
@@ -872,7 +874,7 @@ class Collection:
             self._owner = owner
             self._followers_num = followers_num
 
-    def make_soup(self):
+    def _make_soup(self):
         """没用的东西，不要调用。
 
         :return: None
@@ -926,7 +928,7 @@ class Collection:
         :return: 收藏夹内所有问题，以生成器形式返回
         :rtype: Question.Iterable
         """
-        self.make_soup()
+        self._make_soup()
         # noinspection PyTypeChecker
         for question in self.__page_get_questions(self.soup):
             yield question
@@ -948,7 +950,7 @@ class Collection:
         :return: 收藏夹内所有答案，以生成器形式返回
         :rtype: Answer.Iterable
         """
-        self.make_soup()
+        self._make_soup()
         # noinspection PyTypeChecker
         for answer in self.__page_get_answers(self.soup):
             yield answer
@@ -1017,6 +1019,7 @@ class Collection:
 class Book:
     """专栏类，用专栏网址为参数来构造对象
     """
+
     def __init__(self, url, name=None, followers_num=None,
                  article_num=None):
         """
@@ -1040,7 +1043,7 @@ class Book:
         self._followers_num = followers_num
         self._article_num = article_num
 
-    def make_soup(self):
+    def _make_soup(self):
         """不要调用！不要调用！！不要调用！！
         """
         global _session
@@ -1094,7 +1097,7 @@ class Book:
         for offset in range(0, (self.article_num - 1) // 10 + 1):
             _session.headers.update(Host='zhuanlan.zhihu.com')
             res = _session.get(
-                _Columns_Posts_Data.format(self._in_name, offset*10))
+                _Columns_Posts_Data.format(self._in_name, offset * 10))
             soup = res.json()
             _session.headers.update(Host=origin_host)
             for article in soup:
@@ -1111,6 +1114,7 @@ class Book:
 class Article:
     """知乎专栏的文章类，以文章网址为参数构造对象
     """
+
     def __init__(self, url, book=None, author=None, title=None, agree_num=None,
                  comment_num=None):
         """
@@ -1137,7 +1141,7 @@ class Article:
         self._comment_num = comment_num
         self.soup = None
 
-    def make_soup(self):
+    def _make_soup(self):
         """不要调用！不要调用！！不要调用！！！
         """
         if self.soup is None:
@@ -1214,14 +1218,16 @@ class Article:
             自定义参数时请不要输入扩展名 .md
         :return:
         """
-        self.make_soup()
+        self._make_soup()
         file = _get_path(filepath, filename, 'md',
                          self.book.name,
                          self.title + ' - ' + self.author.name)
         with open(file, 'wb') as f:
             import html2text
+
             h2t = html2text.HTML2Text()
             h2t.body_width = 0
             f.write(h2t.handle(self.soup['content']).encode('utf-8'))
+
 
 _init()
