@@ -58,6 +58,9 @@ def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
     answer = zhihu.Answer(url)
 
+    # 获取答案url
+    print(answer.url)
+
     # 获取该答案所在问题
     print(answer.question)
     # <zhihu.Question object at 0x02E7E4F0>
@@ -225,6 +228,9 @@ def test_book():
 def test_article():
     url = 'http://zhuanlan.zhihu.com/xiepanda/19950456'
     article = zhihu.Article(url)
+
+    # 获取文章地址
+    print(article.url)
 
     # 获取文章标题
     print(article.title)

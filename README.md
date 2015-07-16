@@ -209,6 +209,10 @@ Read The Docs： [点击这里查看文档][doc-rtd-url]
 
 想了想还是加上这个吧，虽然经常一些小问题的修复也懒得写出来…………
 
+2015.07.16
+
+重构 Answer 和 Article 的 url 属性为 public.
+
 2015.07.11:
 
 Hotfix， 知乎更换了登录网址，做了简单的跟进，过了Test，等待Bug汇报中。

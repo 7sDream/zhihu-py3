@@ -744,7 +744,7 @@ class Answer:
             raise Exception('URL invalid')
         if url.endswith('/') is False:
             url += '/'
-        self._url = url
+        self.url = url
         self.soup = None
         self._question = question
         self._author = author
@@ -758,7 +758,7 @@ class Answer:
         :rtype: None
         """
         if self.soup is None:
-            r = _session.get(self._url)
+            r = _session.get(self.url)
             self.soup = BeautifulSoup(r.content)
 
     @property
@@ -1127,7 +1127,7 @@ class Article:
             raise Exception('URL invalid')
         if url.endswith('/') is False:
             url += '/'
-        self._url = url
+        self.url = url
         self._book_in_name = match.group(1)
         self._slug = match.group(2)
         self._book = book
