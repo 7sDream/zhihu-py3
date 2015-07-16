@@ -5,6 +5,7 @@ __author__ = '7sDream'
 
 import zhihu
 import os
+import shutil
 
 
 def test_question():
@@ -257,6 +258,8 @@ def test_article():
     # 当前目录下生成
     # 为什么最近有很多名人，比如比尔盖茨，马斯克、霍金等，让人们警惕人工智能？ - 谢熊猫君.md
 
+if os.path.exists("test"):
+    shutil.rmtree("test")
 
 os.mkdir("test")
 os.chdir("test")
