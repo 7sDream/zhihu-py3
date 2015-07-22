@@ -730,6 +730,51 @@ class Author:
                     _re_get_number.match(footer.a.text).group(1))
             yield Book(url, name, followers, article_num)
 
+    @property
+    @_check_soup('_activities')
+    def activities(self):
+        """获取用户的更多的最新动态
+           对于一般用户，在每个iteration，此函数返回20个动态
+
+        :return: 用户的更多的最新动态[动态的数量，动态的html]
+        :rtype: [int, str].iterable
+        """
+        if self._url is None:
+            return [None, None]
+        else:
+            # initialize variables before looping
+            num_acitivities = -1
+            activities_html = ''
+            start_time = '0'
+            while num_acitivities != 0:
+                global _session
+                # make request headers
+                xsrf_value = self.soup.find_all('input', attrs={"name": "_xsrf"})[0].get('value')
+                request_header_cookie = ""
+                request_header_cookie += 'q_c1=' + _session.cookies.get_dict()['q_c1'] + ';'
+                request_header_cookie += 'z_c0=' + _session.cookies.get_dict()['z_c0'] + ';'
+                request_header_cookie += 'cap_id=' + _session.cookies.get_dict()['cap_id'] + ';'
+                request_header_cookie += '_xsrf=' + xsrf_value + ';'
+                new_header = dict(_session.headers)
+                new_header['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'
+                new_header['Cookie'] = request_header_cookie
+                # make request body
+                request_body = 'start=' + start_time + '&_xsrf=' + xsrf_value
+                # request via POST
+                response = _session.post(self._url + 'activities', data=request_body, headers=new_header)
+                status = response.status_code
+                if status != 200:
+                    raise Exception("Contact developers for Zhihu's API changed.")
+                else:
+                    reponse_body = response.json()
+                    num_acitivities = reponse_body['msg'][0]
+                    activities_html = reponse_body['msg'][1]
+                    # reset start_time, if there are more older activities
+                    if num_acitivities != 0:
+                        start_time = BeautifulSoup(activities_html).find_all('div', class_='zm-profile-section-item zm-item clearfix')[-1].get('data-time')
+                    # return
+                    yield [num_acitivities, activities_html]
+
 
 class Answer:
     """答案类，用一个答案的网址作为参数构造对象"""
