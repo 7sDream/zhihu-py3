@@ -354,6 +354,7 @@ class Question:
         """
         global _session
         global _header
+        self.make_soup()
         new_header = dict(_header)
         new_header['Referer'] = self._url
         params = {"url_token": self.__get_qid(),
@@ -380,8 +381,8 @@ class Question:
                     author_obj = _parser_author_from_tag(author)
                     url = _Zhihu_URL + url['href']
                     upvote = _text2int(upvote.text)
-                    # 我也不知道为什么要这样写，反正这样写的话BS4 4.4.0版本下他也能对……
-                    content = _answer_content_process(content)
+                    content = _answer_content_process(
+                        self.soup.new_tag(content))
                     yield Answer(url, self, author_obj, upvote, content)
             else:
                 params['offset'] = i * 50
