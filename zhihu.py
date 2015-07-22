@@ -43,8 +43,8 @@ _re_ans_url = re.compile(
     r'http://www\.zhihu\.com/question/\d+/answer/\d+/?$')
 _re_author_url = re.compile(r'http://www\.zhihu\.com/people/[^/]+/?$')
 _re_collection_url = re.compile(r'http://www\.zhihu\.com/collection/\d+/?$')
-_re_book_url = re.compile(r'http://zhuanlan\.zhihu\.com/([^/]+)/?$')
-_re_article_url = re.compile(r'http://zhuanlan.zhihu.com/([^/]+)/(\d+)/?$')
+_re_column_url = re.compile(r'http://zhuanlan\.zhihu\.com/([^/]+)/?$')
+_re_post_url = re.compile(r'http://zhuanlan.zhihu.com/([^/]+)/(\d+)/?$')
 _re_a2q = re.compile(r'(.*)/a.*')
 _re_collection_url_split = re.compile(r'.*(/c.*)')
 _re_get_number = re.compile(r'[^\d]*(\d+).*')
@@ -231,13 +231,13 @@ def _get_path(path, filename, mode, defaultpath, defaultname):
 class Question:
     """问题类，用一个问题的网址来构造对象,其他参数皆为可选"""
 
-    def __init__(self, url, title=None, followers_num=None, answers_num=None):
+    def __init__(self, url, title=None, followers_num=None, answer_num=None):
         """
 
         :param str url: 问题地址，形如： http://www.zhihu.com/question/27936038
         :param str title: 可选, 问题标题
         :param int followers_num: 可选，问题关注人数
-        :param int answers_num: 可选，问题答案数
+        :param int answer_num: 可选，问题答案数
         :return: Question对象
         :rtype: Question
         """
@@ -250,7 +250,7 @@ class Question:
             self.soup = None
             self._url = url
             self._title = title
-            self._answers_num = answers_num
+            self._answer_num = answer_num
             self._followers_num = followers_num
             self._xsrf = ''
 
@@ -301,7 +301,7 @@ class Question:
 
     @property
     @_check_soup('_answers_num')
-    def answers_num(self):
+    def answer_num(self):
         """获取问题答案数量
 
         :return: 答案数量
@@ -318,18 +318,18 @@ class Question:
         return _text2int(answer_num_block['data-num'])
 
     @property
-    @_check_soup('_followers_num')
-    def followers_num(self):
+    @_check_soup('_follower_num')
+    def follower_num(self):
         """获取问题关注人数
 
         :return: 问题关注人数
         :rtype: int
         """
-        followers_num_block = self.soup.find('div', class_='zg-gray-normal')
+        follower_num_block = self.soup.find('div', class_='zg-gray-normal')
         # 无人关注时 找不到对应block，直接返回0 （感谢知乎用户 段晓晨 提出此问题）
-        if followers_num_block.strong is None:
+        if follower_num_block.strong is None:
             return 0
-        return _text2int(followers_num_block.strong.text)
+        return _text2int(follower_num_block.strong.text)
 
     @property
     @_check_soup('_topics')
@@ -354,6 +354,7 @@ class Question:
         """
         global _session
         global _header
+        self.make_soup()
         new_header = dict(_header)
         new_header['Referer'] = self._url
         params = {"url_token": self.__get_qid(),
@@ -362,7 +363,7 @@ class Question:
         data = {'_xsrf': self._xsrf,
                 'method': 'next',
                 'params': ''}
-        for i in range(0, (self.answers_num - 1) // 50 + 1):
+        for i in range(0, (self.answer_num - 1) // 50 + 1):
             if i == 0:
                 # 修正各种建议修改的回答……
                 error_answers = self.soup.find_all('div', id='answer-status')
@@ -372,17 +373,17 @@ class Question:
                 authors = self.soup.find_all(
                     'h3', class_='zm-item-answer-author-wrap')
                 urls = self.soup.find_all('a', class_='answer-date-link')
-                upvotes = self.soup.find_all('span', class_='count')
+                upvote_nums = self.soup.find_all('span', class_='count')
                 contents = self.soup.find_all(
                     'div', class_=' zm-editable-content clearfix')
-                for author, url, upvote, content in \
-                        zip(authors, urls, upvotes, contents):
+                for author, url, upvote_num, content in \
+                        zip(authors, urls, upvote_nums, contents):
                     author_obj = _parser_author_from_tag(author)
                     url = _Zhihu_URL + url['href']
-                    upvote = _text2int(upvote.text)
-                    # 我也不知道为什么要这样写，反正这样写的话BS4 4.4.0版本下他也能对……
-                    content = _answer_content_process(content)
-                    yield Answer(url, self, author_obj, upvote, content)
+                    upvote_num = _text2int(upvote_num.text)
+                    content = _answer_content_process(
+                        self.soup.new_tag(content))
+                    yield Answer(url, self, author_obj, upvote_num, content)
             else:
                 params['offset'] = i * 50
                 data['params'] = json.dumps(params)
@@ -399,13 +400,13 @@ class Question:
                         self._url + 'answer/' + soup.div['data-atoken']
                     author = soup.find(
                         'h3', class_='zm-item-answer-author-wrap')
-                    upvote = _text2int(
+                    upvote_num = _text2int(
                         soup.find('span', class_='count').text)
                     content = soup.find(
                         'div', class_=' zm-editable-content clearfix')
                     content = _answer_content_process(content)
                     author_obj = _parser_author_from_tag(author)
-                    yield Answer(answer_url, self, author_obj, upvote, content)
+                    yield Answer(answer_url, self, author_obj, upvote_num, content)
 
     @property
     def top_answer(self):
@@ -509,11 +510,11 @@ class Author:
                 return bar.contents[3].text
 
     @property
-    @_check_soup('_followees_num')
-    def followees_num(self):
-        """获取追随者数量，就是获取关注此人的人数
+    @_check_soup('_followee_num')
+    def followee_num(self):
+        """获取关注了多少人
 
-        :return: 追随者数量
+        :return: 关注的人数
         :rtype: int
         """
         if self._url is None:
@@ -526,11 +527,11 @@ class Author:
             return number
 
     @property
-    @_check_soup('_followers_num')
-    def followers_num(self):
-        """获取关注数量。
+    @_check_soup('_follower_num')
+    def follower_num(self):
+        """获取追随者数量，就是关注此人的人数
 
-        :return: 关注人数
+        :return: 追随者数量
         :rtype: int
         """
         if self._url is None:
@@ -543,8 +544,8 @@ class Author:
             return number
 
     @property
-    @_check_soup('_agree_num')
-    def agree_num(self):
+    @_check_soup('_upvote_num')
+    def upvote_num(self):
         """获取收到的的赞同数量
 
         :return: 收到的的赞同数量
@@ -553,13 +554,13 @@ class Author:
         if self._url is None:
             return 0
         else:
-            number = int(self.soup.find(
+            number = _text2int(self.soup.find(
                 'span', class_='zm-profile-header-user-agree').strong.text)
             return number
 
     @property
-    @_check_soup('_thanks_num')
-    def thanks_num(self):
+    @_check_soup('_thank_num')
+    def thank_num(self):
         """获取收到的感谢数量
 
         :return: 收到的感谢数量
@@ -573,8 +574,8 @@ class Author:
             return number
 
     @property
-    @_check_soup('_asks_num')
-    def questions_num(self):
+    @_check_soup('_question_num')
+    def question_num(self):
         """获取提问数量
 
         :return: 提问数量
@@ -586,8 +587,8 @@ class Author:
             return int(self._nav_list[1].span.text)
 
     @property
-    @_check_soup('_answers_num')
-    def answers_num(self):
+    @_check_soup('_answer_num')
+    def answer_num(self):
         """获取答案数量
 
         :return: 答案数量
@@ -612,8 +613,8 @@ class Author:
             return int(self._nav_list[3].span.text)
 
     @property
-    @_check_soup('_collections_num')
-    def collections_num(self):
+    @_check_soup('_collection_num')
+    def collection_num(self):
         """获取收藏夹数量
 
         :return: 收藏夹数量
@@ -631,24 +632,24 @@ class Author:
         :return: 每次迭代返回一个问题对象，获取到的问题对象自带标题，关注人数，答案数量三个属性
         :rtype: Question.Iterable
         """
-        if self._url is None or self.questions_num == 0:
+        if self._url is None or self.question_num == 0:
             return
-        for page_index in range(1, (self.questions_num - 1) // 20 + 2):
+        for page_index in range(1, (self.question_num - 1) // 20 + 2):
             global _session
             html = _session.get(
                 self._url + 'asks?page=' + str(page_index)).text
             soup = BeautifulSoup(html)
-            questions_links = soup.find_all('a', class_='question_link')
+            question_links = soup.find_all('a', class_='question_link')
             question_datas = soup.find_all(
                 'div', class_='zm-profile-section-main')
-            for link, data in zip(questions_links, question_datas):
+            for link, data in zip(question_links, question_datas):
                 url = _Zhihu_URL + link['href']
                 title = link.text
-                answers_num = int(
+                answer_num = int(
                     _re_get_number.match(data.div.contents[4]).group(1))
-                followers_num = int(
+                follower_num = int(
                     _re_get_number.match(data.div.contents[6]).group(1))
-                q = Question(url, title, followers_num, answers_num)
+                q = Question(url, title, follower_num, answer_num)
                 yield q
 
     @property
@@ -659,9 +660,9 @@ class Author:
             其中所在问题对象可以直接获取标题。答主对象即为此对象本身。
         :rtype: Answer.iterable
         """
-        if self._url is None or self.answers_num == 0:
+        if self._url is None or self.answer_num == 0:
             return
-        for page_index in range(1, (self.answers_num - 1) // 20 + 2):
+        for page_index in range(1, (self.answer_num - 1) // 20 + 2):
             global _session
             html = _session.get(
                 self._url + 'answers?page=' + str(page_index)).text
@@ -685,55 +686,55 @@ class Author:
             其中拥有者即为此对象本身。
         :rtype: Collection.Iterable
         """
-        if self._url is None or self.collections_num == 0:
+        if self._url is None or self.collection_num == 0:
             return
         else:
             global _session
-            collection_num = self.collections_num
+            collection_num = self.collection_num
             for page_index in range(1, (collection_num - 1) // 20 + 2):
                 html = _session.get(
                     self._url + 'collections?page=' + str(page_index)).text
                 soup = BeautifulSoup(html)
                 collections_names = soup.find_all(
                     'a', class_='zm-profile-fav-item-title')
-                collections_followers_nums = soup.find_all(
+                collection_follower_nums = soup.find_all(
                     'div', class_='zm-profile-fav-bio')
-                for c, f in zip(collections_names, collections_followers_nums):
+                for c, f in zip(collections_names, collection_follower_nums):
                     c_url = _Zhihu_URL + c['href']
                     c_name = c.text
                     c_fn = int(_re_get_number.match(f.contents[2]).group(1))
                     yield Collection(c_url, self, c_name, c_fn)
 
     @property
-    def books(self):
+    def columns(self):
         """获取此人专栏，返回生成器
 
         :return: 此人所有的专栏，能直接获取拥有者，名字，网址，文章数，关注人数。
-        :rtype: Book.iterable
+        :rtype: Column.iterable
         """
         if self._url is None or self.post_num == 0:
             return
         global _session
         soup = BeautifulSoup(_session.get(self._url + 'posts').text)
-        booktags = soup.find_all('div', class_='column')
-        for booktag in booktags:
-            name = booktag.div.a.span.text
-            url = booktag.div.a['href']
-            followers = _text2int(_re_get_number.match(
-                booktag.div.div.a.text).group(1))
-            footer = booktag.find('div', class_='footer')
+        column_tags = soup.find_all('div', class_='column')
+        for column_tag in column_tags:
+            name = column_tag.div.a.span.text
+            url = column_tag.div.a['href']
+            follower_num = _text2int(_re_get_number.match(
+                column_tag.div.div.a.text).group(1))
+            footer = column_tag.find('div', class_='footer')
             if footer is None:
-                article_num = 0
+                post_num = 0
             else:
-                article_num = _text2int(
+                post_num = _text2int(
                     _re_get_number.match(footer.a.text).group(1))
-            yield Book(url, name, followers, article_num)
+            yield Column(url, name, follower_num, post_num)
 
 
 class Answer:
     """答案类，用一个答案的网址作为参数构造对象"""
 
-    def __init__(self, url, question=None, author=None, upvote=None,
+    def __init__(self, url, question=None, author=None, upvote_num=None,
                  content=None):
         """
 
@@ -741,7 +742,7 @@ class Answer:
             http://www.zhihu.com/question/28297599/answer/40327808
         :param Question question: 答案所在的问题对象，自己构造对象不需要此参数
         :param Author author: 答案的回答者对象，同上。
-        :param int upvote: 此答案的赞同数量，同上。
+        :param int upvote_num: 此答案的赞同数量，同上。
         :param str content: 此答案内容，同上。
         :return: 答案对象。
         :rtype: Answer
@@ -754,7 +755,7 @@ class Answer:
         self.soup = None
         self._question = question
         self._author = author
-        self._upvote = upvote
+        self._upvote_num = upvote_num
         self._content = content
 
     def make_soup(self):
@@ -807,8 +808,8 @@ class Answer:
         return Question(url, title, followers_num, answers_num)
 
     @property
-    @_check_soup('_upvote')
-    def upvote(self):
+    @_check_soup('_upvote_num')
+    def upvote_num(self):
         """获取答案赞同数量
 
         :return: 答案赞同数量
@@ -859,13 +860,13 @@ class Collection:
     """收藏夹类，用收藏夹主页网址为参数来构造对象
     由于一些原因，没有提供收藏夹答案数量这个属性。"""
 
-    def __init__(self, url, owner=None, name=None, followers_num=None):
+    def __init__(self, url, owner=None, name=None, follower_num=None):
         """
 
         :param str url: 收藏夹主页网址，必须
         :param Author owner: 收藏夹拥有者，可选，最好不要自己设置
         :param str name: 收藏夹标题，可选，可以自己设置
-        :param int followers_num: 收藏夹关注人数，可选，可以自己设置
+        :param int follower_num: 收藏夹关注人数，可选，可以自己设置
         :return: 收藏夹对象
         :rtype: Collection
         """
@@ -878,7 +879,7 @@ class Collection:
             self.soup = None
             self._name = name
             self._owner = owner
-            self._followers_num = followers_num
+            self._follower_num = follower_num
 
     def make_soup(self):
         """没用的东西，不要调用。
@@ -917,8 +918,8 @@ class Collection:
         return Author(url, name, motto)
 
     @property
-    @_check_soup('_followers_num')
-    def followers_num(self):
+    @_check_soup('_follower_num')
+    def follower_num(self):
         """获取关注此收藏夹的人数
 
         :return: 关注此收藏夹的人数
@@ -936,7 +937,7 @@ class Collection:
         """
         self.make_soup()
         # noinspection PyTypeChecker
-        for question in self.__page_get_questions(self.soup):
+        for question in Collection.__page_get_questions(self.soup):
             yield question
         i = 2
         while True:
@@ -958,7 +959,7 @@ class Collection:
         """
         self.make_soup()
         # noinspection PyTypeChecker
-        for answer in self.__page_get_answers(self.soup):
+        for answer in Collection.__page_get_answers(self.soup):
             yield answer
         i = 2
         while True:
@@ -972,7 +973,7 @@ class Collection:
             i += 1
 
     @staticmethod
-    def __page_get_questions(soup: BeautifulSoup):
+    def __page_get_questions(soup):
         question_tags = soup.find_all("div", class_="zm-item")
         if len(question_tags) == 0:
             yield 0
@@ -985,7 +986,7 @@ class Collection:
                     yield Question(question_url, question_title)
 
     @staticmethod
-    def __page_get_answers(soup: BeautifulSoup):
+    def __page_get_answers(soup):
         answer_tags = soup.find_all("div", class_="zm-item")
         if len(answer_tags) == 0:
             yield 0
@@ -993,14 +994,12 @@ class Collection:
         else:
             question = None
             for tag in answer_tags:
-
                 # 判断是否是'建议修改的回答'等情况
                 url_tag = tag.find('a', class_='answer-date-link')
                 if url_tag is None:
                     reason = tag.find('div', id='answer-status').p.text
                     print("pass a answer, reason %s ." % reason)
                     continue
-
                 author_name = '匿名用户'
                 author_motto = ''
                 author_url = None
@@ -1022,20 +1021,20 @@ class Collection:
                 yield answer
 
 
-class Book:
+class Column:
     """专栏类，用专栏网址为参数来构造对象"""
 
-    def __init__(self, url, name=None, followers_num=None,
-                 article_num=None):
+    def __init__(self, url, name=None, follower_num=None,
+                 post_num=None):
         """
         :param str url: 专栏网址
         :param str name: 专栏名
-        :param int followers_num: 关注者数量
-        :param int article_num: 文章数量
+        :param int follower_num: 关注者数量
+        :param int post_num: 文章数量
         :return: 专栏对象
-        :rtype: Book
+        :rtype: Column
         """
-        match = _re_book_url.match(url)
+        match = _re_column_url.match(url)
         if match is None:
             raise Exception('URL invalid')
         else:
@@ -1045,8 +1044,8 @@ class Book:
         self._url = url
         self.soup = None
         self._name = name
-        self._followers_num = followers_num
-        self._article_num = article_num
+        self._follower_num = follower_num
+        self._post_num = post_num
 
     def make_soup(self):
         """不要调用！不要调用！！不要调用！！
@@ -1071,8 +1070,8 @@ class Book:
         return self.soup['name']
 
     @property
-    @_check_soup('_followers_num')
-    def followers_num(self):
+    @_check_soup('_follower_num')
+    def follower_num(self):
         """获取关注人数
 
         :return: 关注人数
@@ -1081,8 +1080,8 @@ class Book:
         return _text2int(self.soup['followersCount'])
 
     @property
-    @_check_soup('_article_num')
-    def article_num(self):
+    @_check_soup('_post_num')
+    def post_num(self):
         """获取专栏文章数
 
         :return: 专栏文章数
@@ -1095,53 +1094,53 @@ class Book:
         """获取专栏的所有文章
 
         :return: 专栏所有文章的迭代器
-        :rtype: Article.iterable
+        :rtype: Post.iterable
         """
         global _session
         origin_host = _session.headers.get('Host')
-        for offset in range(0, (self.article_num - 1) // 10 + 1):
+        for offset in range(0, (self.post_num - 1) // 10 + 1):
             _session.headers.update(Host='zhuanlan.zhihu.com')
             res = _session.get(
                 _Columns_Posts_Data.format(self._in_name, offset * 10))
             soup = res.json()
             _session.headers.update(Host=origin_host)
-            for article in soup:
-                url = _Columns_Prefix + article['url'][1:]
-                author = Author(article['author']['profileUrl'],
-                                article['author']['name'],
-                                article['author']['bio'])
-                title = article['title']
-                agree_num = article['likesCount']
-                comment_num = article['commentsCount']
-                yield Article(url, self, author, title, agree_num, comment_num)
+            for post in soup:
+                url = _Columns_Prefix + post['url'][1:]
+                author = Author(post['author']['profileUrl'],
+                                post['author']['name'],
+                                post['author']['bio'])
+                title = post['title']
+                upvote_num = post['likesCount']
+                comment_num = post['commentsCount']
+                yield Post(url, self, author, title, upvote_num, comment_num)
 
 
-class Article:
+class Post:
     """知乎专栏的文章类，以文章网址为参数构造对象"""
 
-    def __init__(self, url, book=None, author=None, title=None, agree_num=None,
+    def __init__(self, url, column=None, author=None, title=None, upvote_num=None,
                  comment_num=None):
         """
         :param str url: 文章所在URL
-        :param Book book: 所属专栏
+        :param Column column: 所属专栏
         :param Author author: 文章作者
         :param str title: 文章标题
-        :param int agree_num: 赞同数
+        :param int upvote_num: 赞同数
         :param int comment_num: 评论数
-        :return: Article
+        :return: Post
         """
-        match = _re_article_url.match(url)
+        match = _re_post_url.match(url)
         if match is None:
             raise Exception('URL invalid')
         if url.endswith('/') is False:
             url += '/'
         self.url = url
-        self._book_in_name = match.group(1)
+        self._column_in_name = match.group(1)
         self._slug = match.group(2)
-        self._book = book
+        self._column = column
         self._author = author
         self._title = title
-        self._agree_num = agree_num
+        self._upvote_num = upvote_num
         self._comment_num = comment_num
         self.soup = None
 
@@ -1154,20 +1153,20 @@ class Article:
             _session.headers.update(Host='zhuanlan.zhihu.com')
             self.soup = _session.get(
                 _Columns_Post_Data.format(
-                    self._book_in_name, self._slug)).json()
+                    self._column_in_name, self._slug)).json()
             _session.headers.update(Host=origin_host)
 
     @property
-    @_check_soup('_book')
-    def book(self):
+    @_check_soup('_column')
+    def column(self):
         """获取文章所在专栏
 
         :return: 文章所在专栏
-        :rtype: Book
+        :rtype: Column
         """
         url = _Columns_Prefix + self.soup['column']['slug']
         name = self.soup['column']['name']
-        return Book(url, name)
+        return Column(url, name)
 
     @property
     @_check_soup('_author')
@@ -1193,8 +1192,8 @@ class Article:
         return self.soup['title']
 
     @property
-    @_check_soup('_agree_num')
-    def agree_num(self):
+    @_check_soup('_upvote_num')
+    def upvote_num(self):
         """获取文章赞同数量
 
         :return: 文章赞同数
@@ -1224,7 +1223,7 @@ class Article:
         """
         self.make_soup()
         file = _get_path(filepath, filename, 'md',
-                         self.book.name,
+                         self.column.name,
                          self.title + ' - ' + self.author.name)
         with open(file, 'wb') as f:
             import html2text

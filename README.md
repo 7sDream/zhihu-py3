@@ -1,5 +1,23 @@
 # zhihu-py3 : 知乎解析器 with Python3
 
+**突然一下我改了好多类和接口的名字，如果是这个库的老版本使用者更新请谨慎呀，新用户就直接用吧**
+
+**类名变更**
+
+专栏类从`Book`更名为`Cloumn`
+
+文章类从`Article`更名为`Post`
+
+以上两个更名同时影响了其他类的属性名，如`Author.books`变更为`Author.columns`，其他类同理。
+
+**接口名变更**
+
+1. 统一了一下复数的使用。比如`Author.answers_num`变为`Author.answer_num`, `Author.collections_num`变为`Author.collection_num`。也就是说某某数量的接口名为`Class.foo_num`，foo使用单数形式。
+
+2. 知乎的赞同使用单词upvote，以前叫`agree`的地方现在都叫`upvote`。比如`Author.agree_num`变为`Author.upvote_num`, `Post.agree_num`变为`Post.upvote_num`
+
+3. `Answer`类的`upvote`属性更名为`upvote_num`
+
 ## 介绍
 
 前几天最近想写个小东西跟踪一下知乎上答案的点赞数增加曲线，可惜知乎没有API，搜索后发现 [zhihu-python][zhihu-python-url] 这个项目，奈何我一直用的Python3，于是乎重新造了个轮子。

@@ -21,11 +21,11 @@ def test_question():
     # 从小父母和大家庭里，.......什么时候不该说"谢谢”？？
 
     # 获取回答个数
-    print(question.answers_num)
+    print(question.answer_num)
     # 174
 
     # 获取关注该问题的人数
-    print(question.followers_num)
+    print(question.follower_num)
     # 1419
 
     # 获取该问题所属话题
@@ -47,12 +47,12 @@ def test_question():
     # generator 对象可迭代：
     for answer in question.answers:
         # do something with answer
-        print(answer.upvote)
+        print(answer.author.name, answer.upvote_num)
         pass
-    # 1295
-    # 126
-    # ...
-    # 0
+    # 小不点儿 197
+    # 龙晓航 49
+    # 芝士就是力量 89
+    # 欧阳忆希 424
 
 
 def test_answer():
@@ -71,7 +71,7 @@ def test_answer():
     # <zhihu.Author object at 0x02E7E110>
 
     # 获取答案赞同数
-    print(answer.upvote)
+    print(answer.upvote_num)
     # 107
 
     # 获取答案内容的HTML
@@ -109,27 +109,27 @@ def test_author():
     # 二次元新居民/软件爱好者/零回答消灭者
 
     # 获取用户关注人数
-    print(author.followees_num)
+    print(author.followee_num)
     # 66
 
     # 获取用户粉丝数
-    print(author.followers_num)
+    print(author.follower_num)
     # 179
 
     # 获取用户得到赞同数
-    print(author.agree_num)
+    print(author.upvote_num)
     # 1078
 
     # 获取用户得到感谢数
-    print(author.thanks_num)
+    print(author.thank_num)
     # 370
 
     # 获取用户提问数
-    print(author.questions_num)
+    print(author.question_num)
     # 16
 
     # 获取用户答题数
-    print(author.answers_num)
+    print(author.answer_num)
     # 227
 
     # 获取用户专栏文章数
@@ -137,7 +137,7 @@ def test_author():
     # 0
 
     # 获取用户收藏夹数
-    print(author.collections_num)
+    print(author.collection_num)
     # 5
 
     # 获取用户所有提问
@@ -162,11 +162,11 @@ def test_author():
     # Read it later
 
     # 获取用户专栏文章
-    print(author.books)
+    print(author.columns)
 
-    # books 也可以进行迭代操作
-    for book in author.books:
-        print(book.name)
+    # columns 也可以进行迭代操作
+    for column in author.columns:
+        print(column.name)
 
 
 def test_collection():
@@ -178,7 +178,7 @@ def test_collection():
     # 教学精品。
 
     # 获取收藏夹关注人数
-    print(collection.followers_num)
+    print(collection.follower_num)
     # 教学精品。
 
     # 获取收藏夹创建者
@@ -196,28 +196,28 @@ def test_collection():
     # Author 对象 和 questions generator 用法见前文
 
 
-def test_book():
+def test_column():
     url = 'http://zhuanlan.zhihu.com/xiepanda'
-    book = zhihu.Book(url)
+    column = zhihu.Column(url)
 
     # 获取专栏名
-    print(book.name)
+    print(column.name)
     # 谢熊猫出没注意
 
     # 获取关注人数
-    print(book.followers_num)
+    print(column.follower_num)
     # 63742
 
     # 获取文章数量
-    print(book.article_num)
+    print(column.post_num)
     # 66
 
     # 获取所有文章
-    print(book.posts)
+    print(column.posts)
     # <generator object posts at 0x0521F2D8>
 
-    # posts 是可迭代的 Article 对象集合
-    for post in book.posts:
+    # posts 是可迭代的 Post 对象集合
+    for post in column.posts:
         print(post.title)
     # 伦敦，再见。London, Pride.
     # 为什么你来到伦敦?——没有抽到h1b
@@ -226,35 +226,35 @@ def test_book():
     # 华盛顿纪念碑综合症
 
 
-def test_article():
+def test_post():
     url = 'http://zhuanlan.zhihu.com/xiepanda/19950456'
-    article = zhihu.Article(url)
+    post = zhihu.Post(url)
 
     # 获取文章地址
-    print(article.url)
+    print(post.url)
 
     # 获取文章标题
-    print(article.title)
+    print(post.title)
     # 为什么最近有很多名人，比如比尔盖茨，马斯克、霍金等，让人们警惕人工智能？
 
     # 获取所在专栏
-    print(article.book)
-    # <zhihu.Book object at 0x0600AF90>
+    print(post.column)
+    # <zhihu.Column object at 0x0600AF90>
 
     # 获取作者
-    print(article.author)
+    print(post.author)
     # <zhihu.Author object at 0x0600AD90>
 
     # 获取赞同数
-    print(article.agree_num)
+    print(post.upvote_num)
     # 15326
 
     # 获取评论数
-    print(article.comment_num)
+    print(post.comment_num)
     # 1517
 
     # 保存为 markdown
-    article.save(filepath='.')
+    post.save(filepath='.')
     # 当前目录下生成
     # 为什么最近有很多名人，比如比尔盖茨，马斯克、霍金等，让人们警惕人工智能？ - 谢熊猫君.md
 
@@ -268,5 +268,5 @@ test_question()
 test_answer()
 test_author()
 test_collection()
-test_book()
-test_article()
+test_column()
+test_post()
