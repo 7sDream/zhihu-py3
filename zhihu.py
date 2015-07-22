@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 __author__ = '7sDream'
@@ -10,11 +10,12 @@ import json
 import functools
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup as _Bs
 
+
+BeautifulSoup = lambda makeup: _Bs(makeup, 'html.parser')
 
 # Setting
-
 _Zhihu_URL = 'http://www.zhihu.com'
 _Login_URL = _Zhihu_URL + '/login/email'
 _Captcha_URL_Prefix = _Zhihu_URL + '/captcha.gif?r='
@@ -63,9 +64,7 @@ def _check_soup(attr):
                 return value
             else:
                 return value
-
         return wrapper
-
     return real
 
 
@@ -231,6 +230,7 @@ def _get_path(path, filename, mode, defaultpath, defaultname):
 
 class Question:
     """问题类，用一个问题的网址来构造对象,其他参数皆为可选"""
+
     def __init__(self, url, title=None, followers_num=None, answers_num=None):
         """
 
@@ -252,6 +252,7 @@ class Question:
             self._title = title
             self._answers_num = answers_num
             self._followers_num = followers_num
+            self._xsrf = ''
 
     def make_soup(self):
         """**请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用**
@@ -263,6 +264,8 @@ class Question:
         if self.soup is None:
             r = _session.get(self._url)
             self.soup = BeautifulSoup(r.content)
+            self._xsrf = self.soup.find(
+                'input', attrs={'name': '_xsrf'})['value']
 
     @property
     @_check_soup('_html')
@@ -349,7 +352,16 @@ class Question:
             回答内容四个属性。获取其他属性需要解析另外的网页。
         :rtype: Answer.Iterable
         """
-        self.make_soup()
+        global _session
+        global _header
+        new_header = dict(_header)
+        new_header['Referer'] = self._url
+        params = {"url_token": self.__get_qid(),
+                  'pagesize': '50',
+                  'offset': 0}
+        data = {'_xsrf': self._xsrf,
+                'method': 'next',
+                'params': ''}
         for i in range(0, (self.answers_num - 1) // 50 + 1):
             if i == 0:
                 # 修正各种建议修改的回答……
@@ -368,23 +380,14 @@ class Question:
                     author_obj = _parser_author_from_tag(author)
                     url = _Zhihu_URL + url['href']
                     upvote = _text2int(upvote.text)
+                    # 我也不知道为什么要这样写，反正这样写的话BS4 4.4.0版本下他也能对……
                     content = _answer_content_process(content)
                     yield Answer(url, self, author_obj, upvote, content)
             else:
-                global _session
-                global _header
-                _xsrf = self.soup.find(
-                    'input', attrs={'name': '_xsrf'})['value']
-                new_header = dict(_header)
-                new_header['Referer'] = self._url
-                params = {"url_token": self.__get_qid(),
-                          'pagesize': '50',
-                          'offset': i * 50}
-                data = {'_xsrf': _xsrf,
-                        'method': 'next',
-                        'params': json.dumps(params)}
+                params['offset'] = i * 50
+                data['params'] = json.dumps(params)
                 r = _session.post(_Get_More_Answer_URL, data=data,
-                                  headers=_header)
+                                  headers=new_header)
                 answer_list = r.json()['msg']
                 for answer_html in answer_list:
                     soup = BeautifulSoup(answer_html)
@@ -442,6 +445,7 @@ class Question:
 
 class Author:
     """用户类，用用户主页地址作为参数来构造对象，其他参数可选"""
+
     def __init__(self, url, name=None, motto=None):
         """
         :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream
@@ -631,7 +635,8 @@ class Author:
             return
         for page_index in range(1, (self.questions_num - 1) // 20 + 2):
             global _session
-            html = _session.get(self._url + 'asks?page=' + str(page_index)).text
+            html = _session.get(
+                self._url + 'asks?page=' + str(page_index)).text
             soup = BeautifulSoup(html)
             questions_links = soup.find_all('a', class_='question_link')
             question_datas = soup.find_all(
@@ -727,6 +732,7 @@ class Author:
 
 class Answer:
     """答案类，用一个答案的网址作为参数构造对象"""
+
     def __init__(self, url, question=None, author=None, upvote=None,
                  content=None):
         """
@@ -843,6 +849,7 @@ class Answer:
                 f.write(self.content.encode('utf-8'))
             else:
                 import html2text
+
                 h2t = html2text.HTML2Text()
                 h2t.body_width = 0
                 f.write(h2t.handle(self.content).encode('utf-8'))
@@ -851,6 +858,7 @@ class Answer:
 class Collection:
     """收藏夹类，用收藏夹主页网址为参数来构造对象
     由于一些原因，没有提供收藏夹答案数量这个属性。"""
+
     def __init__(self, url, owner=None, name=None, followers_num=None):
         """
 
@@ -1015,8 +1023,8 @@ class Collection:
 
 
 class Book:
-    """专栏类，用专栏网址为参数来构造对象
-    """
+    """专栏类，用专栏网址为参数来构造对象"""
+
     def __init__(self, url, name=None, followers_num=None,
                  article_num=None):
         """
@@ -1094,7 +1102,7 @@ class Book:
         for offset in range(0, (self.article_num - 1) // 10 + 1):
             _session.headers.update(Host='zhuanlan.zhihu.com')
             res = _session.get(
-                _Columns_Posts_Data.format(self._in_name, offset*10))
+                _Columns_Posts_Data.format(self._in_name, offset * 10))
             soup = res.json()
             _session.headers.update(Host=origin_host)
             for article in soup:
@@ -1109,8 +1117,8 @@ class Book:
 
 
 class Article:
-    """知乎专栏的文章类，以文章网址为参数构造对象
-    """
+    """知乎专栏的文章类，以文章网址为参数构造对象"""
+
     def __init__(self, url, book=None, author=None, title=None, agree_num=None,
                  comment_num=None):
         """
@@ -1220,8 +1228,10 @@ class Article:
                          self.title + ' - ' + self.author.name)
         with open(file, 'wb') as f:
             import html2text
+
             h2t = html2text.HTML2Text()
             h2t.body_width = 0
             f.write(h2t.handle(self.soup['content']).encode('utf-8'))
+
 
 _init()
