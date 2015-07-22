@@ -1,19 +1,5 @@
 # zhihu-py3 : 知乎解析器 with Python3
 
-## **HOTFIX**
-
-**紧急: 知乎的登录地址从 `http://www.zhihu.com/login` 改成了 `http://www.zhihu.com/login/email` 导致调用create_cookies创建cookies时出现问题**
-
-**紧急跟进了一下，目前就是简单的把登录地址换了，不知道会不会有其他地方HTML变化。**
-
-**过了一遍test，没有什么问题，如果你发现什么地方报错欢迎Issue。**
-
-PS：我还没进入暑假，没什么时间码代码，有PR当然更好，Thanks。
-
-2015.07.11 19:20
-
-7sDream.
-
 ## 介绍
 
 前几天最近想写个小东西跟踪一下知乎上答案的点赞数增加曲线，可惜知乎没有API，搜索后发现 [zhihu-python][zhihu-python-url] 这个项目，奈何我一直用的Python3，于是乎重新造了个轮子。
@@ -209,6 +195,14 @@ Read The Docs： [点击这里查看文档][doc-rtd-url]
 
 想了想还是加上这个吧，虽然经常一些小问题的修复也懒得写出来…………
 
+2015.07.22
+
+尝试修复了最新版bs4导致的问题，虽然我没明白问题在哪QuQ，求测试。
+
+ - Windows 已测试 ([@7sDream][my-github-url])
+ - Linux 未测试
+ - Mac 未测试
+
 2015.07.16
 
 重构 Answer 和 Article 的 url 属性为 public.
@@ -227,11 +221,11 @@ Hotfix， 知乎更换了登录网址，做了简单的跟进，过了Test，等
 
 ## 联系我
 
-Github: [@7sDream][github-url]
+Github: [@7sDream][my-github-url]
 
-知乎： [@7sDream][zhihu-url]
+知乎： [@7sDream][my-zhihu-url]
 
-新浪微博：[@Dilover][weibo-url]
+新浪微博：[@Dilover][my-weibo-url]
 
 邮箱: [给我发邮件][mail-to-me]
 
@@ -240,9 +234,9 @@ Github: [@7sDream][github-url]
 [bs4-url]: http://www.crummy.com/software/BeautifulSoup
 [html2text-url]: https://github.com/aaronsw/html2text
 [doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/latest/
-[github-url]: https://github.com/7sDream
-[weibo-url]: http://weibo.com/didilover
-[zhihu-url]: http://www.zhihu.com/people/7sdream
+[my-github-url]: https://github.com/7sDream
+[my-weibo-url]: http://weibo.com/didilover
+[my-zhihu-url]: http://www.zhihu.com/people/7sdream
 [mail-to-me]: mailto:xixihaha.xiha@qq.com
 [zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/master/zhihu-test.py
 
