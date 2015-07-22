@@ -16,7 +16,7 @@
 
 **依赖 [requests][req-url] 、[BeautifulSoup4][bs4-url]、[html2text][html2text-url] 使用前请先安装**
 
-**PS： html2text 只在导出为 markdown 格式功能被使用时才会被 import，如果没有此模块其他功能也能正常完成。**
+** html2text 只在导出为 markdown 格式功能被使用时才会被 import，如果没有此模块其他功能也能正常完成。**
 
 ```bash
 pip install requests
@@ -24,22 +24,20 @@ pip install beautifulsoup4
 pip install html2text
 ```
 
-在 Ubuntu 上，如果你同时安装了 Python3 和 Python2，那么在`impor zhihu`的时候，会显示找不到 bs4，之后还会有 htm2text 的问题，这时候需要使用下面的命令安装：
+在 Ubuntu 上，如果你同时安装了 Python3 和 Python2，需要使用下面的命令安装：
 
 ```bash
 sudo apt-get install python3-bs4
 sudo apt-get install python3-html2text
 ```
 
-**以下代码在 Windows 8.1 + Python3.4 + Beautifulsoup4 + requests + html2text 环境下测试通过，其他环境未测试。**
+或者使用
 
-2015.03.08 更新
-
-**以下代码在 Kali Linux 1.1.0 (Debian 4.7.2-5) + Python 3.2.3 + Beautifulsoup4 + requests + html2text 环境下测试也通过了**
-
-2015.06.03 更新
-
-**以下代码在 Ubuntu 14.10 + Python3.4 + python3-bs4 + python3-html2text 测试通过**
+```bash
+pip3 install requests
+pip3 install beautifulsoup4
+pip3 install html2text
+```
 
 ## 使用说明
 
@@ -200,8 +198,9 @@ Read The Docs： [点击这里查看文档][doc-rtd-url]
 尝试修复了最新版bs4导致的问题，虽然我没明白问题在哪QuQ，求测试。
 
  - Windows 已测试 ([@7sDream][my-github-url])
- - Linux 未测试
- - Mac 未测试
+ - Linux
+    - Ubuntu 已测试([@7sDream][my-github-url])
+ - Mac 已测试 ([@SimplyY][SimplyY-github-url])
 
 2015.07.16
 
@@ -213,11 +212,11 @@ Hotfix， 知乎更换了登录网址，做了简单的跟进，过了Test，等
 
 2015.06.04：
 
-由[Gracker][thanks-gb-gracker]补充了在 Ubuntu 14.04 下的测试结果，并添加了补充说明。
+由[Gracker][gracker-github-url]补充了在 Ubuntu 14.04 下的测试结果，并添加了补充说明。
 
 2015.05.29：
 
-修复了当问题关注人数为0时、问题答案数为0时的崩溃问题。（感谢：[段晓晨][thanks-zh-duan-xiao-chen-39]）
+修复了当问题关注人数为0时、问题答案数为0时的崩溃问题。（感谢：[段晓晨][duan-xiao-chen-zhihu-url]）
 
 ## 联系我
 
@@ -234,11 +233,12 @@ Github: [@7sDream][my-github-url]
 [bs4-url]: http://www.crummy.com/software/BeautifulSoup
 [html2text-url]: https://github.com/aaronsw/html2text
 [doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/latest/
+[zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/master/zhihu-test.py
+
 [my-github-url]: https://github.com/7sDream
 [my-weibo-url]: http://weibo.com/didilover
 [my-zhihu-url]: http://www.zhihu.com/people/7sdream
 [mail-to-me]: mailto:xixihaha.xiha@qq.com
-[zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/master/zhihu-test.py
-
-[thanks-zh-duan-xiao-chen-39]: http://www.zhihu.com/people/duan-xiao-chen-39
-[thanks-gb-gracker]: https://github.com/Gracker
+[duan-xiao-chen-zhihu-url]: http://www.zhihu.com/people/loveQt
+[gracker-github-url]: https://github.com/Gracker
+[SimplyY-github-url]: https://github.com/SimplyY
