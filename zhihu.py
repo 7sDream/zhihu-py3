@@ -488,7 +488,6 @@ class Author:
                 'div', class_='profile-navbar clearfix').find_all('a')
             self._xsrf = self.soup.find(
                 'input', attrs={'name': '_xsrf'})['value']
-            print(self._xsrf)
 
     @property
     @_check_soup('_name')
