@@ -826,6 +826,9 @@ class Author:
                         else:
                             try_find_author = try_find_author[-1]
                             author_url = _Zhihu_URL + try_find_author['href']
+                            if _re_author_url.match(author_url) is None:
+                                # 跳过「松阳先生」Bug
+                                continue
                             author_name = try_find_author.text
                             try_find_motto = try_find_author.parent.strong
                             if try_find_motto is None:
