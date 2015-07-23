@@ -1,5 +1,7 @@
 # zhihu-py3 : 知乎解析器 with Python3
 
+[![Documentation Status](https://readthedocs.org/projects/zhihu-py3/badge/?version=dev)](https://readthedocs.org/projects/zhihu-py3/?badge=dev)
+
 ## DEV 分支更新
 
 ### 类名变更
@@ -191,7 +193,7 @@ zhihu-py3 主要文件为`zhihu.py`，配置文件为`cookies.json`, 将这两�
 
 注：`cookies.json`一般由`create_cookies()`函数创建，但也自己从浏览器中获取。
 
-**嗯！类的用法请看 [zhihu-test.py][zhihu-test-py-url]，或者看[文档][doc-rtd-url]，就不在这里写啦**
+**嗯！类的用法请看 [zhihu-test.py][zhihu-test-py-url]，或者看[文档][dev-doc-rtd-url]，就不在这里写啦**
 
 ### 其他常用方法
 
@@ -222,7 +224,7 @@ zhihu-py3 主要文件为`zhihu.py`，配置文件为`cookies.json`, 将这两�
 
 终于搞定了文档这个磨人的小妖精，可惜 Sphinx 还是不会用 T^T 先随意弄成这样吧：
 
-Read The Docs： [点击这里查看文档][doc-rtd-url]
+Read The Docs： [点击这里查看文档][dev-doc-rtd-url]
 
 ## TODO List
 
@@ -288,7 +290,8 @@ Github: [@7sDream][my-github-url]
 [req-url]: https://pypi.python.org/pypi/requests/2.5.1
 [bs4-url]: http://www.crummy.com/software/BeautifulSoup
 [html2text-url]: https://github.com/aaronsw/html2text
-[doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/latest/
+[doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/latest
+[dev-doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/dev
 [zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/master/zhihu-test.py
 [dev-zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/dev/zhihu-test.py
 
