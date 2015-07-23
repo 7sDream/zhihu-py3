@@ -782,8 +782,6 @@ class Author:
                         author_motto = author_info[1] \
                             if len(author_info) > 1 else ''
                     except TypeError:
-                        # 在文章作者开启了隐私保护，且未生成模块的cookies时
-                        # 知乎的动态流中不显示文章作者信息。
                         author_url = None
                         author_name = '匿名用户'
                         author_motto = ''
@@ -818,7 +816,7 @@ class Author:
                     question = Question(question_url, question_title)
 
                     try_find_author = act.find('h3').find_all(
-                        'a', href=re.compile('^/people/'))
+                        'a', href=re.compile('^/people/[^/]*$'))
                     if len(try_find_author) == 0:
                         author_url = None
                         author_name = '匿名用户'
@@ -826,9 +824,6 @@ class Author:
                     else:
                         try_find_author = try_find_author[-1]
                         author_url = _Zhihu_URL + try_find_author['href']
-                        if _re_author_url.match(author_url) is None:
-                            # 跳过「松阳先生」Bug
-                            continue
                         author_name = try_find_author.text
                         try_find_motto = try_find_author.parent.strong
                         if try_find_motto is None:
