@@ -168,6 +168,35 @@ def test_author():
     for column in author.columns:
         print(column.name)
 
+    # 获取用户动态
+    for act in author.activities:
+        if act.type == zhihu.ActType.FOLLOW_COLUMN:
+            print('%s 在 %s 关注了专栏 %s' %
+                  (author.name, act.time, act.column.name))
+        elif act.type == zhihu.ActType.FOLLOW_QUESTION:
+            print('%s 在 %s 关注了问题 %s' %
+                  (author.name, act.time, act.question.title))
+        elif act.type == zhihu.ActType.ASK_QUESTION:
+            print('%s 在 %s 提了个问题 %s' %
+                  (author.name, act.time, act.question.title))
+        elif act.type == zhihu.ActType.UPVOTE_POST:
+            print('%s 在 %s 赞同了专栏 %s 中 %s 的文章 %s, 此文章赞同数 %d, 评论数 %d' %
+                  (author.name, act.time, act.post.column.name,
+                   act.post.author.name, act.post.title, act.post.upvote_num,
+                   act.post.comment_num))
+        elif act.type == zhihu.ActType.UPVOTE_ANSWER:
+            print('%s 在 %s 赞同了问题 %s 中 %s(motto: %s) 的回答, 此回答赞同数 %d' %
+                  (author.name, act.time, act.answer.question.title,
+                   act.answer.author.name, act.answer.author.motto,
+                   act.answer.upvote_num))
+        elif act.type == zhihu.ActType.ANSWER_QUESTION:
+            print('%s 在 %s 回答了问题 %s 此回答赞同数 %d' %
+                  (author.name, act.time, act.answer.question.title,
+                   act.answer.upvote_num))
+        elif act.type == zhihu.ActType.FOLLOW_TOPIC:
+            print('%s 在 %s 关注了专栏 %s' %
+                  (author.name, act.time, act.topic.name))
+
 
 def test_collection():
     url = 'http://www.zhihu.com/collection/37770691'

@@ -4,14 +4,15 @@
 __author__ = '7sDream'
 
 import time
+import datetime
 import re
 import os
 import json
 import functools
+import enum
 
 import requests
 from bs4 import BeautifulSoup as _Bs
-
 
 BeautifulSoup = lambda makeup: _Bs(makeup, 'html.parser')
 
@@ -38,13 +39,14 @@ _header = {'X-Requested-With': 'XMLHttpRequest',
                          ' like Gecko',
            'Host': 'www.zhihu.com'}
 
-_re_question_url = re.compile(r'http://www\.zhihu\.com/question/\d+/?$')
+_re_question_url = re.compile(r'^http://www\.zhihu\.com/question/\d+/?$')
 _re_ans_url = re.compile(
-    r'http://www\.zhihu\.com/question/\d+/answer/\d+/?$')
-_re_author_url = re.compile(r'http://www\.zhihu\.com/people/[^/]+/?$')
-_re_collection_url = re.compile(r'http://www\.zhihu\.com/collection/\d+/?$')
-_re_column_url = re.compile(r'http://zhuanlan\.zhihu\.com/([^/]+)/?$')
-_re_post_url = re.compile(r'http://zhuanlan.zhihu.com/([^/]+)/(\d+)/?$')
+    r'^http://www\.zhihu\.com/question/\d+/answer/\d+/?$')
+_re_author_url = re.compile(r'^http://www\.zhihu\.com/people/[^/]+/?$')
+_re_collection_url = re.compile(r'^http://www\.zhihu\.com/collection/\d+/?$')
+_re_column_url = re.compile(r'^http://zhuanlan\.zhihu\.com/([^/]+)/?$')
+_re_post_url = re.compile(r'^http://zhuanlan\.zhihu\.com/([^/]+)/(\d+)/?$')
+_re_topic_url = re.compile(r'^http://www\.zhihu\.com/topic/(\d+)/?$')
 _re_a2q = re.compile(r'(.*)/a.*')
 _re_collection_url_split = re.compile(r'.*(/c.*)')
 _re_get_number = re.compile(r'[^\d]*(\d+).*')
@@ -64,7 +66,9 @@ def _check_soup(attr):
                 return value
             else:
                 return value
+
         return wrapper
+
     return real
 
 
@@ -308,8 +312,9 @@ class Question:
         :rtype: int
         """
         answer_num_block = self.soup.find('h3', id='zh-question-answer-num')
-        # 当0人回答或1回答时，都会找不到 answer_num_block，通过找答案的赞同数block来判断
-        # 到底有没有答案。（感谢知乎用户 段晓晨 提出此问题）
+        # 当0人回答或1回答时，都会找不到 answer_num_block，
+        # 通过找答案的赞同数block来判断到底有没有答案。
+        # （感谢知乎用户 段晓晨 提出此问题）
         if answer_num_block is None:
             if self.soup.find('span', class_='count') is not None:
                 return 1
@@ -348,8 +353,8 @@ class Question:
     def answers(self):
         """获取问题的所有答案，返回可迭代生成器
 
-        :return: 每次迭代返回一个Answer对象， 获取到的Answer对象自带所在问题、答主、赞同数量、
-            回答内容四个属性。获取其他属性需要解析另外的网页。
+        :return: 每次迭代返回一个Answer对象， 获取到的Answer对象自带
+            所在问题、答主、赞同数量、回答内容四个属性。获取其他属性需要解析另外的网页。
         :rtype: Answer.Iterable
         """
         global _session
@@ -406,7 +411,8 @@ class Question:
                         'div', class_=' zm-editable-content clearfix')
                     content = _answer_content_process(content)
                     author_obj = _parser_author_from_tag(author)
-                    yield Answer(answer_url, self, author_obj, upvote_num, content)
+                    yield Answer(answer_url, self, author_obj,
+                                 upvote_num, content)
 
     @property
     def top_answer(self):
@@ -449,21 +455,24 @@ class Author:
 
     def __init__(self, url, name=None, motto=None):
         """
-        :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream
-        :param str name: 用户名字，可选
-        :param str motto: 可选
-        :return: Author
-        """
+
+            :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream
+            :param str name: 用户名字，可选
+            :param str motto: 可选
+            :return: Author对象
+            :rtype: Author
+            """
         if url is not None:
             if _re_author_url.match(url) is None:
                 raise Exception('URL invalid')
             if url.endswith('/') is False:
                 url += '/'
-        self._url = url
+        self.url = url
         self.soup = None
         self._nav_list = None
         self._name = name
         self._motto = motto
+        self._xsrf = None
 
     def make_soup(self) -> None:
         """**请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用**
@@ -472,11 +481,14 @@ class Author:
         :return: None
         :rtype: None
         """
-        if self.soup is None and self._url is not None:
-            r = _session.get(self._url)
+        if self.soup is None and self.url is not None:
+            r = _session.get(self.url)
             self.soup = BeautifulSoup(r.content)
             self._nav_list = self.soup.find(
                 'div', class_='profile-navbar clearfix').find_all('a')
+            self._xsrf = self.soup.find(
+                'input', attrs={'name': '_xsrf'})['value']
+            print(self._xsrf)
 
     @property
     @_check_soup('_name')
@@ -486,7 +498,7 @@ class Author:
         :return: 用户名字
         :rtype: str
         """
-        if self._url is None:
+        if self.url is None:
             return '匿名用户'
         return self.soup.find('div', class_='title-section ellipsis').span.text
 
@@ -499,7 +511,7 @@ class Author:
         :return: 用户自我介绍
         :rtype: str
         """
-        if self._url is None:
+        if self.url is None:
             return ''
         else:
             bar = self.soup.find(
@@ -517,7 +529,7 @@ class Author:
         :return: 关注的人数
         :rtype: int
         """
-        if self._url is None:
+        if self.url is None:
             return 0
         else:
             number = _text2int(
@@ -534,13 +546,14 @@ class Author:
         :return: 追随者数量
         :rtype: int
         """
-        if self._url is None:
+        if self.url is None:
             return 0
         else:
             number = _text2int(
                 self.soup.find(
-                    'div', class_='zm-profile-side-following zg-clear')
-                .find_all('a')[1].strong.text)
+                    'div',
+                    class_='zm-profile-side-following zg-clear').find_all(
+                    'a')[1].strong.text)
             return number
 
     @property
@@ -551,7 +564,7 @@ class Author:
         :return: 收到的的赞同数量
         :rtype: int
         """
-        if self._url is None:
+        if self.url is None:
             return 0
         else:
             number = _text2int(self.soup.find(
@@ -566,7 +579,7 @@ class Author:
         :return: 收到的感谢数量
         :rtype: int
         """
-        if self._url is None:
+        if self.url is None:
             return 0
         else:
             number = int(self.soup.find(
@@ -581,7 +594,7 @@ class Author:
         :return: 提问数量
         :rtype: int
         """
-        if self._url is None:
+        if self.url is None:
             return 0
         else:
             return int(self._nav_list[1].span.text)
@@ -594,7 +607,7 @@ class Author:
         :return: 答案数量
         :rtype: int
         """
-        if self._url is None:
+        if self.url is None:
             return 0
         else:
             return int(self._nav_list[2].span.text)
@@ -607,7 +620,7 @@ class Author:
         :return: 专栏文章数量
         :rtype: int
         """
-        if self._url is None:
+        if self.url is None:
             return 0
         else:
             return int(self._nav_list[3].span.text)
@@ -620,7 +633,7 @@ class Author:
         :return: 收藏夹数量
         :rtype: int
         """
-        if self._url is None:
+        if self.url is None:
             return 0
         else:
             return int(self._nav_list[4].span.text)
@@ -629,15 +642,16 @@ class Author:
     def questions(self):
         """获取此人问过的所有问题对象，返回生成器
 
-        :return: 每次迭代返回一个问题对象，获取到的问题对象自带标题，关注人数，答案数量三个属性
+        :return: 每次迭代返回一个问题对象，获取到的问题对象自带
+            标题，关注人数，答案数量三个属性
         :rtype: Question.Iterable
         """
-        if self._url is None or self.question_num == 0:
+        if self.url is None or self.question_num == 0:
             return
         for page_index in range(1, (self.question_num - 1) // 20 + 2):
             global _session
             html = _session.get(
-                self._url + 'asks?page=' + str(page_index)).text
+                self.url + 'asks?page=' + str(page_index)).text
             soup = BeautifulSoup(html)
             question_links = soup.find_all('a', class_='question_link')
             question_datas = soup.find_all(
@@ -660,12 +674,12 @@ class Author:
             其中所在问题对象可以直接获取标题。答主对象即为此对象本身。
         :rtype: Answer.iterable
         """
-        if self._url is None or self.answer_num == 0:
+        if self.url is None or self.answer_num == 0:
             return
         for page_index in range(1, (self.answer_num - 1) // 20 + 2):
             global _session
             html = _session.get(
-                self._url + 'answers?page=' + str(page_index)).text
+                self.url + 'answers?page=' + str(page_index)).text
             soup = BeautifulSoup(html)
             questions = soup.find_all('a', class_='question_link')
             upvotes = soup.find_all('a', class_='zm-item-vote-count')
@@ -686,14 +700,14 @@ class Author:
             其中拥有者即为此对象本身。
         :rtype: Collection.Iterable
         """
-        if self._url is None or self.collection_num == 0:
+        if self.url is None or self.collection_num == 0:
             return
         else:
             global _session
             collection_num = self.collection_num
             for page_index in range(1, (collection_num - 1) // 20 + 2):
                 html = _session.get(
-                    self._url + 'collections?page=' + str(page_index)).text
+                    self.url + 'collections?page=' + str(page_index)).text
                 soup = BeautifulSoup(html)
                 collections_names = soup.find_all(
                     'a', class_='zm-profile-fav-item-title')
@@ -712,10 +726,10 @@ class Author:
         :return: 此人所有的专栏，能直接获取拥有者，名字，网址，文章数，关注人数。
         :rtype: Column.iterable
         """
-        if self._url is None or self.post_num == 0:
+        if self.url is None or self.post_num == 0:
             return
         global _session
-        soup = BeautifulSoup(_session.get(self._url + 'posts').text)
+        soup = BeautifulSoup(_session.get(self.url + 'posts').text)
         column_tags = soup.find_all('div', class_='column')
         for column_tag in column_tags:
             name = column_tag.div.a.span.text
@@ -730,9 +744,138 @@ class Author:
                     _re_get_number.match(footer.a.text).group(1))
             yield Column(url, name, follower_num, post_num)
 
+    @property
+    def activities(self):
+        self.make_soup()
+        global _session
+        gotten_feed_num = 20
+        start = '0'
+        while gotten_feed_num == 20:
+            data = {'_xsrf': self._xsrf, 'start': start}
+            res = _session.post(self.url + 'activities', data=data)
+            gotten_feed_num = res.json()['msg'][0]
+            soup = BeautifulSoup(res.json()['msg'][1])
+            acts = soup.find_all(
+                'div', class_='zm-profile-section-item zm-item clearfix')
+            start = acts[-1]['data-time'] if len(acts) > 0 else 0
+            for act in acts:
+                act_time = datetime.datetime.fromtimestamp(
+                    int(act['data-time']))
+                if act['data-type'] == 'p':  # 赞同了文章
+                    act_type = ActType.UPVOTE_POST
+
+                    column_url = act.find('a', class_='column_link')['href']
+                    column_name = act.find('a', class_='column_link').text
+                    column = Column(column_url, column_name)
+                    try:
+                        author_tag = act.find('div', class_='author-info')
+                        author_url = _Zhihu_URL + author_tag.a['href']
+                        author_info = list(author_tag.stripped_strings)
+                        author_name = author_info[0]
+                        author_motto = author_info[1] \
+                            if len(author_info) > 1 else ''
+                    except TypeError:
+                        # 在文章作者开启了隐私保护，且未生成模块的cookies时
+                        # 知乎的动态流中不显示文章作者信息。
+                        author_url = None
+                        author_name = '匿名用户'
+                        author_motto = ''
+                    author = Author(author_url, author_name, author_motto)
+                    post_url = act.find('a', class_='post-link')['href']
+                    post_title = act.find('a', class_='post-link').text
+                    post_comment_num, post_upvote_num = self._parse_act(act)
+                    post = Post(post_url, column, author, post_title,
+                                post_upvote_num, post_comment_num)
+
+                    yield Activity(act_type, act_time, post=post)
+                else:
+                    useless_tag = act.div.find('a', class_='zg-link')
+                    if useless_tag is not None:
+                        useless_tag.extract()
+                    type_string = next(act.div.stripped_strings)
+                    if type_string == '关注了专栏':
+                        act_type = ActType.FOLLOW_COLUMN
+                        column = Column(act.div.a['href'], act.div.a.text)
+                        yield Activity(act_type, act_time, column=column)
+                    elif type_string == '关注了问题':
+                        act_type = ActType.FOLLOW_QUESTION
+                        question = Question(
+                            _Zhihu_URL + act.div.a['href'], act.div.a.text)
+                        yield Activity(act_type, act_time, question=question)
+                    elif type_string == '提了一个问题':
+                        act_type = ActType.ASK_QUESTION
+                        question = Question(
+                            _Zhihu_URL + act.div.contents[3]['href'],
+                            list(act.div.children)[3].text)
+                        yield Activity(act_type, act_time, question=question)
+                    elif type_string == '赞同了回答':
+                        act_type = ActType.UPVOTE_ANSWER
+                        question_url = _Zhihu_URL + _re_a2q.match(
+                            act.div.a['href']).group(1)
+                        question_title = act.div.a.text
+                        question = Question(question_url, question_title)
+
+                        try_find_author = act.find('h3').find_all(
+                            'a', href=re.compile('^/people/'))
+                        if len(try_find_author) == 0:
+                            author_url = None
+                            author_name = '匿名用户'
+                            author_motto = ''
+                        else:
+                            try_find_author = try_find_author[-1]
+                            author_url = _Zhihu_URL + try_find_author['href']
+                            author_name = try_find_author.text
+                            try_find_motto = try_find_author.parent.strong
+                            if try_find_motto is None:
+                                author_motto = ''
+                            else:
+                                author_motto = try_find_motto['title']
+                        author = Author(author_url, author_name, author_motto)
+
+                        answer_url = _Zhihu_URL + act.div.a['href']
+                        answer_comment_num, answer_upvote_num = \
+                            Author._parse_act(act)
+                        answer = Answer(answer_url, question, author,
+                                        answer_upvote_num)
+
+                        yield Activity(act_type, act_time, answer=answer)
+                    elif type_string == '回答了问题':
+                        act_type = ActType.ANSWER_QUESTION
+                        question_url = _Zhihu_URL + _re_a2q.match(
+                            act.div.find_all('a')[-1]['href']).group(1)
+                        question_title = act.div.find_all('a')[-1].text
+                        question = Question(question_url, question_title)
+
+                        answer_url = _Zhihu_URL + \
+                            act.div.find_all('a')[-1]['href']
+                        answer_comment_num, answer_upvote_num = \
+                            Author._parse_act(act)
+                        answer = Answer(answer_url, question, self,
+                                        answer_upvote_num)
+
+                        yield Activity(act_type, act_time, answer=answer)
+                    elif type_string == '关注了话题':
+                        act_type = ActType.FOLLOW_TOPIC
+                        topic_url = _Zhihu_URL + act.div.a['href']
+                        topic_name = act.div.a['title']
+
+                        yield Activity(act_type, act_time,
+                                       topic=Topic(topic_url, topic_name))
+
+    @staticmethod
+    def _parse_act(act):
+        upvote_num = _text2int(act.find(
+            'a', class_='zm-item-vote-count')['data-votecount'])
+        comment = act.find('a', class_='toggle-comment')
+        comment_text = next(comment.stripped_strings)
+        comment_num_match = _re_get_number.match(comment_text)
+        comment_num = _text2int(comment_num_match.group(1)) \
+            if comment_num_match is not None else 0
+        return comment_num, upvote_num
+
 
 class Answer:
-    """答案类，用一个答案的网址作为参数构造对象"""
+    """答案类，用一个答案的网址作为参数构造对象，其他参数可选"""
 
     def __init__(self, url, question=None, author=None, upvote_num=None,
                  content=None):
@@ -832,9 +975,10 @@ class Answer:
     def save(self, filepath=None, filename=None, mode="html"):
         """保存答案为Html文档或markdown文档
 
-        :param str filepath: 要保存的文件所在的绝对目录或相对目录，不填为当前目录下以问题
-            标题命名的目录, 设为"."则为当前目录
-        :param str filename: 要保存的文件名，不填则默认为 所在问题标题 - 答主名.html/md
+        :param str filepath: 要保存的文件所在的绝对目录或相对目录，
+            不填为当前目录下以问题标题命名的目录, 设为"."则为当前目录
+        :param str filename: 要保存的文件名，
+            不填则默认为 所在问题标题 - 答主名.html/md
             如果文件已存在，自动在后面加上数字区分。
             自定义文件名时请不要输入后缀 .html 或 .md
         :return: None
@@ -1118,8 +1262,8 @@ class Column:
 class Post:
     """知乎专栏的文章类，以文章网址为参数构造对象"""
 
-    def __init__(self, url, column=None, author=None, title=None, upvote_num=None,
-                 comment_num=None):
+    def __init__(self, url, column=None, author=None, title=None,
+                 upvote_num=None, comment_num=None):
         """
         :param str url: 文章所在URL
         :param Column column: 所属专栏
@@ -1214,8 +1358,8 @@ class Post:
     def save(self, filepath=None, filename=None):
         """将文章保存为 markdown 格式
 
-        :param str filepath: 要保存的文件所在的绝对目录或相对目录，不填为当前目录下以专栏名
-            命名的目录, 设为"."则为当前目录
+        :param str filepath: 要保存的文件所在的绝对目录或相对目录，
+            不填为当前目录下以专栏名命名的目录, 设为"."则为当前目录
         :param str filename: 要保存的文件名，不填则默认为 文章标题 - 作者名.md
             如果文件已存在，自动在后面加上数字区分。
             自定义参数时请不要输入扩展名 .md
@@ -1231,6 +1375,72 @@ class Post:
             h2t = html2text.HTML2Text()
             h2t.body_width = 0
             f.write(h2t.handle(self.soup['content']).encode('utf-8'))
+
+
+class ActType(enum.Enum):
+    """用于表示用户动态的类型"""
+    ANSWER_QUESTION = 1
+    UPVOTE_ANSWER = 2
+    ASK_QUESTION = 3
+    FOLLOW_QUESTION = 4
+    UPVOTE_POST = 5
+    FOLLOW_COLUMN = 6
+    FOLLOW_TOPIC = 7
+
+
+class Activity:
+    """用户动态类，不建议手动使用，请使用Author.feeds获取"""
+
+    def __init__(self, act_type, act_time, question=None, answer=None,
+                 column=None,
+                 post=None, topic=None):
+        if not isinstance(act_type, ActType):
+            raise Exception('invalid feed type')
+        self.type = act_type
+        self.time = act_time
+        self.question = question
+        self.answer = answer
+        self.column = column
+        self.post = post
+        self.topic = topic
+
+
+class Topic:
+    """话题类，传入话题网址构造对象
+    """
+
+    def __init__(self, url, name=None):
+        """
+        :param url: 话题地址
+        :param name: 话题名称
+        :return: Topic
+        """
+        if _re_topic_url.match(url) is None:
+            raise Exception('URL invalid')
+        if url.endswith('/') is False:
+            url += '/'
+        self.url = url
+        self._name = name
+        self.soup = None
+
+    def make_soup(self):
+        """不要调用！
+
+        :return: None
+        """
+        if self.soup is None:
+            global _session
+            self.soup = BeautifulSoup(_session.get(self.url).content)
+
+    @property
+    @_check_soup('_name')
+    def name(self):
+        """获取话题名称
+
+        :return: 话题名称
+        :rtype: str
+        """
+        return self.soup.find('h1').text
 
 
 _init()

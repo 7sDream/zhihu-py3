@@ -1,8 +1,9 @@
 # zhihu-py3 : 知乎解析器 with Python3
 
-**突然一下我改了好多类和接口的名字，如果是这个库的老版本使用者更新请谨慎呀，新用户就直接用吧**
+## DEV 分支更新
 
-**类名变更**
+
+### 类名变更
 
 专栏类从`Book`更名为`Cloumn`
 
@@ -10,13 +11,39 @@
 
 以上两个更名同时影响了其他类的属性名，如`Author.books`变更为`Author.columns`，其他类同理。
 
-**接口名变更**
+### 接口名变更
 
 1. 统一了一下复数的使用。比如`Author.answers_num`变为`Author.answer_num`, `Author.collections_num`变为`Author.collection_num`。也就是说某某数量的接口名为`Class.foo_num`，foo使用单数形式。
 
 2. 知乎的赞同使用单词upvote，以前叫`agree`的地方现在都叫`upvote`。比如`Author.agree_num`变为`Author.upvote_num`, `Post.agree_num`变为`Post.upvote_num`
 
 3. `Answer`类的`upvote`属性更名为`upvote_num`
+
+### 提供`Topic`类
+
+目前只有获取话题名的功能
+
+### 提供`Author.activities` (测试特性)
+
+属性获取用户动态，返回`Activity`类生成器。
+
+`Activity`类提供`type`属性用于判断动态类型，`type`为`ActType`类定义的常量，根据`type`的不同提供不同的属性，如下表：
+
+|类型|常量|提供的成员|
+|:--:|:--:|---------:|
+|关注了问题|FOLLOW_QUESTION|question|
+|赞同了回答|UPVOTE_ANSWER|answer|
+|关注了专栏|FOLLOW_COLUMN|book|
+|回答了问题|ANSWER_QUESTION|answer|
+|赞同了文章|UPVOTE_POST|article|
+|关注了话题|FOLLOW_TOPIC|topic|
+|提了一个问题|ASK_QUESTION|question|
+
+示例代码见[zhihu-test.py][zhihu-test-py-url]的`test_author`函数最后。
+
+`activities`属性可以在未登录（未生成cookies）的情况下使用，但是根据知乎的隐私保护政策，开启了隐私保护的用户的回答和文章，此时作者信息会是匿名用户，所以还是建议登录后使用。
+
+此功能还在测试期，欢迎各种test。
 
 ## 介绍
 
@@ -203,13 +230,23 @@ Read The Docs： [点击这里查看文档][doc-rtd-url]
  - 写文档 T^T √
  - 增加导出为 markdown 功能 √
  - 增加专栏类和文章类 √
- - 增加获取用户最新动态功能
+ - 增加获取用户最新动态功能 √
  - 增加获取答案点赞用户，用户关注者，用户追随者，收藏夹关注者，问题关注者等
  - 增加答案发布时间和更新时间的获取（这三个TODO准备暑假写掉，欢迎大家一起来 耶）
 
 ## 更新日志
 
 想了想还是加上这个吧，虽然经常一些小问题的修复也懒得写出来…………
+
+2015.07.23
+
+1. 更改了一堆类名，接口名
+
+2. 增加了Topic类，表示话题，功能只有获取话题名
+
+3. 增加了Activity类，ActType常量类，用于处理用户动态
+
+更新详情见文章开头。
 
 2015.07.22
 
