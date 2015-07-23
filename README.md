@@ -39,7 +39,7 @@
 |关注了话题|FOLLOW_TOPIC|topic|
 |提了一个问题|ASK_QUESTION|question|
 
-示例代码见[zhihu-test.py][zhihu-test-py-url]的`test_author`函数最后。
+示例代码见[zhihu-test.py][dev-zhihu-test-py-url]的`test_author`函数最后。
 
 `activities`属性可以在未登录（未生成cookies）的情况下使用，但是根据知乎的隐私保护政策，开启了隐私保护的用户的回答和文章，此时作者信息会是匿名用户，所以还是建议登录后使用。
 
@@ -289,6 +289,7 @@ Github: [@7sDream][my-github-url]
 [html2text-url]: https://github.com/aaronsw/html2text
 [doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/latest/
 [zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/master/zhihu-test.py
+[dev-zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/dev/zhihu-test.py
 
 [my-github-url]: https://github.com/7sDream
 [my-weibo-url]: http://weibo.com/didilover
