@@ -41,6 +41,7 @@
 |关注了专栏|FOLLOW_COLUMN|column|
 |回答了问题|ANSWER_QUESTION|answer|
 |赞同了文章|UPVOTE_POST|post|
+|发布了文章|PUBLISH_POST|post|
 |关注了话题|FOLLOW_TOPIC|topic|
 |提了一个问题|ASK_QUESTION|question|
 

@@ -194,7 +194,7 @@ def test_author():
                   (author.name, act.time, act.answer.question.title,
                    act.answer.upvote_num))
         elif act.type == zhihu.ActType.FOLLOW_TOPIC:
-            print('%s 在 %s 关注了专栏 %s' %
+            print('%s 在 %s 关注了话题 %s' %
                   (author.name, act.time, act.topic.name))
 
 
