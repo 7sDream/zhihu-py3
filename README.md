@@ -2,7 +2,6 @@
 
 ## DEV 分支更新
 
-
 ### 类名变更
 
 专栏类从`Book`更名为`Cloumn`
@@ -282,6 +281,8 @@ Github: [@7sDream][my-github-url]
 新浪微博：[@Dilover][my-weibo-url]
 
 邮箱: [给我发邮件][mail-to-me]
+
+编程交流群：478786205
 
 [zhihu-python-url]: https://github.com/egrcc/zhihu-python
 [req-url]: https://pypi.python.org/pypi/requests/2.5.1
