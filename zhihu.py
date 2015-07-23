@@ -237,7 +237,6 @@ class Question:
 
     def __init__(self, url, title=None, followers_num=None, answer_num=None):
         """
-
         :param str url: 问题地址，形如： http://www.zhihu.com/question/27936038
         :param str title: 可选, 问题标题
         :param int followers_num: 可选，问题关注人数
@@ -362,7 +361,7 @@ class Question:
         self.make_soup()
         new_header = dict(_header)
         new_header['Referer'] = self._url
-        params = {"url_token": self.__get_qid(),
+        params = {"url_token": self._get_qid(),
                   'pagesize': '50',
                   'offset': 0}
         data = {'_xsrf': self._xsrf,
@@ -446,7 +445,7 @@ class Question:
             if j <= i - 1:
                 yield a
 
-    def __get_qid(self):
+    def _get_qid(self):
         return int(re.match(r'.*/(\d+)', self._url).group(1))
 
 
@@ -455,13 +454,12 @@ class Author:
 
     def __init__(self, url, name=None, motto=None):
         """
-
-            :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream
-            :param str name: 用户名字，可选
-            :param str motto: 可选
-            :return: Author对象
-            :rtype: Author
-            """
+        :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream
+        :param str name: 用户名字，可选
+        :param str motto: 可选
+        :return: Author对象
+        :rtype: Author
+        """
         if url is not None:
             if _re_author_url.match(url) is None:
                 raise Exception('URL invalid')
@@ -474,7 +472,7 @@ class Author:
         self._motto = motto
         self._xsrf = None
 
-    def make_soup(self) -> None:
+    def make_soup(self):
         """**请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用**
         当然你非要调用我也没办法……
 
@@ -745,6 +743,11 @@ class Author:
 
     @property
     def activities(self):
+        """获取用户的最近动态
+
+        :return: 最近动态生成器，根据不同的动态类型提供不同的成员
+        :rtype: Activity.iterable
+        """
         self.make_soup()
         global _session
         gotten_feed_num = 20
@@ -846,7 +849,7 @@ class Author:
                         question = Question(question_url, question_title)
 
                         answer_url = _Zhihu_URL + \
-                            act.div.find_all('a')[-1]['href']
+                                     act.div.find_all('a')[-1]['href']
                         answer_comment_num, answer_upvote_num = \
                             Author._parse_act(act)
                         answer = Answer(answer_url, question, self,
@@ -879,7 +882,6 @@ class Answer:
     def __init__(self, url, question=None, author=None, upvote_num=None,
                  content=None):
         """
-
         :param str url: 答案网址，形如
             http://www.zhihu.com/question/28297599/answer/40327808
         :param Question question: 答案所在的问题对象，自己构造对象不需要此参数
@@ -1005,7 +1007,6 @@ class Collection:
 
     def __init__(self, url, owner=None, name=None, follower_num=None):
         """
-
         :param str url: 收藏夹主页网址，必须
         :param Author owner: 收藏夹拥有者，可选，最好不要自己设置
         :param str name: 收藏夹标题，可选，可以自己设置
@@ -1080,14 +1081,14 @@ class Collection:
         """
         self.make_soup()
         # noinspection PyTypeChecker
-        for question in Collection.__page_get_questions(self.soup):
+        for question in Collection._page_get_questions(self.soup):
             yield question
         i = 2
         while True:
             global _session
             soup = BeautifulSoup(_session.get(
                 self._url[:-1] + '?page=' + str(i)).text)
-            for question in self.__page_get_questions(soup):
+            for question in self._page_get_questions(soup):
                 if question == 0:
                     return
                 yield question
@@ -1102,21 +1103,21 @@ class Collection:
         """
         self.make_soup()
         # noinspection PyTypeChecker
-        for answer in Collection.__page_get_answers(self.soup):
+        for answer in Collection._page_get_answers(self.soup):
             yield answer
         i = 2
         while True:
             global _session
             soup = BeautifulSoup(_session.get(
                 self._url[:-1] + '?page=' + str(i)).text)
-            for answer in self.__page_get_answers(soup):
+            for answer in self._page_get_answers(soup):
                 if answer == 0:
                     return
                 yield answer
             i += 1
 
     @staticmethod
-    def __page_get_questions(soup):
+    def _page_get_questions(soup):
         question_tags = soup.find_all("div", class_="zm-item")
         if len(question_tags) == 0:
             yield 0
@@ -1129,7 +1130,7 @@ class Collection:
                     yield Question(question_url, question_title)
 
     @staticmethod
-    def __page_get_answers(soup):
+    def _page_get_answers(soup):
         answer_tags = soup.find_all("div", class_="zm-item")
         if len(answer_tags) == 0:
             yield 0
@@ -1377,7 +1378,16 @@ class Post:
 
 
 class ActType(enum.Enum):
-    """用于表示用户动态的类型"""
+    """用于表示用户动态的类型
+
+    ANSWER_QUESTION：回答了一个问题
+    UPVOTE_ANSWER  ：赞同了一个问题
+    ASK_QUESTION   ：提出了一个问题
+    FOLLOW_QUESTION：关注了一个问题
+    UPVOTE_POST    ：赞同了一篇文章
+    FOLLOW_COLUMN  ：关注了一个话题
+    FOLLOW_TOPIC   ：关注了一个专栏
+    """
     ANSWER_QUESTION = 1
     UPVOTE_ANSWER = 2
     ASK_QUESTION = 3
@@ -1405,8 +1415,7 @@ class Activity:
 
 
 class Topic:
-    """话题类，传入话题网址构造对象
-    """
+    """话题类，传入话题网址构造对象"""
 
     def __init__(self, url, name=None):
         """
