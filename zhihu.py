@@ -439,7 +439,7 @@ class Question:
 
         :param int i: 获取高位排名答案数量
         :return: 答案对象生成器，这些对象能直接获取的属性参见answers方法
-        :rtype: Answer.iterable
+        :rtype: Answer.Iterable
         """
         for j, a in enumerate(self.answers):
             if j <= i - 1:
@@ -669,7 +669,7 @@ class Author:
 
         :return: 此人的所有答案，能直接获取所在问题，答主，赞同数三个属性。
             其中所在问题对象可以直接获取标题。答主对象即为此对象本身。
-        :rtype: Answer.iterable
+        :rtype: Answer.Iterable
         """
         if self.url is None or self.answer_num == 0:
             return
@@ -721,7 +721,7 @@ class Author:
         """获取此人专栏，返回生成器
 
         :return: 此人所有的专栏，能直接获取拥有者，名字，网址，文章数，关注人数。
-        :rtype: Column.iterable
+        :rtype: Column.Iterable
         """
         if self.url is None or self.post_num == 0:
             return
@@ -746,7 +746,7 @@ class Author:
         """获取用户的最近动态
 
         :return: 最近动态生成器，根据不同的动态类型提供不同的成员
-        :rtype: Activity.iterable
+        :rtype: Activity.Iterable
         """
         self.make_soup()
         global _session
@@ -849,7 +849,7 @@ class Author:
                         question = Question(question_url, question_title)
 
                         answer_url = _Zhihu_URL + \
-                                     act.div.find_all('a')[-1]['href']
+                            act.div.find_all('a')[-1]['href']
                         answer_comment_num, answer_upvote_num = \
                             Author._parse_act(act)
                         answer = Answer(answer_url, question, self,
@@ -1238,7 +1238,7 @@ class Column:
         """获取专栏的所有文章
 
         :return: 专栏所有文章的迭代器
-        :rtype: Post.iterable
+        :rtype: Post.Iterable
         """
         global _session
         origin_host = _session.headers.get('Host')
@@ -1398,7 +1398,7 @@ class ActType(enum.Enum):
 
 
 class Activity:
-    """用户动态类，不建议手动使用，请使用Author.feeds获取"""
+    """用户动态类，不建议手动使用，请使用Author.activities获取"""
 
     def __init__(self, act_type, act_time, question=None, answer=None,
                  column=None,
