@@ -251,7 +251,7 @@ class Question:
             if url.endswith('/') is False:
                 url += '/'
             self.soup = None
-            self._url = url
+            self.url = url
             self._title = title
             self._answer_num = answer_num
             self._followers_num = followers_num
@@ -265,7 +265,7 @@ class Question:
         :rtype: None
         """
         if self.soup is None:
-            r = _session.get(self._url)
+            r = _session.get(self.url)
             self.soup = BeautifulSoup(r.content)
             self._xsrf = self.soup.find(
                 'input', attrs={'name': '_xsrf'})['value']
@@ -360,7 +360,7 @@ class Question:
         global _header
         self.make_soup()
         new_header = dict(_header)
-        new_header['Referer'] = self._url
+        new_header['Referer'] = self.url
         params = {"url_token": self._get_qid(),
                   'pagesize': '50',
                   'offset': 0}
@@ -401,7 +401,7 @@ class Question:
                     for each in error_answers:
                         each['class'] = ' zm-editable-content clearfix'
                     answer_url = \
-                        self._url + 'answer/' + soup.div['data-atoken']
+                        self.url + 'answer/' + soup.div['data-atoken']
                     author = soup.find(
                         'h3', class_='zm-item-answer-author-wrap')
                     upvote_num = _text2int(
@@ -446,7 +446,7 @@ class Question:
                 yield a
 
     def _get_qid(self):
-        return int(re.match(r'.*/(\d+)', self._url).group(1))
+        return int(re.match(r'.*/(\d+)', self.url).group(1))
 
 
 class Author:
@@ -1022,7 +1022,7 @@ class Collection:
         else:
             if url.endswith('/') is False:
                 url += '/'
-            self._url = url
+            self.url = url
             self.soup = None
             self._name = name
             self._owner = owner
@@ -1036,7 +1036,7 @@ class Collection:
         """
         if self.soup is None:
             global _session
-            self.soup = BeautifulSoup(_session.get(self._url).text)
+            self.soup = BeautifulSoup(_session.get(self.url).text)
 
     @property
     @_check_soup('_name')
@@ -1072,7 +1072,7 @@ class Collection:
         :return: 关注此收藏夹的人数
         :rtype: int
         """
-        href = _re_collection_url_split.match(self._url).group(1)
+        href = _re_collection_url_split.match(self.url).group(1)
         return int(self.soup.find('a', href=href + 'followers').text)
 
     @property
@@ -1090,7 +1090,7 @@ class Collection:
         while True:
             global _session
             soup = BeautifulSoup(_session.get(
-                self._url[:-1] + '?page=' + str(i)).text)
+                self.url[:-1] + '?page=' + str(i)).text)
             for question in self._page_get_questions(soup):
                 if question == 0:
                     return
@@ -1112,7 +1112,7 @@ class Collection:
         while True:
             global _session
             soup = BeautifulSoup(_session.get(
-                self._url[:-1] + '?page=' + str(i)).text)
+                self.url[:-1] + '?page=' + str(i)).text)
             for answer in self._page_get_answers(soup):
                 if answer == 0:
                     return
@@ -1188,7 +1188,7 @@ class Column:
             self._in_name = match.group(1)
         if url.endswith('/') is False:
             url += '/'
-        self._url = url
+        self.url = url
         self.soup = None
         self._name = name
         self._follower_num = follower_num

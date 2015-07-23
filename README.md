@@ -4,6 +4,10 @@
 
 ## DEV 分支更新
 
+### 各个类url属性更改为公开
+
+暂时这样吧，有点懒了，因为这样会让使用者有机会非法修改url，可能导致Bug，以后勤快的话会改成read-only。
+
 ### 类名变更
 
 专栏类从`Book`更名为`Cloumn`
@@ -34,9 +38,9 @@
 |:--:|:--:|---------:|
 |关注了问题|FOLLOW_QUESTION|question|
 |赞同了回答|UPVOTE_ANSWER|answer|
-|关注了专栏|FOLLOW_COLUMN|book|
+|关注了专栏|FOLLOW_COLUMN|column|
 |回答了问题|ANSWER_QUESTION|answer|
-|赞同了文章|UPVOTE_POST|article|
+|赞同了文章|UPVOTE_POST|post|
 |关注了话题|FOLLOW_TOPIC|topic|
 |提了一个问题|ASK_QUESTION|question|
 
