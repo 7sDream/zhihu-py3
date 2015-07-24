@@ -1378,13 +1378,14 @@ class Post:
 class ActType(enum.Enum):
     """用于表示用户动态的类型
 
-    ANSWER_QUESTION：回答了一个问题
-    UPVOTE_ANSWER  ：赞同了一个问题
-    ASK_QUESTION   ：提出了一个问题
-    FOLLOW_QUESTION：关注了一个问题
-    UPVOTE_POST    ：赞同了一篇文章
-    FOLLOW_COLUMN  ：关注了一个话题
-    FOLLOW_TOPIC   ：关注了一个专栏
+    ANSWER_QUESTION :回答了一个问题
+    UPVOTE_ANSWER   :赞同了一个问题
+    ASK_QUESTION    :提出了一个问题
+    FOLLOW_QUESTION :关注了一个问题
+    UPVOTE_POST     :赞同了一篇文章
+    FOLLOW_COLUMN   :关注了一个话题
+    FOLLOW_TOPIC    :关注了一个专栏
+    PUBLISH_POST    :发表了一篇文章
     """
     ANSWER_QUESTION = 1
     UPVOTE_ANSWER = 2
