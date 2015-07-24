@@ -1,73 +1,48 @@
 # zhihu-py3 : 知乎解析器 with Python3
 
-[![Documentation Status](https://readthedocs.org/projects/zhihu-py3/badge/?version=dev)](https://readthedocs.org/projects/zhihu-py3/?badge=dev)
+[![Documentation Status][dev-doc-badge-img]][dev-doc-badge-url]
 
-## DEV 分支更新
+**说明：2015.07.24 对代码进行了比较大的重构，更新前请务必查看changelog**
 
-### 各个类url属性更改为公开
+## 功能
 
-暂时这样吧，有点懒了，因为这样会让使用者有机会非法修改url，可能导致Bug，以后勤快的话会改成read-only。
+由于知乎没有公开API，加上受到[zhihu-python][zhihu-python-url]项目的启发，在Python3下重新写了一个知乎的数据解析模块。
 
-### 类名变更
+提供的功能一句话概括为，用户提供知乎的网址构用于建对应类的对象，可以获取到某些需要的数据。
 
-专栏类从`Book`更名为`Cloumn`
+简单例子：
 
-文章类从`Article`更名为`Post`
+```python
+url = 'http://www.zhihu.com/question/24825703'
+question = zhihu.Question(url)
 
-以上两个更名同时影响了其他类的属性名，如`Author.books`变更为`Author.columns`，其他类同理。
+print(question.title)
+print(question.answer_num)
+print(question.follower_num)
+print(question.topics)
 
-### 接口名变更
+for answer in question.answers:
+    print(answer.author.name, answer.upvote_num)
+```
 
-1. 统一了一下复数的使用。比如`Author.answers_num`变为`Author.answer_num`, `Author.collections_num`变为`Author.collection_num`。也就是说某某数量的接口名为`Class.foo_num`，foo使用单数形式。
+这段代码的输出为：
+```
+关系亲密的人之间要说「谢谢」吗？
+630
+4316
+['心理学', '恋爱', '社会', '礼仪', '亲密关系']
+小不点儿 197
+龙晓航 49
+芝士就是力量 89
+欧阳忆希 424
+甜阁下 1155
+```
 
-2. 知乎的赞同使用单词upvote，以前叫`agree`的地方现在都叫`upvote`。比如`Author.agree_num`变为`Author.upvote_num`, `Post.agree_num`变为`Post.upvote_num`
-
-3. `Answer`类的`upvote`属性更名为`upvote_num`
-
-### 提供`Topic`类
-
-目前只有获取话题名的功能
-
-### 提供`Author.activities` (测试特性)
-
-属性获取用户动态，返回`Activity`类生成器。
-
-`Activity`类提供`type`属性用于判断动态类型，`type`为`ActType`类定义的常量，根据`type`的不同提供不同的属性，如下表：
-
-|类型|常量|提供的成员|
-|:--:|:--:|---------:|
-|关注了问题|FOLLOW_QUESTION|question|
-|赞同了回答|UPVOTE_ANSWER|answer|
-|关注了专栏|FOLLOW_COLUMN|column|
-|回答了问题|ANSWER_QUESTION|answer|
-|赞同了文章|UPVOTE_POST|post|
-|发布了文章|PUBLISH_POST|post|
-|关注了话题|FOLLOW_TOPIC|topic|
-|提了一个问题|ASK_QUESTION|question|
-
-由于每种类型都只提供了一种属性，所以所有Activity对象都有`content`属性，用于直接获取唯一的属性。
-
-示例代码见[zhihu-test.py][dev-zhihu-test-py-url]的`test_author`函数最后。
-
-`activities`属性可以在未登录（未生成cookies）的情况下使用，但是根据知乎的隐私保护政策，开启了隐私保护的用户的回答和文章，此时作者信息会是匿名用户，所以还是建议登录后使用。
-
-此功能还在测试期，欢迎各种test。
-
-## 介绍
-
-前几天最近想写个小东西跟踪一下知乎上答案的点赞数增加曲线，可惜知乎没有API，搜索后发现 [zhihu-python][zhihu-python-url] 这个项目，奈何我一直用的Python3，于是乎重新造了个轮子。
-
-功能和 [zhihu-python][zhihu-python-url] 类似，可以获取知乎上的信息和批量导出答案。
-
-目前提供导出答案的 html 和 markdown 功能。
-
-嘛，刚刚去增加了导出专栏文章的功能， markdown 格式。
-
-因为写的急急忙忙可能会稍微有点小 bug，如果有什么问题欢迎提 issue，当然 pull request 更好啦~
+另外还有`Author`、`Answer`、`Collection`、`Column`、`Post`、`Topic`等类可以使用，`Answer`,`Post`类提供了`save`方法能将答案或文章保存为HTML或Markdown格式，具体请看文档，或者`zhihu-test.py`
 
 ## 依赖
 
-**依赖 [requests][req-url] 、[BeautifulSoup4][bs4-url]、[html2text][html2text-url] 使用前请先安装**
+**本项目依赖于 [requests][req-url] 、[BeautifulSoup4][bs4-url]、[html2text][html2text-url] 使用前请先安装**
 
 **html2text 只在导出为 markdown 格式功能被使用时才会被 import，如果没有此模块其他功能也能正常完成。**
 
@@ -77,33 +52,11 @@ pip install beautifulsoup4
 pip install html2text
 ```
 
-在 Ubuntu 上，如果你同时安装了 Python3 和 Python2，需要使用下面的命令安装：
+Linux下同时安装了Python2和3的用户请使用`pip3 install xxx`代替（应该不用我说……）
 
-```bash
-sudo apt-get install python3-bs4
-sudo apt-get install python3-html2text
-```
-
-或者使用
-
-```bash
-pip3 install requests
-pip3 install beautifulsoup4
-pip3 install html2text
-```
-
-## 使用说明
-
-### 准备工作
-
-因为很重要所以说三遍
+## 准备工作
 
 首次使用之前请先运行以下代码生成 cookies 文件：
-
-首次使用之前请先运行以下代码生成 cookies 文件：
-
-首次使用之前请先运行以下代码生成 cookies 文件：
-
 
 ```python
 import zhihu
@@ -113,7 +66,7 @@ zhihu.create_cookies()
 
 运行结果
 
-```python
+```ipython
 In [1]: import zhihu
 no cookies file, this may make something wrong.
 if you will run create_cookies or login next, please ignore me.
@@ -132,10 +85,9 @@ cookies file created!
 
 建议在正式使用之前运行`zhihu-test.py`测试一下。
 
+## 用法实例
 
-### 快速备份
-
-#### 备份某问题所有答案：
+### 备份某问题所有答案：
 
 ```python
 import zhihu
@@ -154,7 +106,7 @@ answer.save(mode="md")
 ```
 将会导出为 markdown 格式，下同。
 
-#### 备份某用户所有答案：
+### 备份某用户所有答案：
 
 ```python
 import zhihu
@@ -165,44 +117,36 @@ for answer in author.answers:
     answer.save(filepath=author.name)
 ```
 
-会在当前目录下新建以作者昵称命名的文件夹，并将所有 html 文件保存到该文件夹。
+备份某收藏夹所有答案，备份专栏文章同理，不再举例。
 
-#### 备份某收藏夹所有答案：
-
-```python
-import zhihu
-
-collection = zhihu.Collection('http://www.zhihu.com/collection/37770691')
-for answer in collection.answers:
-    # print(answer.question.title)
-    answer.save(filepath=collection.name)
-```
-
-会在当前目录下新建以收藏夹名称命名的文件夹，并将所有 html 文件保存到该文件夹。
-
-#### 备份某专栏所有文章：
+### 获取点赞的动态
 
 ```python
 import zhihu
 
-book = zhihu.Book('http://zhuanlan.zhihu.com/xiepanda')
-
-for article in book.posts:
-    print(article.title)
-    article.save(filepath=book.name)
+author = zhihu.Author('http://www.zhihu.com/people/rainy-vczh')
+for act in author.activities:
+    if act.type == zhihu.ActType.UPVOTE_ANSWER:
+        print('%s 在 %s 赞同了问题 %s 中 %s(motto: %s) 的回答, '
+              '此回答赞同数 %d' %
+              (author.name, act.time, act.answer.question.title,
+               act.answer.author.name, act.answer.author.motto,
+               act.answer.upvote_num))
 ```
 
-会在当前目录下新建以专栏名命名的文件夹，并将所有 md 文件保存到该文件夹。
+结果
 
-### 类简单用法说明
+```
+vczh 在 2015-07-24 08:35:06 赞同了问题 女生夏天穿超短裙是一种什么样的体验？ 中 Light(motto: 我城故事多。) 的回答, 此回答赞同数 43
+vczh 在 2015-07-24 08:34:30 赞同了问题 女生夏天穿超短裙是一种什么样的体验？ 中 Ms狐狸(motto: 随便写来玩玩) 的回答, 此回答赞同数 57
+vczh 在 2015-07-24 06:43:49 赞同了问题 为什么好多中学生浑浑噩噩还不知悔改？ 中 胖子邓(motto: living, writing, loving.) 的回答, 此回答赞同数 1162
+vczh 在 2015-07-24 06:33:42 赞同了问题 真皮座椅的汽车到底应不应该放座套？ 中 赵奕寒(motto: Safe Choix项目发起人) 的回答, 此回答赞同数 44
+……
+```
 
-zhihu-py3 主要文件为`zhihu.py`，配置文件为`cookies.json`, 将这两个文件放到工作目录。
+用户activities属性的完整用法课查看`zhihu-test.py`中`test_author`函数
 
-注：`cookies.json`一般由`create_cookies()`函数创建，但也自己从浏览器中获取。
-
-**嗯！类的用法请看 [zhihu-test.py][zhihu-test-py-url]，或者看[文档][dev-doc-rtd-url]，就不在这里写啦**
-
-### 其他常用方法
+## 其他常用方法
 
 #### create_cookies
 
@@ -235,51 +179,8 @@ Read The Docs： [点击这里查看文档][dev-doc-rtd-url]
 
 ## TODO List
 
- - 写文档 T^T √
- - 增加导出为 markdown 功能 √
- - 增加专栏类和文章类 √
- - 增加获取用户最新动态功能 √
  - 增加获取答案点赞用户，用户关注者，用户追随者，收藏夹关注者，问题关注者等
- - 增加答案发布时间和更新时间的获取（这三个TODO准备暑假写掉，欢迎大家一起来 耶）
-
-## 更新日志
-
-想了想还是加上这个吧，虽然经常一些小问题的修复也懒得写出来…………
-
-2015.07.23
-
-1. 更改了一堆类名，接口名
-
-2. 增加了Topic类，表示话题，功能只有获取话题名
-
-3. 增加了Activity类，ActType常量类，用于处理用户动态
-
-更新详情见文章开头。
-
-2015.07.22
-
-尝试修复了最新版bs4导致的问题，虽然我没明白问题在哪QuQ，求测试。
-
- - Windows 已测试 ([@7sDream][my-github-url])
- - Linux
-    - Ubuntu 已测试([@7sDream][my-github-url])
- - Mac 已测试 ([@SimplyY][SimplyY-github-url])
-
-2015.07.16
-
-重构 Answer 和 Article 的 url 属性为 public.
-
-2015.07.11:
-
-Hotfix， 知乎更换了登录网址，做了简单的跟进，过了Test，等待Bug汇报中。
-
-2015.06.04：
-
-由[Gracker][gracker-github-url]补充了在 Ubuntu 14.04 下的测试结果，并添加了补充说明。
-
-2015.05.29：
-
-修复了当问题关注人数为0时、问题答案数为0时的崩溃问题。（感谢：[段晓晨][duan-xiao-chen-zhihu-url]）
+ - 增加答案发布时间和更新时间的获取
 
 ## 联系我
 
@@ -294,18 +195,20 @@ Github: [@7sDream][my-github-url]
 编程交流群：478786205
 
 [zhihu-python-url]: https://github.com/egrcc/zhihu-python
-[req-url]: https://pypi.python.org/pypi/requests/2.5.1
+[req-url]: https://pypi.python.org/pypi/requests/2.7.0
 [bs4-url]: http://www.crummy.com/software/BeautifulSoup
 [html2text-url]: https://github.com/aaronsw/html2text
 [doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/latest
-[dev-doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/dev
 [zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/master/zhihu-test.py
-[dev-zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/dev/zhihu-test.py
+[doc-badge-img]: https://readthedocs.org/projects/zhihu-py3/badge/?version=latest
+[doc-badge-url]: https://readthedocs.org/projects/zhihu-py3/?badge=latest
 
 [my-github-url]: https://github.com/7sDream
 [my-weibo-url]: http://weibo.com/didilover
 [my-zhihu-url]: http://www.zhihu.com/people/7sdream
 [mail-to-me]: mailto:xixihaha.xiha@qq.com
-[duan-xiao-chen-zhihu-url]: http://www.zhihu.com/people/loveQt
-[gracker-github-url]: https://github.com/Gracker
-[SimplyY-github-url]: https://github.com/SimplyY
+
+[dev-doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/dev
+[dev-zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/dev/zhihu-test.py
+[dev-doc-badge-img]: https://readthedocs.org/projects/zhihu-py3/badge/?version=dev
+[dev-doc-badge-url]: https://readthedocs.org/projects/zhihu-py3/?badge=dev
