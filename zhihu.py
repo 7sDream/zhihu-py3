@@ -246,7 +246,7 @@ class Question:
         """
         global _session
         if _re_question_url.match(url) is None:
-            raise Exception('URL invalid')
+            raise ValueError('URL invalid')
         else:
             if url.endswith('/') is False:
                 url += '/'
@@ -462,7 +462,7 @@ class Author:
         """
         if url is not None:
             if _re_author_url.match(url) is None:
-                raise Exception('URL invalid')
+                raise ValueError('URL invalid')
             if url.endswith('/') is False:
                 url += '/'
         self.url = url
@@ -890,7 +890,7 @@ class Answer:
         :rtype: Answer
         """
         if _re_ans_url.match(url) is None:
-            raise Exception('URL invalid')
+            raise ValueError('URL invalid')
         if url.endswith('/') is False:
             url += '/'
         self.url = url
@@ -1013,7 +1013,7 @@ class Collection:
         :rtype: Collection
         """
         if _re_collection_url.match(url) is None:
-            raise Exception('URL invalid')
+            raise ValueError('URL invalid')
         else:
             if url.endswith('/') is False:
                 url += '/'
@@ -1178,7 +1178,7 @@ class Column:
         """
         match = _re_column_url.match(url)
         if match is None:
-            raise Exception('URL invalid')
+            raise ValueError('URL invalid')
         else:
             self._in_name = match.group(1)
         if url.endswith('/') is False:
@@ -1273,7 +1273,7 @@ class Post:
         """
         match = _re_post_url.match(url)
         if match is None:
-            raise Exception('URL invalid')
+            raise ValueError('URL invalid')
         if url.endswith('/') is False:
             url += '/'
         self.url = url
@@ -1399,18 +1399,20 @@ class ActType(enum.Enum):
 class Activity:
     """用户动态类，不建议手动使用，请使用Author.activities获取"""
 
-    def __init__(self, act_type, act_time, question=None, answer=None,
-                 column=None,
-                 post=None, topic=None):
+    def __init__(self, act_type, act_time, **kwarg):
         if not isinstance(act_type, ActType):
-            raise Exception('invalid feed type')
+            raise ValueError('invalid activity type')
+        if len(kwarg) != 1:
+            raise ValueError('except one kwarg (%d given)' % len(kwarg))
         self.type = act_type
         self.time = act_time
-        self.question = question
-        self.answer = answer
-        self.column = column
-        self.post = post
-        self.topic = topic
+        for k, v in kwarg.items():
+            self._attr = k
+            setattr(self, k, v)
+
+    @property
+    def content(self):
+        return getattr(self, self._attr)
 
 
 class Topic:
@@ -1423,7 +1425,7 @@ class Topic:
         :return: Topic
         """
         if _re_topic_url.match(url) is None:
-            raise Exception('URL invalid')
+            raise ValueError('URL invalid')
         if url.endswith('/') is False:
             url += '/'
         self.url = url

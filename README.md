@@ -45,6 +45,8 @@
 |关注了话题|FOLLOW_TOPIC|topic|
 |提了一个问题|ASK_QUESTION|question|
 
+由于每种类型都只提供了一种属性，所以所有Activity对象都有`content`属性，用于直接获取唯一的属性。
+
 示例代码见[zhihu-test.py][dev-zhihu-test-py-url]的`test_author`函数最后。
 
 `activities`属性可以在未登录（未生成cookies）的情况下使用，但是根据知乎的隐私保护政策，开启了隐私保护的用户的回答和文章，此时作者信息会是匿名用户，所以还是建议登录后使用。
