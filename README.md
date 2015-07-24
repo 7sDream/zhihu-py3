@@ -179,18 +179,18 @@ Read The Docs： [点击这里查看文档][dev-doc-rtd-url]
 
 ## TODO List
 
- - 增加获取答案点赞用户，用户关注者，用户追随者，收藏夹关注者，问题关注者等
- - 增加答案发布时间和更新时间的获取
+ - 增加获取答案点赞用户功能
+ - 增加获取用户关注者，用户追随者，收藏夹关注者，问题关注者等等
 
 ## 联系我
 
-Github: [@7sDream][my-github-url]
+Github：[@7sDream][my-github-url]
 
-知乎： [@7sDream][my-zhihu-url]
+知乎：[@7sDream][my-zhihu-url]
 
 新浪微博：[@Dilover][my-weibo-url]
 
-邮箱: [给我发邮件][mail-to-me]
+邮箱：[给我发邮件][mail-to-me]
 
 编程交流群：478786205
 
