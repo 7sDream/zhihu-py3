@@ -2,7 +2,7 @@
 
 [![Documentation Status][dev-doc-badge-img]][dev-doc-badge-url]
 
-**说明：2015.07.24 对代码进行了比较大的重构，更新前请务必查看changelog**
+**说明：2015.07.24 对代码进行了比较大的重构，更新前请务必查看[ChangeLog][dev-changelog-url]**
 
 ## 功能
 
@@ -202,6 +202,7 @@ Github：[@7sDream][my-github-url]
 [zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/master/zhihu-test.py
 [doc-badge-img]: https://readthedocs.org/projects/zhihu-py3/badge/?version=latest
 [doc-badge-url]: https://readthedocs.org/projects/zhihu-py3/?badge=latest
+[changelog-url]: https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.md
 
 [my-github-url]: https://github.com/7sDream
 [my-weibo-url]: http://weibo.com/didilover
@@ -212,3 +213,4 @@ Github：[@7sDream][my-github-url]
 [dev-zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/dev/zhihu-test.py
 [dev-doc-badge-img]: https://readthedocs.org/projects/zhihu-py3/badge/?version=dev
 [dev-doc-badge-url]: https://readthedocs.org/projects/zhihu-py3/?badge=dev
+[dev-changelog-url]: https://github.com/7sDream/zhihu-py3/blob/dev/ChangeLog.md
