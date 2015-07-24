@@ -98,7 +98,7 @@ def test_answer():
 
 
 def test_author():
-    url = 'http://www.zhihu.com/people/7sdream'
+    url = 'http://www.zhihu.com/people/rainy-vczh'
     author = zhihu.Author(url)
     # 获取用户名称
     print(author.name)
@@ -185,6 +185,12 @@ def test_author():
                   '此文章赞同数 %d, 评论数 %d' %
                   (author.name, act.time, act.post.column.name,
                    act.post.author.name, act.post.title, act.post.upvote_num,
+                   act.post.comment_num))
+        elif act.type == zhihu.ActType.PUBLISH_POST:
+            print('%s 在 %s 在专栏 %s 中发布了文章 %s, '
+                  '此文章赞同数 %d, 评论数 %d' %
+                  (author.name, act.time, act.post.column.name,
+                   act.post.title, act.post.upvote_num,
                    act.post.comment_num))
         elif act.type == zhihu.ActType.UPVOTE_ANSWER:
             print('%s 在 %s 赞同了问题 %s 中 %s(motto: %s) 的回答, '
