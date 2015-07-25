@@ -54,6 +54,10 @@ pip install html2text
 
 Linux下同时安装了Python2和3的用户请使用`pip3 install xxx`代替（应该不用我说……）
 
+同时推荐安装[lxml][lxml-url]，因为解析html效率高而且容错率强，在知乎使用`<br>`时，自带的html.parser会将其转换成`<br>...</br>`，而lxml则转换为`<br/>`，更为标准且美观。
+
+不安装lxml也能使用本模块，此时会自动使用html.parser作为解析器。
+
 ## 准备工作
 
 首次使用之前请先运行以下代码生成 cookies 文件：
@@ -240,6 +244,7 @@ Github：[@7sDream][my-github-url]
 [zhihu-python-url]: https://github.com/egrcc/zhihu-python
 [req-url]: https://pypi.python.org/pypi/requests/2.7.0
 [bs4-url]: http://www.crummy.com/software/BeautifulSoup
+[lxml-url]: https://pypi.python.org/pypi/lxml/3.4.4
 [html2text-url]: https://github.com/aaronsw/html2text
 [doc-rtd-url]: http://zhihu-py3.readthedocs.org/zh_CN/latest
 [zhihu-test-py-url]: https://github.com/7sDream/zhihu-py3/blob/master/zhihu-test.py
