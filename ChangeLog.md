@@ -10,6 +10,14 @@
 
 在安装了lxml的情况下默认使用lxml作为解析器，否则使用html.parser。
 
+### 增加答案获取点赞用户功能
+
+`Author.upvoters`，返回Author迭代器，自带url, name ,motto question_num, answer_num, upvote_num, thank_num属性
+
+### 增加简易判断是否为「三零用户」功能
+
+`Author.is_zero_user()`，判断标准为，赞同，感谢，提问数，回答数均为0。
+
 ## 2015.07.23
 
 ### 各个类url属性更改为公开

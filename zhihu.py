@@ -367,7 +367,7 @@ class Question:
         self.make_soup()
         new_header = dict(_header)
         new_header['Referer'] = self.url
-        params = {"url_token": self._get_qid(),
+        params = {"url_token": self.id,
                   'pagesize': '50',
                   'offset': 0}
         data = {'_xsrf': self._xsrf,
@@ -451,7 +451,8 @@ class Question:
             if j <= i - 1:
                 yield a
 
-    def _get_qid(self):
+    @property
+    def id(self):
         return int(re.match(r'.*/(\d+)', self.url).group(1))
 
 
@@ -459,7 +460,8 @@ class Author:
     """用户类，用用户主页地址作为参数来构造对象，其他参数可选"""
 
     def __init__(self, url, name=None, motto=None, follower_num=None,
-                 question_num=None, answer_num=None, upvote_num=None):
+                 question_num=None, answer_num=None, upvote_num=None,
+                 thank_num=None):
         """
         :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream
         :param str name: 用户名字，可选
@@ -485,6 +487,7 @@ class Author:
         self._question_num = question_num
         self._answer_num = answer_num
         self._upvote_num = upvote_num
+        self._thank_num = thank_num
         self._xsrf = None
         self._hash_id = None
 
@@ -934,6 +937,16 @@ class Author:
                     yield Activity(act_type, act_time,
                                    topic=Topic(topic_url, topic_name))
 
+    def is_zero_user(self):
+        """返回当前用户是否为「三零用户」，
+            其实是四零来着，分别为： 赞同0，感谢0，提问0，回答0
+
+        :return: 是否是「三零用户」
+        :rtype: bool
+        """
+        return self.upvote_num + self.thank_num + \
+            self.question_num + self.answer_num == 0
+
     @staticmethod
     def _parse_act(act):
         upvote_num = _text2int(act.find(
@@ -981,6 +994,8 @@ class Answer:
         if self.soup is None:
             r = _session.get(self.url)
             self.soup = BeautifulSoup(r.content)
+            self._aid = self.soup.find(
+                'div', class_='zm-item-answer')['data-aid']
 
     @property
     @_check_soup('_html')
@@ -1032,6 +1047,33 @@ class Answer:
         return _text2int(self.soup.find('span', class_='count').text)
 
     @property
+    def upvoters(self):
+        global _session
+        self.make_soup()
+        next_req = '/answer/' + self._aid + '/voters_profile'
+        while next_req != '':
+            data = _session.get(_Zhihu_URL + next_req).json()
+            next_req = data['paging']['next']
+            for html in data['payload']:
+                soup = BeautifulSoup(html)
+                author_tag = soup.find('div', class_='body')
+                if author_tag.string is None:
+                    author_name = author_tag.div.a['title']
+                    author_url = author_tag.div.a['href']
+                    author_motto = author_tag.div.span.text
+                    numbers_tag = soup.find_all('li')
+                    numbers = [int(_re_get_number.match(x.get_text()).group(1))
+                               for x in numbers_tag]    # u, t, q, a
+                else:
+                    author_url = None
+                    author_name = '匿名用户'
+                    author_motto = ''
+                    numbers = [None] * 4
+                # noinspection PyTypeChecker
+                yield Author(author_url, author_name, author_motto, None,
+                             numbers[2], numbers[3], numbers[0], numbers[1])
+
+    @property
     @_check_soup('_content')
     def content(self):
         """返回答案内容，以处理过的Html代码形式
@@ -1070,6 +1112,15 @@ class Answer:
                 h2t.body_width = 0
                 f.write(h2t.handle(self.content).encode('utf-8'))
 
+    @property
+    def id(self):
+        """答案的ID，也就是网址最后的那串数字
+
+        :return: 答案ID
+        :rtype: int
+        """
+        print(self.url)
+        return int(re.match(r'.*/(\d+)/$', self.url).group(1))
 
 class Collection:
     """收藏夹类，用收藏夹主页网址为参数来构造对象

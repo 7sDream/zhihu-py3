@@ -76,6 +76,22 @@ def test_answer():
     print(answer.upvote_num)
     # 1155
 
+    # 获取答案点赞人昵称和感谢赞同提问回答数，并输出三零用户比例
+    three_zero_user_num = 0
+    for upvoter in answer.upvoters:
+        print(upvoter.name, upvoter.upvote_num, upvoter.thank_num,
+              upvoter.question_num, upvoter.answer_num)
+        if upvoter.is_zero_user():
+            three_zero_user_num += 1
+    print('\n三零用户比例 %.3f%%' % (three_zero_user_num / answer.upvote_num * 100))
+    # ...
+    # 空空 23 14 1 7
+    # 五月 42 15 3 35
+    # 陈半边 6311 1037 3 101
+    # 刘柯 3107 969 273 36
+    #
+    # 三零用户比例 36.364%
+
     # 获取答案内容的HTML
     print(answer.content)
     # <html>
