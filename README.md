@@ -1,8 +1,8 @@
 # zhihu-py3 : 知乎解析器 with Python3
 
-[![Documentation Status][doc-badge-img]][doc-badge-url]
+[![Documentation Status][dev-doc-badge-img]][dev-doc-badge-url]
 
-**说明：2015.07.24 对代码进行了比较大的重构，更新前请务必查看[ChangeLog][changelog-url]**
+**说明：2015.07.24 对代码进行了比较大的重构，更新前请务必查看[ChangeLog][dev-changelog-url]**
 
 ## 功能
 
@@ -218,7 +218,7 @@ vczh 在 2015-07-24 06:33:42 赞同了问题 真皮座椅的汽车到底应不�
 
 终于搞定了文档这个磨人的小妖精，可惜 Sphinx 还是不会用 T^T 先随意弄成这样吧：
 
-Read The Docs： [点击这里查看文档][doc-rtd-url]
+Read The Docs： [点击这里查看文档][dev-doc-rtd-url]
 
 ## TODO List
 
