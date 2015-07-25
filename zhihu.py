@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+""""A parser of zhihu.com with help of bs4 and requests in python3."""
+
 __author__ = '7sDream'
 
 import time
@@ -104,7 +106,7 @@ def _init():
 
 
 def get_captcha_url():
-    """获取验证码网址
+    """获取验证码网址.
 
     :return: 验证码网址
     :rtype: str
@@ -113,7 +115,7 @@ def get_captcha_url():
 
 
 def login(email='', password='', captcha='', savecookies=True):
-    """不使用cookies.json，手动登陆知乎
+    """不使用cookies.json，手动登陆知乎.
 
     :param str email: 邮箱
     :param str password: 密码
@@ -138,7 +140,7 @@ def login(email='', password='', captcha='', savecookies=True):
 
 
 def create_cookies():
-    """创建cookies文件, 请跟随提示操作
+    """创建cookies文件, 请跟随提示操作.
 
     :return: None
     :rtype: None
@@ -162,7 +164,7 @@ def create_cookies():
 
 
 def remove_invalid_char(text):
-    """去除字符串中的无效字符，一般用于保存文件时保证文件名的有效性
+    """去除字符串中的无效字符，一般用于保存文件时保证文件名的有效性.
 
     :param str text: 待处理的字符串
     :return: 处理后的字符串
@@ -239,10 +241,12 @@ def _get_path(path, filename, mode, defaultpath, defaultname):
 
 
 class Question:
-    """问题类，用一个问题的网址来构造对象,其他参数皆为可选"""
+
+    """问题类，用一个问题的网址来构造对象,其他参数皆为可选."""
 
     def __init__(self, url, title=None, followers_num=None, answer_num=None):
-        """
+        """类对象初始化.
+
         :param str url: 问题地址，形如： http://www.zhihu.com/question/27936038
         :param str title: 可选, 问题标题
         :param int followers_num: 可选，问题关注人数
@@ -264,8 +268,7 @@ class Question:
             self._xsrf = ''
 
     def make_soup(self):
-        """**请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用**
-        当然你非要调用我也没办法……
+        """请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用.
 
         :return: None
         :rtype: None
@@ -279,7 +282,7 @@ class Question:
     @property
     @_check_soup('_html')
     def html(self):
-        """获取页面HTML源码
+        """获取页面HTML源码.
 
         :return: html源码
         :rtype: str
@@ -289,7 +292,7 @@ class Question:
     @property
     @_check_soup('_title')
     def title(self):
-        """获取问题标题
+        """获取问题标题.
 
         :return: title of question
         :rtype: str
@@ -300,8 +303,7 @@ class Question:
     @property
     @_check_soup('_details')
     def details(self):
-        """获取问题详细描述。
-        **目前实现方法只是直接获取文本，效果不满意……等更新**
+        """获取问题详细描述。 **目前实现方法只是直接获取文本，效果不满意……等更新.
 
         :return: 问题详细描述文本
         :rtype: str
@@ -311,7 +313,7 @@ class Question:
     @property
     @_check_soup('_answers_num')
     def answer_num(self):
-        """获取问题答案数量
+        """获取问题答案数量.
 
         :return: 答案数量
         :rtype: int
@@ -330,7 +332,7 @@ class Question:
     @property
     @_check_soup('_follower_num')
     def follower_num(self):
-        """获取问题关注人数
+        """获取问题关注人数.
 
         :return: 问题关注人数
         :rtype: int
@@ -344,7 +346,7 @@ class Question:
     @property
     @_check_soup('_topics')
     def topics(self):
-        """获取问题所属话题
+        """获取问题所属话题.
 
         :return: 问题所属话题列表
         :rtype: list(str)
@@ -356,7 +358,7 @@ class Question:
 
     @property
     def answers(self):
-        """获取问题的所有答案，返回可迭代生成器
+        """获取问题的所有答案，返回可迭代生成器.
 
         :return: 每次迭代返回一个Answer对象， 获取到的Answer对象自带
             所在问题、答主、赞同数量、回答内容四个属性。获取其他属性需要解析另外的网页。
@@ -421,7 +423,7 @@ class Question:
 
     @property
     def top_answer(self):
-        """获取排名第一的答案
+        """获取排名第一的答案.
 
         :return: 排名第一的答案对象，能直接获取的属性参见answers方法
         :rtype: Answer
@@ -430,7 +432,7 @@ class Question:
             return a
 
     def top_i_answer(self, i):
-        """获取排名某一位的答案
+        """获取排名某一位的答案.
 
         :param int i: 要获取的答案的排名
         :return: 答案对象，能直接获取的属性参见answers方法
@@ -441,7 +443,7 @@ class Question:
                 return a
 
     def top_i_answers(self, i):
-        """获取排名在前几位的答案
+        """获取排名在前几位的答案.
 
         :param int i: 获取高位排名答案数量
         :return: 答案对象生成器，这些对象能直接获取的属性参见answers方法
@@ -453,16 +455,23 @@ class Question:
 
     @property
     def id(self):
+        """获取答问题id，就是网址最后那串数字.
+
+        :return: 问题id
+        :rtype: int
+        """
         return int(re.match(r'.*/(\d+)', self.url).group(1))
 
 
 class Author:
-    """用户类，用用户主页地址作为参数来构造对象，其他参数可选"""
+
+    """用户类，用用户主页地址作为参数来构造对象，其他参数可选."""
 
     def __init__(self, url, name=None, motto=None, follower_num=None,
                  question_num=None, answer_num=None, upvote_num=None,
                  thank_num=None):
-        """
+        """类对象初始化.
+
         :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream
         :param str name: 用户名字，可选
         :param str motto: 用户简介，可选
@@ -492,8 +501,7 @@ class Author:
         self._hash_id = None
 
     def make_soup(self):
-        """**请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用**
-        当然你非要调用我也没办法……
+        """请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用.
 
         :return: None
         :rtype: None
@@ -515,7 +523,7 @@ class Author:
     @property
     @_check_soup('_name')
     def name(self):
-        """获取用户名字
+        """获取用户名字.
 
         :return: 用户名字
         :rtype: str
@@ -527,8 +535,7 @@ class Author:
     @property
     @_check_soup('_motto')
     def motto(self):
-        """获取用户自我介绍？那段话是叫啥……是自我介绍还是签名？？？算了由于历史原因
-        我还是把这个属性叫做motto吧……
+        """获取用户自我介绍，由于历史原因，我还是把这个属性叫做motto吧.
 
         :return: 用户自我介绍
         :rtype: str
@@ -546,7 +553,7 @@ class Author:
     @property
     @_check_soup('_followee_num')
     def followee_num(self):
-        """获取关注了多少人
+        """获取关注了多少人.
 
         :return: 关注的人数
         :rtype: int
@@ -563,7 +570,7 @@ class Author:
     @property
     @_check_soup('_follower_num')
     def follower_num(self):
-        """获取追随者数量，就是关注此人的人数
+        """获取追随者数量，就是关注此人的人数.
 
         :return: 追随者数量
         :rtype: int
@@ -581,7 +588,7 @@ class Author:
     @property
     @_check_soup('_upvote_num')
     def upvote_num(self):
-        """获取收到的的赞同数量
+        """获取收到的的赞同数量.
 
         :return: 收到的的赞同数量
         :rtype: int
@@ -596,7 +603,7 @@ class Author:
     @property
     @_check_soup('_thank_num')
     def thank_num(self):
-        """获取收到的感谢数量
+        """获取收到的感谢数量.
 
         :return: 收到的感谢数量
         :rtype: int
@@ -611,7 +618,7 @@ class Author:
     @property
     @_check_soup('_question_num')
     def question_num(self):
-        """获取提问数量
+        """获取提问数量.
 
         :return: 提问数量
         :rtype: int
@@ -624,7 +631,7 @@ class Author:
     @property
     @_check_soup('_answer_num')
     def answer_num(self):
-        """获取答案数量
+        """获取答案数量.
 
         :return: 答案数量
         :rtype: int
@@ -637,7 +644,7 @@ class Author:
     @property
     @_check_soup('_post_num')
     def post_num(self):
-        """获取专栏文章数量
+        """获取专栏文章数量.
 
         :return: 专栏文章数量
         :rtype: int
@@ -650,7 +657,7 @@ class Author:
     @property
     @_check_soup('_collection_num')
     def collection_num(self):
-        """获取收藏夹数量
+        """获取收藏夹数量.
 
         :return: 收藏夹数量
         :rtype: int
@@ -662,7 +669,7 @@ class Author:
 
     @property
     def questions(self):
-        """获取此人问过的所有问题对象，返回生成器
+        """获取此人问过的所有问题对象，返回生成器.
 
         :return: 每次迭代返回一个问题对象，获取到的问题对象自带
             标题，关注人数，答案数量三个属性
@@ -690,7 +697,7 @@ class Author:
 
     @property
     def answers(self):
-        """获取此人写的所有答案对象，返回生成器
+        """获取此人写的所有答案对象，返回生成器.
 
         :return: 此人的所有答案，能直接获取所在问题，答主，赞同数三个属性。
             其中所在问题对象可以直接获取标题。答主对象即为此对象本身。
@@ -716,7 +723,7 @@ class Author:
 
     @property
     def followers(self):
-        """获取此关注此用户的人
+        """获取此关注此用户的人.
 
         :return: 关注此用户的人的生成器
         :rtype: Author.Iterable
@@ -726,7 +733,7 @@ class Author:
 
     @property
     def followees(self):
-        """获取此用户关注的人
+        """获取此用户关注的人.
 
         :return: 用户关注的人的生成器
         :rtype: Author.Iterable
@@ -764,7 +771,7 @@ class Author:
 
     @property
     def collections(self):
-        """获取此人收藏夹对象集合，返回生成器
+        """获取此人收藏夹对象集合，返回生成器.
 
         :return: 此人所有的收藏夹， 能直接获取拥有者，收藏夹名字，关注人数三个属性。
             其中拥有者即为此对象本身。
@@ -791,7 +798,7 @@ class Author:
 
     @property
     def columns(self):
-        """获取此人专栏，返回生成器
+        """获取此人专栏，返回生成器.
 
         :return: 此人所有的专栏，能直接获取拥有者，名字，网址，文章数，关注人数。
         :rtype: Column.Iterable
@@ -816,7 +823,7 @@ class Author:
 
     @property
     def activities(self):
-        """获取用户的最近动态
+        """获取用户的最近动态.
 
         :return: 最近动态生成器，根据不同的动态类型提供不同的成员
         :rtype: Activity.Iterable
@@ -938,10 +945,9 @@ class Author:
                                    topic=Topic(topic_url, topic_name))
 
     def is_zero_user(self):
-        """返回当前用户是否为「三零用户」，
-            其实是四零来着，分别为： 赞同0，感谢0，提问0，回答0
+        """返回当前用户是否为三零用户，其实是四零，分别为： 赞同0，感谢0，提问0，回答0.
 
-        :return: 是否是「三零用户」
+        :return: 是否是三零用户
         :rtype: bool
         """
         return self.upvote_num + self.thank_num + \
@@ -960,11 +966,13 @@ class Author:
 
 
 class Answer:
-    """答案类，用一个答案的网址作为参数构造对象，其他参数可选"""
+
+    """答案类，用一个答案的网址作为参数构造对象，其他参数可选."""
 
     def __init__(self, url, question=None, author=None, upvote_num=None,
                  content=None):
-        """
+        """类对象初始化.
+
         :param str url: 答案网址，形如
             http://www.zhihu.com/question/28297599/answer/40327808
         :param Question question: 答案所在的问题对象，自己构造对象不需要此参数
@@ -986,7 +994,7 @@ class Answer:
         self._content = content
 
     def make_soup(self):
-        """不要调用！！！不要调用！！！不要调用！！！
+        """没用的东西，不要调用.
 
         :return: None
         :rtype: None
@@ -1000,7 +1008,7 @@ class Answer:
     @property
     @_check_soup('_html')
     def html(self):
-        """获取网页html源码……话说我写这个属性是为了干啥来着
+        """获取网页html源码……话说我写这个属性是为了干啥来着.
 
         :return: 网页源码
         :rtype: str
@@ -1010,7 +1018,7 @@ class Answer:
     @property
     @_check_soup('_author')
     def author(self):
-        """获取答案作者对象
+        """获取答案作者对象.
 
         :return: 答案作者对象
         :rtype: Author
@@ -1021,7 +1029,7 @@ class Answer:
     @property
     @_check_soup('_question')
     def question(self):
-        """获取答案所在问题对象
+        """获取答案所在问题对象.
 
         :return: 答案所在问题
         :rtype: Question
@@ -1039,7 +1047,7 @@ class Answer:
     @property
     @_check_soup('_upvote_num')
     def upvote_num(self):
-        """获取答案赞同数量
+        """获取答案赞同数量.
 
         :return: 答案赞同数量
         :rtype: int
@@ -1048,7 +1056,7 @@ class Answer:
 
     @property
     def upvoters(self):
-        """获取答案点赞用户，返回迭代器
+        """获取答案点赞用户，返回迭代器.
 
         :return: 点赞用户迭代器
         :rtype: Author.Iterable
@@ -1081,7 +1089,7 @@ class Answer:
     @property
     @_check_soup('_content')
     def content(self):
-        """返回答案内容，以处理过的Html代码形式
+        """返回答案内容，以处理过的Html代码形式.
 
         :return: 答案内容
         :rtype: str
@@ -1091,7 +1099,7 @@ class Answer:
         return content
 
     def save(self, filepath=None, filename=None, mode="html"):
-        """保存答案为Html文档或markdown文档
+        """保存答案为Html文档或markdown文档.
 
         :param str filepath: 要保存的文件所在的绝对目录或相对目录，
             不填为当前目录下以问题标题命名的目录, 设为"."则为当前目录
@@ -1119,7 +1127,7 @@ class Answer:
 
     @property
     def id(self):
-        """答案的ID，也就是网址最后的那串数字
+        """答案的ID，也就是网址最后的那串数字.
 
         :return: 答案ID
         :rtype: int
@@ -1127,12 +1135,14 @@ class Answer:
         print(self.url)
         return int(re.match(r'.*/(\d+)/$', self.url).group(1))
 
+
 class Collection:
-    """收藏夹类，用收藏夹主页网址为参数来构造对象
-    由于一些原因，没有提供收藏夹答案数量这个属性。"""
+
+    """收藏夹类，用收藏夹主页网址为参数来构造对象."""
 
     def __init__(self, url, owner=None, name=None, follower_num=None):
-        """
+        """类对象初始化.
+
         :param str url: 收藏夹主页网址，必须
         :param Author owner: 收藏夹拥有者，可选，最好不要自己设置
         :param str name: 收藏夹标题，可选，可以自己设置
@@ -1152,7 +1162,7 @@ class Collection:
             self._follower_num = follower_num
 
     def make_soup(self):
-        """没用的东西，不要调用。
+        """没用的东西，不要调用.
 
         :return: None
         :rtype: None
@@ -1164,7 +1174,7 @@ class Collection:
     @property
     @_check_soup('_name')
     def name(self):
-        """获取收藏夹名字
+        """获取收藏夹名字.
 
         :return: 收藏夹名字
         :rtype: str
@@ -1175,7 +1185,7 @@ class Collection:
     @property
     @_check_soup('_owner')
     def owner(self):
-        """获取收藏夹拥有者，返回Author对象
+        """获取收藏夹拥有者，返回Author对象.
 
         :return: 收藏夹拥有者
         :rtype: Author
@@ -1190,7 +1200,7 @@ class Collection:
     @property
     @_check_soup('_follower_num')
     def follower_num(self):
-        """获取关注此收藏夹的人数
+        """获取关注此收藏夹的人数.
 
         :return: 关注此收藏夹的人数
         :rtype: int
@@ -1200,7 +1210,7 @@ class Collection:
 
     @property
     def questions(self):
-        """获取收藏夹内所有问题对象
+        """获取收藏夹内所有问题对象.
 
         :return: 收藏夹内所有问题，以生成器形式返回
         :rtype: Question.Iterable
@@ -1222,7 +1232,7 @@ class Collection:
 
     @property
     def answers(self):
-        """获取收藏夹内所有答案对象
+        """获取收藏夹内所有答案对象.
 
         :return: 收藏夹内所有答案，以生成器形式返回
         :rtype: Answer.Iterable
@@ -1292,11 +1302,13 @@ class Collection:
 
 
 class Column:
-    """专栏类，用专栏网址为参数来构造对象"""
+
+    """专栏类，用专栏网址为参数来构造对象."""
 
     def __init__(self, url, name=None, follower_num=None,
                  post_num=None):
-        """
+        """类对象初始化.
+
         :param str url: 专栏网址
         :param str name: 专栏名
         :param int follower_num: 关注者数量
@@ -1318,8 +1330,7 @@ class Column:
         self._post_num = post_num
 
     def make_soup(self):
-        """不要调用！不要调用！！不要调用！！
-        """
+        """不要调用！不要调用！！不要调用！！."""
         global _session
         if self.soup is None:
             assert isinstance(_session, requests.Session)
@@ -1332,7 +1343,7 @@ class Column:
     @property
     @_check_soup('_name')
     def name(self):
-        """获取专栏名称
+        """获取专栏名称.
 
         :return: 专栏名称
         :rtype: str
@@ -1342,7 +1353,7 @@ class Column:
     @property
     @_check_soup('_follower_num')
     def follower_num(self):
-        """获取关注人数
+        """获取关注人数.
 
         :return: 关注人数
         :rtype: int
@@ -1352,7 +1363,7 @@ class Column:
     @property
     @_check_soup('_post_num')
     def post_num(self):
-        """获取专栏文章数
+        """获取专栏文章数.
 
         :return: 专栏文章数
         :rtype: int
@@ -1361,7 +1372,7 @@ class Column:
 
     @property
     def posts(self):
-        """获取专栏的所有文章
+        """获取专栏的所有文章.
 
         :return: 专栏所有文章的迭代器
         :rtype: Post.Iterable
@@ -1386,11 +1397,13 @@ class Column:
 
 
 class Post:
-    """知乎专栏的文章类，以文章网址为参数构造对象"""
+
+    """知乎专栏的文章类，以文章网址为参数构造对象."""
 
     def __init__(self, url, column=None, author=None, title=None,
                  upvote_num=None, comment_num=None):
-        """
+        """类对象初始化.
+
         :param str url: 文章所在URL
         :param Column column: 所属专栏
         :param Author author: 文章作者
@@ -1415,8 +1428,7 @@ class Post:
         self.soup = None
 
     def make_soup(self):
-        """不要调用！不要调用！！不要调用！！！
-        """
+        """没用的东西，不要调用."""
         if self.soup is None:
             global _session
             origin_host = _session.headers.get('Host')
@@ -1429,7 +1441,7 @@ class Post:
     @property
     @_check_soup('_column')
     def column(self):
-        """获取文章所在专栏
+        """获取文章所在专栏.
 
         :return: 文章所在专栏
         :rtype: Column
@@ -1441,7 +1453,7 @@ class Post:
     @property
     @_check_soup('_author')
     def author(self):
-        """获取文章作者
+        """获取文章作者.
 
         :return: 文章作者
         :rtype: Author
@@ -1454,7 +1466,7 @@ class Post:
     @property
     @_check_soup('_title')
     def title(self):
-        """获取文章标题
+        """获取文章标题.
 
         :return: 文章标题
         :rtype: str
@@ -1464,7 +1476,7 @@ class Post:
     @property
     @_check_soup('_upvote_num')
     def upvote_num(self):
-        """获取文章赞同数量
+        """获取文章赞同数量.
 
         :return: 文章赞同数
         :rtype: int
@@ -1474,7 +1486,7 @@ class Post:
     @property
     @_check_soup('_comment_num')
     def comment_num(self):
-        """获取评论数量
+        """获取评论数量.
 
         :return: 评论数量
         :rtype: int
@@ -1482,7 +1494,7 @@ class Post:
         return self.soup['commentsCount']
 
     def save(self, filepath=None, filename=None):
-        """将文章保存为 markdown 格式
+        """将文章保存为 markdown 格式.
 
         :param str filepath: 要保存的文件所在的绝对目录或相对目录，
             不填为当前目录下以专栏名命名的目录, 设为"."则为当前目录
@@ -1504,7 +1516,8 @@ class Post:
 
 
 class ActType(enum.Enum):
-    """用于表示用户动态的类型
+
+    """用于表示用户动态的类型.
 
     ANSWER_QUESTION :回答了一个问题 提供属性 answer
     UPVOTE_ANSWER   :赞同了一个问题 提供属性 answer
@@ -1515,6 +1528,7 @@ class ActType(enum.Enum):
     FOLLOW_TOPIC    :关注了一个专栏 提供属性 topic
     PUBLISH_POST    :发表了一篇文章 提供属性 post
     """
+
     ANSWER_QUESTION = 1
     UPVOTE_ANSWER = 2
     ASK_QUESTION = 4
@@ -1526,9 +1540,17 @@ class ActType(enum.Enum):
 
 
 class Activity:
-    """用户动态类，不建议手动使用，请使用Author.activities获取"""
+
+    """用户动态类，不建议手动使用，请使用Author.activities获取."""
 
     def __init__(self, act_type, act_time, **kwarg):
+        """类对象初始化.
+
+        :param ActType act_type: 动态类型
+        :param datatime.datatime act_time: 动态发生时间
+        :return: 活动对象
+        :rtype: Activity
+        """
         if not isinstance(act_type, ActType):
             raise ValueError('invalid activity type')
         if len(kwarg) != 1:
@@ -1541,7 +1563,7 @@ class Activity:
 
     @property
     def content(self):
-        """获取此对象中能提供的那个属性，对应表请查看ActType类
+        """获取此对象中能提供的那个属性，对应表请查看ActType类.
 
         :return:
         """
@@ -1549,10 +1571,12 @@ class Activity:
 
 
 class Topic:
-    """话题类，传入话题网址构造对象"""
+
+    """话题类，传入话题网址构造对象."""
 
     def __init__(self, url, name=None):
-        """
+        """类对象初始化.
+
         :param url: 话题地址
         :param name: 话题名称
         :return: Topic
@@ -1566,7 +1590,7 @@ class Topic:
         self.soup = None
 
     def make_soup(self):
-        """不要调用！
+        """没什么用的，不要调用.
 
         :return: None
         """
@@ -1577,7 +1601,7 @@ class Topic:
     @property
     @_check_soup('_name')
     def name(self):
-        """获取话题名称
+        """获取话题名称.
 
         :return: 话题名称
         :rtype: str
