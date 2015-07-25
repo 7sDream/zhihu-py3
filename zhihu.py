@@ -1048,6 +1048,11 @@ class Answer:
 
     @property
     def upvoters(self):
+        """获取答案点赞用户，返回迭代器
+
+        :return: 点赞用户迭代器
+        :rtype: Author.Iterable
+        """
         global _session
         self.make_soup()
         next_req = '/answer/' + self._aid + '/voters_profile'
