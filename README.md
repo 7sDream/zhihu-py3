@@ -38,7 +38,7 @@ for answer in question.answers:
 甜阁下 1155
 ```
 
-另外还有`Author`、`Answer`、`Collection`、`Column`、`Post`、`Topic`等类可以使用，`Answer`,`Post`类提供了`save`方法能将答案或文章保存为HTML或Markdown格式，具体请看文档，或者`zhihu-test.py`
+另外还有`Author（用户）`、`Answer（答案）`、`Collection（收藏夹）`、`Column（专栏）`、`Post（文章）`、`Topic（话题）`等类可以使用，`Answer`,`Post`类提供了`save`方法能将答案或文章保存为HTML或Markdown格式，具体请看文档，或者`zhihu-test.py`
 
 ## 依赖
 
@@ -87,7 +87,50 @@ cookies file created!
 
 ## 用法实例
 
-### 备份某问题所有答案：
+### 获取某用户的基本信息
+
+```python
+import zhihu
+author = zhihu.Author('http://www.zhihu.com/people/rainy-vczh')
+
+print('用户名 %s' % author.name)
+print('用户简介 %s' % author.motto)
+print('用户关注人数 %d' % author.followee_num)
+print('取用户粉丝数 %d' % author.follower_num)
+print('用户得到赞同数 %d' % author.upvote_num)
+print('用户得到感谢数 %d' % author.thank_num)
+print('用户提问数 %d' % author.question_num)
+print('用户答题数 %d' % author.answer_num)
+
+print('用户专栏文章数 %d，名称分别为：' % author.post_num)
+for column in author.columns:
+    print(column.name)
+print('用户收藏夹数 %d，名称分别为：' % author.collection_num)
+for collection in author.collections:
+    print(collection.name)
+```
+
+结果：
+
+```
+用户名 vczh
+用户简介 专业造轮子 https://github.com/vczh-libraries
+用户关注人数 1334
+取用户粉丝数 124759
+用户得到赞同数 317088
+用户得到感谢数 42672
+用户提问数 237
+用户答题数 8345
+用户专栏文章数 25，名称分别为：
+vczh的日常
+深井冰 IT 评论
+编程语言与高级语言虚拟机杂谈（仮）
+蓝色小药丸
+用户收藏夹数 1，名称分别为：
+李老师牛逼的答案
+```
+
+### 备份某问题所有答案
 
 ```python
 import zhihu
@@ -106,7 +149,7 @@ answer.save(mode="md")
 ```
 将会导出为 markdown 格式，下同。
 
-### 备份某用户所有答案：
+### 备份某用户所有答案
 
 ```python
 import zhihu
@@ -119,7 +162,7 @@ for answer in author.answers:
 
 备份某收藏夹所有答案，备份专栏文章同理，不再举例。
 
-### 获取点赞的动态
+### 获取某用户点赞的动态
 
 ```python
 import zhihu
@@ -144,7 +187,7 @@ vczh 在 2015-07-24 06:33:42 赞同了问题 真皮座椅的汽车到底应不�
 ……
 ```
 
-用户activities属性的完整用法课查看`zhihu-test.py`中`test_author`函数
+用户activities属性的完整用法可查看`zhihu-test.py`中`test_author`函数
 
 ## 其他常用方法
 

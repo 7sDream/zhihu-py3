@@ -1389,12 +1389,12 @@ class ActType(enum.Enum):
     """
     ANSWER_QUESTION = 1
     UPVOTE_ANSWER = 2
-    ASK_QUESTION = 3
-    FOLLOW_QUESTION = 4
-    UPVOTE_POST = 5
-    FOLLOW_COLUMN = 6
-    FOLLOW_TOPIC = 7
-    PUBLISH_POST = 8
+    ASK_QUESTION = 4
+    FOLLOW_QUESTION = 8
+    UPVOTE_POST = 16
+    FOLLOW_COLUMN = 32
+    FOLLOW_TOPIC = 64
+    PUBLISH_POST = 128
 
 
 class Activity:
