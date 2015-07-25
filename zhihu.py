@@ -14,7 +14,11 @@ import enum
 import requests
 from bs4 import BeautifulSoup as _Bs
 
-BeautifulSoup = lambda makeup: _Bs(makeup, 'html.parser')
+try:
+    __import__('lxml')
+    BeautifulSoup = lambda makeup: _Bs(makeup, 'lxml')
+except ImportError:
+    BeautifulSoup = lambda makeup: _Bs(makeup, 'html.parser')
 
 # Setting
 _Zhihu_URL = 'http://www.zhihu.com'
@@ -22,6 +26,9 @@ _Login_URL = _Zhihu_URL + '/login/email'
 _Captcha_URL_Prefix = _Zhihu_URL + '/captcha.gif?r='
 _Cookies_File_Name = 'cookies.json'
 _Get_More_Answer_URL = 'http://www.zhihu.com/node/QuestionAnswerListV2'
+_Get_More_Followers_URL = 'http://www.zhihu.com/node/ProfileFollowersListV2'
+_Get_More_Followees_URL = 'http://www.zhihu.com/node/ProfileFolloweesListV2'
+
 
 # Zhihu Columns API
 _Columns_Prefix = 'http://zhuanlan.zhihu.com/'
@@ -34,9 +41,8 @@ _Columns_Post_Data = _Columns_Prefix + 'api/columns/{0}/posts/{1}'
 _session = None
 _header = {'X-Requested-With': 'XMLHttpRequest',
            'Referer': 'http://www.zhihu.com',
-           'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64; '
-                         'Trident/7.0; Touch; LCJB; rv:11.0)'
-                         ' like Gecko',
+           'User-Agent': '	Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:39.0) '
+                         'Gecko/20100101 Firefox/39.0',
            'Host': 'www.zhihu.com'}
 
 _re_question_url = re.compile(r'^http://www\.zhihu\.com/question/\d+/?$')
@@ -452,11 +458,16 @@ class Question:
 class Author:
     """用户类，用用户主页地址作为参数来构造对象，其他参数可选"""
 
-    def __init__(self, url, name=None, motto=None):
+    def __init__(self, url, name=None, motto=None, follower_num=None,
+                 question_num=None, answer_num=None, upvote_num=None):
         """
         :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream
         :param str name: 用户名字，可选
-        :param str motto: 可选
+        :param str motto: 用户简介，可选
+        :param int follower_num: 用户粉丝数，可选
+        :param int question_num: 用户提问数，可选
+        :param int answer_num: 用户答案数，可选
+        :param int upvote_num: 用户获得赞同数，可选
         :return: Author对象
         :rtype: Author
         """
@@ -470,7 +481,12 @@ class Author:
         self._nav_list = None
         self._name = name
         self._motto = motto
+        self._follower_num = follower_num
+        self._question_num = question_num
+        self._answer_num = answer_num
+        self._upvote_num = upvote_num
         self._xsrf = None
+        self._hash_id = None
 
     def make_soup(self):
         """**请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用**
@@ -486,6 +502,12 @@ class Author:
                 'div', class_='profile-navbar clearfix').find_all('a')
             self._xsrf = self.soup.find(
                 'input', attrs={'name': '_xsrf'})['value']
+            div = self.soup.find('div', class_='zm-profile-header-op-btns')
+            if div is not None:
+                self._hash_id = div.button['data-id']
+            else:
+                ga = self.soup.find('script', attrs={'data-name': 'ga_vars'})
+                self._hash_id = json.loads(ga.text)['user_hash']
 
     @property
     @_check_soup('_name')
@@ -690,6 +712,54 @@ class Author:
                              self, upvote)
 
     @property
+    def followers(self):
+        """获取此关注此用户的人
+
+        :return: 关注此用户的人的生成器
+        :rtype: Author.Iterable
+        """
+        for x in self._follow_ee_ers('er'):
+            yield x
+
+    @property
+    def followees(self):
+        """获取此用户关注的人
+
+        :return: 用户关注的人的生成器
+        :rtype: Author.Iterable
+        """
+        for x in self._follow_ee_ers('ee'):
+            yield x
+
+    def _follow_ee_ers(self, t):
+        if self.url is None:
+            return
+        if t == 'er':
+            all_number = self.follower_num
+            request_url = _Get_More_Followers_URL
+        else:
+            all_number = self.followee_num
+            request_url = _Get_More_Followees_URL
+        if all_number == 0:
+            return
+        global _session
+        params = {"order_by": "created", "offset": 0, "hash_id": self._hash_id}
+        data = {'_xsrf': self._xsrf, 'method': 'next', 'params': ''}
+        for i in range(0, all_number, 20):
+            params['offset'] = i
+            data['params'] = json.dumps(params)
+            res = _session.post(request_url, data=data)
+            for html in res.json()['msg']:
+                soup = BeautifulSoup(html)
+                h2 = soup.find('h2')
+                author_name = h2.a.text
+                author_url = h2.a['href']
+                author_motto = soup.find('div', class_='zg-big-gray').text
+                numbers = [_text2int(_re_get_number.match(x.text).group(1))
+                           for x in soup.find_all('a', target='_blank')]
+                yield Author(author_url, author_name, author_motto, *numbers)
+
+    @property
     def collections(self):
         """获取此人收藏夹对象集合，返回生成器
 
@@ -748,6 +818,8 @@ class Author:
         :return: 最近动态生成器，根据不同的动态类型提供不同的成员
         :rtype: Activity.Iterable
         """
+        if self.url is None:
+            return
         self.make_soup()
         global _session
         gotten_feed_num = 20
@@ -1153,7 +1225,7 @@ class Collection:
                 h3 = tag.find('h3')
                 if h3.text != '匿名用户':
                     author_url = _Zhihu_URL + h3.a['href']
-                    author_name = h3.contents[3].text
+                    author_name = h3.a.text
                     if h3.strong is not None:
                         author_motto = tag.find('h3').strong['title']
                 author = Author(author_url, author_name, author_motto)
