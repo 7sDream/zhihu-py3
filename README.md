@@ -195,7 +195,7 @@ vczh 在 2015-07-24 06:33:42 赞同了问题 真皮座椅的汽车到底应不�
 
 ### 获取用户关注的人和关注此用户的人
 
-```python3
+```python
 import zhihu
 
 author = zhihu.Author('http://www.zhihu.com/people/7sdream')
