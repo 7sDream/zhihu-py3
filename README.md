@@ -193,6 +193,43 @@ vczh 在 2015-07-24 06:33:42 赞同了问题 真皮座椅的汽车到底应不�
 
 用户activities属性的完整用法可查看`zhihu-test.py`中`test_author`函数
 
+### 获取用户关注的人和关注此用户的人
+
+```python3
+import zhihu
+
+author = zhihu.Author('http://www.zhihu.com/people/7sdream')
+
+print('--- Followers ---')
+for follower in author.followers:
+    print(follower.name)
+
+print('--- Followees ---')
+for followee in author.followees:
+    print(followee.name)
+```
+
+结果：
+
+```
+--- Followers ---
+yuwei
+falling
+周非
+陈泓瑾
+...
+...
+--- Followees ---
+yuwei
+falling
+伍声
+bhuztez
+段晓晨
+冯东
+...
+...
+```
+
 ## 其他常用方法
 
 #### create_cookies
@@ -226,8 +263,9 @@ Read The Docs： [点击这里查看文档][dev-doc-rtd-url]
 
 ## TODO List
 
+ - 增加获取用户关注者，用户追随者 √
  - 增加获取答案点赞用户功能
- - 增加获取用户关注者，用户追随者，收藏夹关注者，问题关注者等等
+ - 收藏夹关注者，问题关注者等等
 
 ## 联系我
 
