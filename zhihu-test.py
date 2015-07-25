@@ -98,7 +98,7 @@ def test_answer():
 
 
 def test_author():
-    url = 'http://www.zhihu.com/people/rainy-vczh'
+    url = 'http://www.zhihu.com/people/7sdream'
     author = zhihu.Author(url)
     # 获取用户名称
     print(author.name)
@@ -169,7 +169,7 @@ def test_author():
         print(column.name)
 
     # 获取用户动态
-    for act in author.activities:
+    for _, act in zip(range(0, 100), author.activities):
         print(act.content.url)
         if act.type == zhihu.ActType.FOLLOW_COLUMN:
             print('%s 在 %s 关注了专栏 %s' %
