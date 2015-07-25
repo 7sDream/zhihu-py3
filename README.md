@@ -1,18 +1,10 @@
 # zhihu-py3 : 知乎解析器 with Python3
 
-[![Documentation Status][doc-badge-img]][doc-badge-url]
+[![Documentation Status][dev-doc-badge-img]][dev-doc-badge-url]
 
-最近一次更新内容：
+最近Dev分支并没有在Coding新功能。
 
-1. 增加了获取用户关注者和粉丝的功能
-
-2. html解析器优选
-
-3. 增加答案获取点赞用户功能
-
-4. 增加简易判断是否为「三零用户」功能
-
-具体请看[ChangeLog][changelog-url]
+具体请看[ChangeLog][dev-changelog-url]
 
 **有问题请开Issue，几个小时后无回应可加最后面的QQ群询问。**
 
@@ -302,7 +294,7 @@ print('\n三零用户比例 %.3f%%' % (three_zero_user_num / answer.upvote_num *
 
 终于搞定了文档这个磨人的小妖精，可惜 Sphinx 还是不会用 T^T 先随意弄成这样吧：
 
-Read The Docs： [点击这里查看文档][doc-rtd-url]
+Read The Docs： [点击这里查看文档][dev-doc-rtd-url]
 
 ## TODO List
 
