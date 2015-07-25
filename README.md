@@ -1,8 +1,16 @@
 # zhihu-py3 : 知乎解析器 with Python3
 
-[![Documentation Status][dev-doc-badge-img]][dev-doc-badge-url]
+[![Documentation Status][doc-badge-img]][doc-badge-url]
 
-**说明：2015.07.24 对代码进行了比较大的重构，更新前请务必查看[ChangeLog][dev-changelog-url]**
+最近一次更新内容：
+
+增加了获取用户关注者和粉丝的功能。
+
+在安装了lxml的情况下默认使用lxml作为解析器，否则使用html.parser。
+
+详细更新情况请看[ChangeLog][changelog-url]。
+
+**有问题请开Issue，几个小时后无回应可加最后面的QQ群询问。**
 
 ## 功能
 
@@ -259,13 +267,14 @@ bhuztez
 
 终于搞定了文档这个磨人的小妖精，可惜 Sphinx 还是不会用 T^T 先随意弄成这样吧：
 
-Read The Docs： [点击这里查看文档][dev-doc-rtd-url]
+Read The Docs： [点击这里查看文档][doc-rtd-url]
 
 ## TODO List
 
  - 增加获取用户关注者，用户追随者 √
  - 增加获取答案点赞用户功能
  - 收藏夹关注者，问题关注者等等
+ - 添加Me类，用于各种操作（比如给某答案点赞）
 
 ## 联系我
 

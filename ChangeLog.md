@@ -1,10 +1,14 @@
 # 更新日志
 
-# 2015.07.25
+## 2015.07.25
 
-在安装了lxml的情况下默认使用lxml作为解析器，否则使用html.parser
+### 增加了获取用户关注者和粉丝的功能
 
-增加了获取用户关注者和粉丝的功能。
+`Author.followers`、`Author.folowees`，返回Author迭代器，自带url, name ,motto question_num, answer_num, upvote_num, follower_num属性。
+
+### html解析器优选
+
+在安装了lxml的情况下默认使用lxml作为解析器，否则使用html.parser。
 
 ## 2015.07.23
 
@@ -24,13 +28,13 @@
 
 1. 统一了一下复数的使用。比如`Author.answers_num`变为`Author.answer_num`, `Author.collections_num`变为`Author.collection_num`。也就是说某某数量的接口名为`Class.foo_num`，foo使用单数形式。
 
-2. 知乎的赞同使用单词upvote，以前叫`agree`的地方现在都叫`upvote`。比如`Author.agree_num`变为`Author.upvote_num`, `Post.agree_num`变为`Post.upvote_num`
+2. 知乎的赞同使用单词upvote，以前叫`agree`的地方现在都叫`upvote`。比如`Author.agree_num`变为`Author.upvote_num`, `Post.agree_num`变为`Post.upvote_num`。
 
-3. `Answer`类的`upvote`属性更名为`upvote_num`
+3. `Answer`类的`upvote`属性更名为`upvote_num`。
 
 ### 提供`Topic`类
 
-目前只有获取话题名的功能
+目前只有获取话题名的功能。
 
 ### 提供`Author.activities`
 
