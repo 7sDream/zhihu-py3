@@ -1,8 +1,18 @@
 # zhihu-py3 : 知乎解析器 with Python3
 
-[![Documentation Status][dev-doc-badge-img]][dev-doc-badge-url]
+[![Documentation Status][doc-badge-img]][doc-badge-url]
 
-Dev分支正在Coding功能：获取答案点赞用户。
+最近一次更新内容：
+
+1. 增加了获取用户关注者和粉丝的功能
+
+2. html解析器优选
+
+3. 增加答案获取点赞用户功能
+
+4. 增加简易判断是否为「三零用户」功能
+
+具体请看[ChangeLog][changelog-url]
 
 **有问题请开Issue，几个小时后无回应可加最后面的QQ群询问。**
 
@@ -232,6 +242,37 @@ bhuztez
 ...
 ```
 
+### 计算某答案点赞中三零用户比例
+
+```python
+import zhihu
+
+url = 'http://www.zhihu.com/question/30404450/answer/47939822'
+answer = zhihu.Answer(url)
+
+three_zero_user_num = 0
+
+for upvoter in answer.upvoters:
+    print(upvoter.name, upvoter.upvote_num, upvoter.thank_num,
+          upvoter.question_num, upvoter.answer_num)
+    if upvoter.is_zero_user():
+        three_zero_user_num += 1
+
+print('\n三零用户比例 %.3f%%' % (three_zero_user_num / answer.upvote_num * 100))
+```
+
+结果：
+
+```
+...
+时耽 16 0 0 1
+林小北 47 15 2 40
+宋飞 0 0 0 0
+唐吃藕 10 0 0 5
+
+三零用户比例 26.852%
+```
+
 ## 其他常用方法
 
 #### create_cookies
@@ -261,7 +302,7 @@ bhuztez
 
 终于搞定了文档这个磨人的小妖精，可惜 Sphinx 还是不会用 T^T 先随意弄成这样吧：
 
-Read The Docs： [点击这里查看文档][dev-doc-rtd-url]
+Read The Docs： [点击这里查看文档][doc-rtd-url]
 
 ## TODO List
 
