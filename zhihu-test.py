@@ -119,17 +119,21 @@ def test_author():
     print(author.motto)
     # 二次元新居民/软件爱好者/零回答消灭者
 
+    # 获取用户头像地址
+    print(author.photo_url)
+    # http://pic3.zhimg.com/893fd554c8aa57196d5ab98530ef479a_r.jpg
+
     # 获取用户得到赞同数
     print(author.upvote_num)
-    # 1078
+    # 1338
 
     # 获取用户得到感谢数
     print(author.thank_num)
-    # 370
+    # 468
 
     # 获取用户关注人数
     print(author.followee_num)
-    # 66
+    # 82
 
     # 获取用户关注人
     for _, followee in zip(range(0, 10), author.followees):
@@ -144,11 +148,11 @@ def test_author():
 
     # 获取用户粉丝数
     print(author.follower_num)
-    # 179
+    # 303
 
     # 获得用户粉丝
-    for _, followee in zip(range(0, 10), author.followees):
-        print(followee.name)
+    for _, follower in zip(range(0, 10), author.followers):
+        print(follower.name)
     # yuwei
     # falling
     # 周非
@@ -170,7 +174,7 @@ def test_author():
 
     # 获取用户答题数
     print(author.answer_num)
-    # 227
+    # 247
 
     # 获取用户所有回答的点赞数
     for _, answer in zip(range(0, 10), author.answers):
@@ -340,9 +344,9 @@ if os.path.exists("test"):
 os.mkdir("test")
 os.chdir("test")
 
-test_question()
-test_answer()
+# test_question()
+# test_answer()
 test_author()
-test_collection()
-test_column()
-test_post()
+# test_collection()
+# test_column()
+# test_post()
