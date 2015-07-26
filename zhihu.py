@@ -26,10 +26,11 @@ except ImportError:
 _Zhihu_URL = 'http://www.zhihu.com'
 _Login_URL = _Zhihu_URL + '/login/email'
 _Captcha_URL_Prefix = _Zhihu_URL + '/captcha.gif?r='
-_Cookies_File_Name = 'cookies.json'
+_Get_Profile_Card_URL = 'http://www.zhihu.com/node/MemberProfileCardV2'
 _Get_More_Answer_URL = 'http://www.zhihu.com/node/QuestionAnswerListV2'
 _Get_More_Followers_URL = 'http://www.zhihu.com/node/ProfileFollowersListV2'
 _Get_More_Followees_URL = 'http://www.zhihu.com/node/ProfileFolloweesListV2'
+_Cookies_File_Name = 'cookies.json'
 
 
 # Zhihu Columns API
@@ -68,7 +69,10 @@ def _check_soup(attr, soup_type='_make_soup'):
             # noinspection PyTypeChecker
             value = getattr(self, attr) if hasattr(self, attr) else None
             if value is None:
-                getattr(self, soup_type)()
+                if soup_type == '_make_soup':
+                    getattr(self, soup_type)()
+                elif self.soup is None:
+                    getattr(self, soup_type)()
                 value = func(self)
                 setattr(self, attr, value)
                 return value
@@ -186,7 +190,9 @@ def _parser_author_from_tag(author):
         author_motto = author.strong['title'] \
             if author.strong is not None else ''
         author_url = _Zhihu_URL + author.contents[3]['href']
-        author_obj = Author(author_url, author_name, author_motto)
+        photo_url = author.a.img['src'].replace('_s', '_r')
+        author_obj = Author(author_url, author_name, author_motto,
+                            photo_url=photo_url)
     return author_obj
 
 
@@ -483,6 +489,7 @@ class Author:
                 url += '/'
         self.url = url
         self.soup = None
+        self.card = None
         self._nav_list = None
         self._name = name
         self._motto = motto
@@ -497,6 +504,7 @@ class Author:
 
     def _make_soup(self):
         if self.soup is None and self.url is not None:
+            global _session
             r = _session.get(self.url)
             self.soup = BeautifulSoup(r.content)
             self._nav_list = self.soup.find(
@@ -509,6 +517,23 @@ class Author:
             else:
                 ga = self.soup.find('script', attrs={'data-name': 'ga_vars'})
                 self._hash_id = json.loads(ga.text)['user_hash']
+
+    def _make_card(self):
+        if self.card is None and self.url is not None:
+            global _session
+            params = {'url_token': self.id}
+            real_params = {'params': json.dumps(params)}
+            r = _session.get(_Get_Profile_Card_URL, params=real_params)
+            self.card = BeautifulSoup(r.content)
+
+    @property
+    def id(self):
+        """获取用户id，就是网址最后那一部分.
+
+        :return: 用户id
+        :rtype: str
+        """
+        return re.match(r'^.*/([^/]+)/$', self.url).group(1)
 
     @property
     @_check_soup('_name')
@@ -539,6 +564,25 @@ class Author:
                 return ''
             else:
                 return bar.contents[3].text
+
+    @property
+    @_check_soup('_photo_url', '_make_card')
+    def photo_url(self):
+        """获取用户头像图片地址.
+
+        :return: 用户头像url
+        :rtype: str
+        """
+        if self.url is not None:
+            if self.soup is not None:
+                img = self.soup.find(
+                    'img', class_='zm-profile-header-img')['src']
+                return img.replace('_l', '_r')
+            else:
+                assert(self.card is not None)
+                return self.card.img['src'].replace('_m', '_l')
+        else:
+            return 'http://pic1.zhimg.com/da8e974dc_r.jpg'
 
     @property
     @_check_soup('_followee_num')
@@ -755,9 +799,11 @@ class Author:
                 author_name = h2.a.text
                 author_url = h2.a['href']
                 author_motto = soup.find('div', class_='zg-big-gray').text
+                author_photo = soup.a.img['src'].replace('_m', '_r')
                 numbers = [_text2int(_re_get_number.match(x.text).group(1))
                            for x in soup.find_all('a', target='_blank')]
-                yield Author(author_url, author_name, author_motto, *numbers)
+                yield Author(author_url, author_name, author_motto, *numbers,
+                             thank_num=None, photo_url=author_photo)
 
     @property
     def collections(self):
@@ -853,14 +899,19 @@ class Author:
                         author_name = author_info[0]
                         author_motto = author_info[1] \
                             if len(author_info) > 1 else ''
+                        photo_tag = act.div.a.img
+                        photo_url = photo_tag['src'].replace('_s', '_r') \
+                            if photo_tag is not None else None
                     except TypeError:
                         author_url = None
                         author_name = '匿名用户'
                         author_motto = ''
-                    author = Author(author_url, author_name, author_motto)
+                        photo_url = None
+                    author = Author(author_url, author_name, author_motto,
+                                    photo_url=photo_url)
                     post_url = act.find('a', class_='post-link')['href']
                     post_title = act.find('a', class_='post-link').text
-                    post_comment_num, post_upvote_num = self._parse_act(act)
+                    post_comment_num, post_upvote_num = self._parse_answer(act)
                     post = Post(post_url, column, author, post_title,
                                 post_upvote_num, post_comment_num)
 
@@ -893,6 +944,7 @@ class Author:
                         author_url = None
                         author_name = '匿名用户'
                         author_motto = ''
+                        photo_url = None
                     else:
                         try_find_author = try_find_author[-1]
                         author_url = _Zhihu_URL + try_find_author['href']
@@ -902,11 +954,14 @@ class Author:
                             author_motto = ''
                         else:
                             author_motto = try_find_motto['title']
-                    author = Author(author_url, author_name, author_motto)
+                        photo_url = try_find_author.parent.a.img['src']\
+                            .replace('_s', '_r')
+                    author = Author(author_url, author_name, author_motto,
+                                    photo_url=photo_url)
 
                     answer_url = _Zhihu_URL + act.div.a['href']
                     answer_comment_num, answer_upvote_num = \
-                        Author._parse_act(act)
+                        Author._parse_answer(act)
                     answer = Answer(answer_url, question, author,
                                     answer_upvote_num)
 
@@ -921,7 +976,7 @@ class Author:
                     answer_url = _Zhihu_URL + \
                         act.div.find_all('a')[-1]['href']
                     answer_comment_num, answer_upvote_num = \
-                        Author._parse_act(act)
+                        Author._parse_answer(act)
                     answer = Answer(answer_url, question, self,
                                     answer_upvote_num)
 
@@ -944,7 +999,7 @@ class Author:
             self.question_num + self.answer_num == 0
 
     @staticmethod
-    def _parse_act(act):
+    def _parse_answer(act):
         upvote_num = _text2int(act.find(
             'a', class_='zm-item-vote-count')['data-votecount'])
         comment = act.find('a', class_='toggle-comment')
@@ -1059,17 +1114,20 @@ class Answer:
                     author_name = author_tag.div.a['title']
                     author_url = author_tag.div.a['href']
                     author_motto = author_tag.div.span.text
+                    photo_url = soup.a.img['src'].replace('_m', '_r')
                     numbers_tag = soup.find_all('li')
                     numbers = [int(_re_get_number.match(x.get_text()).group(1))
-                               for x in numbers_tag]    # u, t, q, a
+                               for x in numbers_tag]
                 else:
                     author_url = None
                     author_name = '匿名用户'
                     author_motto = ''
                     numbers = [None] * 4
+                    photo_url = None
                 # noinspection PyTypeChecker
                 yield Author(author_url, author_name, author_motto, None,
-                             numbers[2], numbers[3], numbers[0], numbers[1])
+                             numbers[2], numbers[3], numbers[0], numbers[1],
+                             photo_url)
 
     @property
     @_check_soup('_content')
@@ -1175,7 +1233,9 @@ class Collection:
         url = _Zhihu_URL + a['href']
         motto = self.soup.find(
             'div', id='zh-single-answer-author-info').div.text
-        return Author(url, name, motto)
+        photo_url = self.soup.find(
+            'img', class_='zm-list-avatar-medium')['src'].replace('_m', '_r')
+        return Author(url, name, motto, photo_url=photo_url)
 
     @property
     @_check_soup('_follower_num')
@@ -1226,7 +1286,7 @@ class Collection:
             global _session
             soup = BeautifulSoup(_session.get(
                 self.url[:-1] + '?page=' + str(i)).text)
-            for answer in self._page_get_answers(soup):
+            for answer in Collection._page_get_answers(soup):
                 if answer == 0:
                     return
                 yield answer
@@ -1366,9 +1426,12 @@ class Column:
             _session.headers.update(Host=origin_host)
             for post in soup:
                 url = _Columns_Prefix + post['url'][1:]
+                template = post['author']['avatar']['template']
+                photo_id = post['author']['avatar']['id']
+                photo_url = template.format(id=photo_id, size='r')
                 author = Author(post['author']['profileUrl'],
                                 post['author']['name'],
-                                post['author']['bio'])
+                                post['author']['bio'], photo_url=photo_url)
                 title = post['title']
                 upvote_num = post['likesCount']
                 comment_num = post['commentsCount']
@@ -1439,7 +1502,10 @@ class Post:
         url = self.soup['author']['profileUrl']
         name = self.soup['author']['name']
         motto = self.soup['author']['bio']
-        return Author(url, name, motto)
+        template = self.soup['author']['avatar']['template']
+        photo_id = self.soup['author']['avatar']['id']
+        photo_url = template.format(id=photo_id, size='r')
+        return Author(url, name, motto, photo_url=photo_url)
 
     @property
     @_check_soup('_title')
@@ -1498,12 +1564,12 @@ class ActType(enum.Enum):
     """用于表示用户动态的类型.
 
     ANSWER_QUESTION :回答了一个问题 提供属性 answer
-    UPVOTE_ANSWER   :赞同了一个问题 提供属性 answer
+    UPVOTE_ANSWER   :赞同了一个回答 提供属性 answer
     ASK_QUESTION    :提出了一个问题 提供属性 question
     FOLLOW_QUESTION :关注了一个问题 提供属性 question
     UPVOTE_POST     :赞同了一篇文章 提供属性 post
-    FOLLOW_COLUMN   :关注了一个话题 提供属性 column
-    FOLLOW_TOPIC    :关注了一个专栏 提供属性 topic
+    FOLLOW_COLUMN   :关注了一个专栏 提供属性 column
+    FOLLOW_TOPIC    :关注了一个话题 提供属性 topic
     PUBLISH_POST    :发表了一篇文章 提供属性 post
     """
 

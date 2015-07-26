@@ -2,7 +2,7 @@
 
 [![Documentation Status][dev-doc-badge-img]][dev-doc-badge-url]
 
-最近Dev分支并没有在Coding新功能。
+最近Dev分支并在coding的功能：Author.photo_url。
 
 具体请看[ChangeLog][dev-changelog-url]
 
