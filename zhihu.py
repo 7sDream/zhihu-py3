@@ -1609,7 +1609,8 @@ class Activity:
     def content(self):
         """获取此对象中能提供的那个属性，对应表请查看ActType类.
 
-        :return:
+        :return: 对象提供的对象
+        :rtype: Author or Question or Answer or Topic or Column or Post
         """
         return getattr(self, self._attr)
 
