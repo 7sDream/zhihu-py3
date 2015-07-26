@@ -61,22 +61,20 @@ _re_get_number = re.compile(r'[^\d]*(\d+).*')
 _re_del_empty_line = re.compile(r'\n*(.*)\n*')
 
 
-def _check_soup(attr):
+def _check_soup(attr, soup_type='_make_soup'):
     def real(func):
         @functools.wraps(func)
         def wrapper(self):
             # noinspection PyTypeChecker
             value = getattr(self, attr) if hasattr(self, attr) else None
             if value is None:
-                self.make_soup()
+                getattr(self, soup_type)()
                 value = func(self)
                 setattr(self, attr, value)
                 return value
             else:
                 return value
-
         return wrapper
-
     return real
 
 
@@ -267,12 +265,7 @@ class Question:
             self._followers_num = followers_num
             self._xsrf = ''
 
-    def make_soup(self):
-        """请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用.
-
-        :return: None
-        :rtype: None
-        """
+    def _make_soup(self):
         if self.soup is None:
             r = _session.get(self.url)
             self.soup = BeautifulSoup(r.content)
@@ -366,7 +359,7 @@ class Question:
         """
         global _session
         global _header
-        self.make_soup()
+        self._make_soup()
         new_header = dict(_header)
         new_header['Referer'] = self.url
         params = {"url_token": self.id,
@@ -469,7 +462,7 @@ class Author:
 
     def __init__(self, url, name=None, motto=None, follower_num=None,
                  question_num=None, answer_num=None, upvote_num=None,
-                 thank_num=None):
+                 thank_num=None, photo_url=None):
         """类对象初始化.
 
         :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream
@@ -479,6 +472,7 @@ class Author:
         :param int question_num: 用户提问数，可选
         :param int answer_num: 用户答案数，可选
         :param int upvote_num: 用户获得赞同数，可选
+        :param str photo_url: 用户头像地址，可选
         :return: Author对象
         :rtype: Author
         """
@@ -497,15 +491,11 @@ class Author:
         self._answer_num = answer_num
         self._upvote_num = upvote_num
         self._thank_num = thank_num
+        self._photo_url = photo_url
         self._xsrf = None
         self._hash_id = None
 
-    def make_soup(self):
-        """请不要手动调用此方法，当获取需要解析网页的属性时会自动掉用.
-
-        :return: None
-        :rtype: None
-        """
+    def _make_soup(self):
         if self.soup is None and self.url is not None:
             r = _session.get(self.url)
             self.soup = BeautifulSoup(r.content)
@@ -830,7 +820,7 @@ class Author:
         """
         if self.url is None:
             return
-        self.make_soup()
+        self._make_soup()
         global _session
         gotten_feed_num = 20
         start = '0'
@@ -993,12 +983,7 @@ class Answer:
         self._upvote_num = upvote_num
         self._content = content
 
-    def make_soup(self):
-        """没用的东西，不要调用.
-
-        :return: None
-        :rtype: None
-        """
+    def _make_soup(self):
         if self.soup is None:
             r = _session.get(self.url)
             self.soup = BeautifulSoup(r.content)
@@ -1062,7 +1047,7 @@ class Answer:
         :rtype: Author.Iterable
         """
         global _session
-        self.make_soup()
+        self._make_soup()
         next_req = '/answer/' + self._aid + '/voters_profile'
         while next_req != '':
             data = _session.get(_Zhihu_URL + next_req).json()
@@ -1161,12 +1146,7 @@ class Collection:
             self._owner = owner
             self._follower_num = follower_num
 
-    def make_soup(self):
-        """没用的东西，不要调用.
-
-        :return: None
-        :rtype: None
-        """
+    def _make_soup(self):
         if self.soup is None:
             global _session
             self.soup = BeautifulSoup(_session.get(self.url).text)
@@ -1215,7 +1195,7 @@ class Collection:
         :return: 收藏夹内所有问题，以生成器形式返回
         :rtype: Question.Iterable
         """
-        self.make_soup()
+        self._make_soup()
         # noinspection PyTypeChecker
         for question in Collection._page_get_questions(self.soup):
             yield question
@@ -1237,7 +1217,7 @@ class Collection:
         :return: 收藏夹内所有答案，以生成器形式返回
         :rtype: Answer.Iterable
         """
-        self.make_soup()
+        self._make_soup()
         # noinspection PyTypeChecker
         for answer in Collection._page_get_answers(self.soup):
             yield answer
@@ -1329,8 +1309,7 @@ class Column:
         self._follower_num = follower_num
         self._post_num = post_num
 
-    def make_soup(self):
-        """不要调用！不要调用！！不要调用！！."""
+    def _make_soup(self):
         global _session
         if self.soup is None:
             assert isinstance(_session, requests.Session)
@@ -1427,8 +1406,7 @@ class Post:
         self._comment_num = comment_num
         self.soup = None
 
-    def make_soup(self):
-        """没用的东西，不要调用."""
+    def _make_soup(self):
         if self.soup is None:
             global _session
             origin_host = _session.headers.get('Host')
@@ -1503,7 +1481,7 @@ class Post:
             自定义参数时请不要输入扩展名 .md
         :return:
         """
-        self.make_soup()
+        self._make_soup()
         file = _get_path(filepath, filename, 'md',
                          self.column.name,
                          self.title + ' - ' + self.author.name)
@@ -1589,11 +1567,7 @@ class Topic:
         self._name = name
         self.soup = None
 
-    def make_soup(self):
-        """没什么用的，不要调用.
-
-        :return: None
-        """
+    def _make_soup(self):
         if self.soup is None:
             global _session
             self.soup = BeautifulSoup(_session.get(self.url).content)
