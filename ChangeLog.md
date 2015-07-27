@@ -6,7 +6,7 @@
 
 本属性的实现较为分散，在不同的地方使用了不同的方法：
 
- - `Author.followe(e)r`、`Answer.upvoter`等属性返回的`Author`自带`photo_url`
+ - `Author.follower(e)s`、`Answer.upvoters`等属性返回的`Author`自带`photo_url`
 
  - 用户自定义的`Author`在访问过主页的情况下通过解析主页得到
 
