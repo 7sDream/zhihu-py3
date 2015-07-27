@@ -4,6 +4,7 @@
 """"A parser of zhihu.com with help of bs4 and requests in python3."""
 
 __author__ = '7sDream'
+__version__ = '0.1'
 
 import time
 import datetime
