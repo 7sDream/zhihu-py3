@@ -2,7 +2,7 @@
 
 [![Documentation Status][dev-doc-badge-img]][dev-doc-badge-url]
 
-最近Dev分支并在coding的功能：Author.photo_url。
+最近Dev分支在coding的功能：Author.photo_url。
 
 具体请看[ChangeLog][dev-changelog-url]
 
@@ -298,8 +298,8 @@ Read The Docs： [点击这里查看文档][dev-doc-rtd-url]
 
 ## TODO List
 
- - [x] 增加获取用户关注者，用户追随者 √
- - [x] 增加获取答案点赞用户功能 √
+ - [x] 增加获取用户关注者，用户追随者
+ - [x] 增加获取答案点赞用户功能
  - [ ] 收藏夹关注者，问题关注者等等
  - [ ] 添加Me类，用于各种操作（比如给某答案点赞）
 
