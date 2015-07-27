@@ -1,10 +1,12 @@
 # zhihu-py3 : 知乎解析器 with Python3
 
-[![Documentation Status][dev-doc-badge-img]][dev-doc-badge-url]
+[![Documentation Status][doc-badge-img]][doc-badge-url]
 
-最近Dev分支在coding的功能：Author.photo_url。
+最近一次更新内容：
 
-具体请看[ChangeLog][dev-changelog-url]
+添加`Author.photo_url`接口，用于获取用户头像。
+
+具体请看[ChangeLog][changelog-url]
 
 **有问题请开Issue，几个小时后无回应可加最后面的QQ群询问。**
 
@@ -74,7 +76,7 @@ zhihu.create_cookies()
 
 运行结果
 
-```ipython
+```python
 In [1]: import zhihu
 no cookies file, this may make something wrong.
 if you will run create_cookies or login next, please ignore me.
@@ -99,7 +101,9 @@ cookies file created!
 
 ```python
 import zhihu
-author = zhihu.Author('http://www.zhihu.com/people/rainy-vczh')
+
+url = 'http://www.zhihu.com/people/zord-vczh'
+author = zhihu.Author(url)
 
 print('用户名 %s' % author.name)
 print('用户简介 %s' % author.motto)
@@ -175,7 +179,7 @@ for answer in author.answers:
 ```python
 import zhihu
 
-author = zhihu.Author('http://www.zhihu.com/people/rainy-vczh')
+author = zhihu.Author('http://www.zhihu.com/people/zord-vczh')
 for act in author.activities:
     if act.type == zhihu.ActType.UPVOTE_ANSWER:
         print('%s 在 %s 赞同了问题 %s 中 %s(motto: %s) 的回答, '
@@ -190,8 +194,6 @@ for act in author.activities:
 ```
 vczh 在 2015-07-24 08:35:06 赞同了问题 女生夏天穿超短裙是一种什么样的体验？ 中 Light(motto: 我城故事多。) 的回答, 此回答赞同数 43
 vczh 在 2015-07-24 08:34:30 赞同了问题 女生夏天穿超短裙是一种什么样的体验？ 中 Ms狐狸(motto: 随便写来玩玩) 的回答, 此回答赞同数 57
-vczh 在 2015-07-24 06:43:49 赞同了问题 为什么好多中学生浑浑噩噩还不知悔改？ 中 胖子邓(motto: living, writing, loving.) 的回答, 此回答赞同数 1162
-vczh 在 2015-07-24 06:33:42 赞同了问题 真皮座椅的汽车到底应不应该放座套？ 中 赵奕寒(motto: Safe Choix项目发起人) 的回答, 此回答赞同数 44
 ……
 ```
 
@@ -220,17 +222,11 @@ for followee in author.followees:
 yuwei
 falling
 周非
-陈泓瑾
-...
 ...
 --- Followees ---
 yuwei
 falling
 伍声
-bhuztez
-段晓晨
-冯东
-...
 ...
 ```
 
@@ -257,13 +253,45 @@ print('\n三零用户比例 %.3f%%' % (three_zero_user_num / answer.upvote_num *
 
 ```
 ...
-时耽 16 0 0 1
-林小北 47 15 2 40
 宋飞 0 0 0 0
 唐吃藕 10 0 0 5
 
 三零用户比例 26.852%
 ```
+
+### 爬取某用户关注的人的头像
+
+```python
+import zhihu
+import requests
+import os
+import imghdr
+
+author = zhihu.Author('http://www.zhihu.com/people/zord-vczh')
+
+os.mkdir('vczh')
+for followee in author.followees:
+    try:
+        filename = followee.name + ' - ' + followee.id + '.jpeg'
+        print(filename)
+        with open('vczh/' + filename, 'wb') as f:
+            f.write(requests.get(followee.photo_url).content)
+    except KeyboardInterrupt:
+        break
+
+for root, dirs, files in os.walk('vczh'):
+    for filename in files:
+        filename = os.path.join(root, filename)
+        img_type = imghdr.what(filename)
+        if img_type != 'jpeg' and img_type is not None:
+            print(filename, '--->', img_type)
+            os.rename(filename, filename[:-4] + img_type)
+
+```
+
+结果：
+
+[点这里](http://www.zhihu.com/question/28661987/answer/42591825)
 
 ## 其他常用方法
 
@@ -294,12 +322,13 @@ print('\n三零用户比例 %.3f%%' % (three_zero_user_num / answer.upvote_num *
 
 终于搞定了文档这个磨人的小妖精，可惜 Sphinx 还是不会用 T^T 先随意弄成这样吧：
 
-Read The Docs： [点击这里查看文档][dev-doc-rtd-url]
+Read The Docs： [点击这里查看文档][doc-rtd-url]
 
 ## TODO List
 
  - [x] 增加获取用户关注者，用户追随者
  - [x] 增加获取答案点赞用户功能
+ - [x] 获取用户头像地址
  - [ ] 收藏夹关注者，问题关注者等等
  - [ ] 添加Me类，用于各种操作（比如给某答案点赞）
 
