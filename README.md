@@ -77,6 +77,8 @@ cd zhihu-py3
 
 `-enable-use-lxml`需要`lxml`依赖，如果无法(不想)安装请关闭此选项。
 
+最后一行命令可能需要sudo。
+
 ## 准备工作
 
 首次使用之前请先运行以下代码生成 cookies 文件：
