@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
@@ -16,10 +16,6 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
-packages = (
-    'zhihu',
-)
-
 
 def extract_requirements(filename='requirements.txt'):
     with open(filename, 'r') as fd:
@@ -27,9 +23,6 @@ def extract_requirements(filename='requirements.txt'):
 
     # ignore comments and empty lines
     return [line for line in lines if line and not line.strip().startswith('#')]
-
-
-requires = extract_requirements()
 
 
 def extract_version():
@@ -43,7 +36,6 @@ def extract_version():
 
     return version
 
-version = extract_version()
 
 with open('README.md', 'r') as fd:
     readme = fd.read()
@@ -51,30 +43,39 @@ with open('README.md', 'r') as fd:
 with open('ChangeLog.md', 'r') as fd:
     changelog = fd.read()
 
+packages = [
+    'zhihu'
+]
+version = extract_version()
+requires = extract_requirements()
+
 
 setup(
-        name='zhihu-py3',
-        version=version,
-        description='A parser of zhihu.com with help of bs4 and requests in python3',
-        long_description='{0}\n\n{1}'.format(readme, changelog),
-        author='7sDream',
-        author_email='didislover@gmail.com',
-        license='MIT',
-        url='https://github.com/7sDream/zhihu-py3',
-        download_url='https://github.com/7sDream/zhihu-py3/releases',
-        install_requires=requires,
-        packages=packages,
-        classifiers=[
-            'Development Status :: 3 - Alpha',
-            'Environment :: Web Environment',
-            'Intended Audience :: Developers',
-            'License :: OSI Approved :: MIT License',
-            'Operating System :: OS Independent',
-            'Programming Language :: Python :: 3',
-            'Topic :: Internet :: WWW/HTTP',
-            'Topic :: Software Development :: Libraries :: Python Modules',
-        ],
-        )
+    name='zhihu-py3',
+    version=version,
+    description='A parser of zhihu.com with help of bs4 and requests in python3',
+    long_description='{0}\n\n{1}'.format(readme, changelog),
 
+    author='7sDream',
+    author_email='didislover@gmail.com',
+    license='MIT',
 
-# vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
+    url='https://github.com/7sDream/zhihu-py3',
+    download_url='https://github.com/7sDream/zhihu-py3/releases',
+
+    install_requires=requires,
+    extras_require={
+        'use-lxml': 'lxml'
+    },
+    packages=packages,
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3',
+        'Topic :: Internet :: WWW/HTTP',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ]
+)

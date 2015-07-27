@@ -4,7 +4,7 @@
 
 最近一次更新内容：
 
-添加`Author.photo_url`接口，用于获取用户头像。
+重构项目结构，转变为标准Python模块结构。
 
 具体请看[ChangeLog][changelog-url]
 
@@ -63,6 +63,19 @@ Linux下同时安装了Python2和3的用户请使用`pip3 install xxx`代替（�
 同时推荐安装[lxml][lxml-url]，因为解析html效率高而且容错率强，在知乎使用`<br>`时，自带的html.parser会将其转换成`<br>...</br>`，而lxml则转换为`<br/>`，更为标准且美观。
 
 不安装lxml也能使用本模块，此时会自动使用html.parser作为解析器。
+
+## 安装
+
+已将项目整理为标准Python模块，请使用下列命令安装
+
+```bash
+git clone https://github.com/7sDream/zhihu-py3.git
+cd zhihu-py3
+./setup.py build -enable-use-lxml
+./setup.py install
+```
+
+`-enable-use-lxml`需要`lxml`依赖，如果无法(不想)安装请关闭此选项。
 
 ## 准备工作
 
@@ -329,8 +342,10 @@ Read The Docs： [点击这里查看文档][doc-rtd-url]
  - [x] 增加获取用户关注者，用户追随者
  - [x] 增加获取答案点赞用户功能
  - [x] 获取用户头像地址
+ - [x] 打包为标准Python模块
+ - [ ] 重构代码，增加`ZhihuClient`类，使类可以自定义cookies文件
  - [ ] 收藏夹关注者，问题关注者等等
- - [ ] 添加Me类，用于各种操作（比如给某答案点赞）
+ - [ ] `ZhihuClient`增加各种用户操作（比如给某答案点赞）
 
 ## 联系我
 

@@ -3,9 +3,13 @@
 
 __author__ = '7sDream'
 
-import zhihu
 import os
+import sys
 import shutil
+
+sys.path.insert(0, os.path.abspath('..'))
+
+import zhihu
 
 
 def test_question():
@@ -337,6 +341,9 @@ def test_post():
     post.save(filepath='.')
     # 当前目录下生成
     # 为什么最近有很多名人，比如比尔盖茨，马斯克、霍金等，让人们警惕人工智能？ - 谢熊猫君.md
+
+if os.path.isfile('cookies.json') is False:
+    zhihu.create_cookies()
 
 if os.path.exists("test"):
     shutil.rmtree("test")
