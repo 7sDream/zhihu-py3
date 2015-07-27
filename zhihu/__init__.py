@@ -1563,15 +1563,19 @@ class ActType(enum.Enum):
 
     """用于表示用户动态的类型.
 
-    常量说明:
-        |   ANSWER_QUESTION ：回答了一个问题，提供属性 answer
-        |   UPVOTE_ANSWER   ：赞同了一个回答，提供属性 answer
-        |   ASK_QUESTION    ：提出了一个问题，提供属性 question
-        |   FOLLOW_QUESTION ：关注了一个问题，提供属性 question
-        |   UPVOTE_POST     ：赞同了一篇文章，提供属性 post
-        |   FOLLOW_COLUMN   ：关注了一个专栏，提供属性 column
-        |   FOLLOW_TOPIC    ：关注了一个话题，提供属性 topic
-        |   PUBLISH_POST    ：发表了一篇文章，提供属性 post
+    :常量说明:
+        =============== ============ ========= =================
+        常量名           说明          提供属性  属性类型
+        =============== ============ ========= =================
+        ANSWER_QUESTION 回答了一个问题 answer    :class:`.Answer`
+        UPVOTE_ANSWER   赞同了一个回答 answer    :class:`.Answer`
+        ASK_QUESTION    提出了一个问题 question  :class:`.Question`
+        FOLLOW_QUESTION 关注了一个问题 question  :class:`.Question`
+        UPVOTE_POST     赞同了一篇文章 post      :class:`.Post`
+        FOLLOW_COLUMN   关注了一个专栏 column    :class:`.Column`
+        FOLLOW_TOPIC    关注了一个话题 topic     :class:`.Topic`
+        PUBLISH_POST    发表了一篇文章 post      :class:`.Post`
+
     """
 
     ANSWER_QUESTION = 1
