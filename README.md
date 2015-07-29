@@ -327,7 +327,11 @@ for root, dirs, files in os.walk('vczh'):
  - password
  - captcha
 
- 当然captcha需要通过`get_captcha`获取
+ 返回值有三个
+
+ - code：成功为0，失败为1
+ - msg：错误消息，字符串格式，成功为空
+ - cookies：cookies数据，字符串格式，失败为空
 
 ### login_in_terminal
 
