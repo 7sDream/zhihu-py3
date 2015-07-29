@@ -11,7 +11,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   zhihu
+   client
+   classes
 
 Indices and tables
 ==================

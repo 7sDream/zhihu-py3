@@ -13,9 +13,14 @@ from .common import *
 
 class ZhihuClient:
 
-    """Zhihu Client, with special account and/or cookies file."""
+    """知乎客户端类，内部维护了自己专用的网络会话，可用cookies或账号密码登录."""
 
     def __init__(self, cookies=None):
+        """
+        :param str cookies: 见 :meth:`.login_with_cookies` 中 ``cookies``参数
+        :return: 知乎客户端对象
+        :rtype: ZhihuClient
+        """
         self._session = requests.Session()
         self._session.headers.update(Default_Header)
         if cookies is not None:
@@ -29,7 +34,7 @@ class ZhihuClient:
         return Captcha_URL_Prefix + str(int(time.time() * 1000))
 
     def get_captcha(self):
-        """获取验证码.
+        """获取验证码数据。
 
         :return: 验证码图片数据。
         :rtype: bytes
@@ -44,10 +49,14 @@ class ZhihuClient:
         :param str password: 密码
         :param str captcha: 验证码
         :return:
-            一个三元素元祖
-            - 第一个元素代表是否成功（0表示成功）
-            - 第二个元素为一个字符串，表示失败原因，若成功则为空字符串
-            - 第三个元素为一个字符串，表示获得的cookies，失败为空字符串
+            ======== ======== ============== ====================
+            元素序号 元素类型 意义           说明
+            ======== ======== ============== ====================
+            0        int      是否成功       0为成功，1为失败
+            1        str      失败原因       登录成功则为空字符串
+            2        str       cookies字符串 登录失败则为空字符串
+            ======== ======== ============== ====================
+
         :rtype: (int, str, str)
         """
         data = {'email': email, 'password': password,
@@ -61,9 +70,15 @@ class ZhihuClient:
         return code, message, cookies_str
 
     def login_with_cookies(self, cookies):
-        """根据cookies字符串登录知乎
+        """使用cookies文件或字符串登录知乎
 
-        :param str cookies: cookies, 可接受cookies字符串或文件位置
+        :param str cookies:
+            ============== ===========================
+            参数形式       作用
+            ============== ===========================
+            文件名         将文件内容作为cookies字符串
+            cookies字符串  直接提供cookies字符串
+            ============== ===========================
         :return: 无
         :rtype: None
         """
