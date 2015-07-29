@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+
 __author__ = '7sDream'
 
+Cookies_File = 'cookies.json'
+
 import os
-import sys
 import shutil
 
-sys.path.insert(0, os.path.abspath('..'))
-
-import zhihu
+from zhihu.client import ZhihuClient
+from zhihu.acttype import ActType
 
 
 def test_question():
     url = 'http://www.zhihu.com/question/24825703'
-    question = zhihu.Question(url)
+    question = client.question(url)
 
     # 获取该问题的详细描述
     print(question.title)
@@ -51,7 +53,6 @@ def test_question():
 
     # 获取所有回答的作者名和点赞数
     for _, answer in zip(range(0, 10), question.answers):
-        # do something with answer
         print(answer.author.name, answer.upvote_num)
         pass
     # 小不点儿 197
@@ -63,7 +64,7 @@ def test_question():
 
 def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
-    answer = zhihu.Answer(url)
+    answer = client.answer(url)
 
     # 获取答案url
     print(answer.url)
@@ -80,14 +81,11 @@ def test_answer():
     print(answer.upvote_num)
     # 1155
 
-    # 获取答案点赞人昵称和感谢赞同提问回答数，并输出三零用户比例
+    # 获取答案点赞人昵称和感谢赞同提问回答数
     three_zero_user_num = 0
-    for upvoter in answer.upvoters:
+    for _, upvoter in zip(range(1, 10), answer.upvoters):
         print(upvoter.name, upvoter.upvote_num, upvoter.thank_num,
-              upvoter.question_num, upvoter.answer_num)
-        if upvoter.is_zero_user():
-            three_zero_user_num += 1
-    print('\n三零用户比例 %.3f%%' % (three_zero_user_num / answer.upvote_num * 100))
+              upvoter.question_num, upvoter.answer_num, upvoter.is_zero_user())
     # ...
     # 空空 23 14 1 7
     # 五月 42 15 3 35
@@ -113,7 +111,7 @@ def test_answer():
 
 def test_author():
     url = 'http://www.zhihu.com/people/7sdream'
-    author = zhihu.Author(url)
+    author = client.author(url)
 
     # 获取用户名称
     print(author.name)
@@ -214,45 +212,45 @@ def test_author():
     # 获取用户动态
     for _, act in zip(range(0, 10), author.activities):
         print(act.content.url)
-        if act.type == zhihu.ActType.FOLLOW_COLUMN:
+        if act.type == ActType.FOLLOW_COLUMN:
             print('%s 在 %s 关注了专栏 %s' %
                   (author.name, act.time, act.column.name))
-        elif act.type == zhihu.ActType.FOLLOW_QUESTION:
+        elif act.type == ActType.FOLLOW_QUESTION:
             print('%s 在 %s 关注了问题 %s' %
                   (author.name, act.time, act.question.title))
-        elif act.type == zhihu.ActType.ASK_QUESTION:
+        elif act.type == ActType.ASK_QUESTION:
             print('%s 在 %s 提了个问题 %s' %
                   (author.name, act.time, act.question.title))
-        elif act.type == zhihu.ActType.UPVOTE_POST:
+        elif act.type == ActType.UPVOTE_POST:
             print('%s 在 %s 赞同了专栏 %s 中 %s 的文章 %s, '
                   '此文章赞同数 %d, 评论数 %d' %
                   (author.name, act.time, act.post.column.name,
                    act.post.author.name, act.post.title, act.post.upvote_num,
                    act.post.comment_num))
-        elif act.type == zhihu.ActType.PUBLISH_POST:
+        elif act.type == ActType.PUBLISH_POST:
             print('%s 在 %s 在专栏 %s 中发布了文章 %s, '
                   '此文章赞同数 %d, 评论数 %d' %
                   (author.name, act.time, act.post.column.name,
                    act.post.title, act.post.upvote_num,
                    act.post.comment_num))
-        elif act.type == zhihu.ActType.UPVOTE_ANSWER:
+        elif act.type == ActType.UPVOTE_ANSWER:
             print('%s 在 %s 赞同了问题 %s 中 %s(motto: %s) 的回答, '
                   '此回答赞同数 %d' %
                   (author.name, act.time, act.answer.question.title,
                    act.answer.author.name, act.answer.author.motto,
                    act.answer.upvote_num))
-        elif act.type == zhihu.ActType.ANSWER_QUESTION:
+        elif act.type == ActType.ANSWER_QUESTION:
             print('%s 在 %s 回答了问题 %s 此回答赞同数 %d' %
                   (author.name, act.time, act.answer.question.title,
                    act.answer.upvote_num))
-        elif act.type == zhihu.ActType.FOLLOW_TOPIC:
+        elif act.type == ActType.FOLLOW_TOPIC:
             print('%s 在 %s 关注了话题 %s' %
                   (author.name, act.time, act.topic.name))
 
 
 def test_collection():
     url = 'http://www.zhihu.com/collection/37770691'
-    collection = zhihu.Collection(url)
+    collection = client.collection(url)
 
     # 获取收藏夹名字
     print(collection.name)
@@ -287,7 +285,7 @@ def test_collection():
 
 def test_column():
     url = 'http://zhuanlan.zhihu.com/xiepanda'
-    column = zhihu.Column(url)
+    column = client.column(url)
 
     # 获取专栏名
     print(column.name)
@@ -312,7 +310,7 @@ def test_column():
 
 def test_post():
     url = 'http://zhuanlan.zhihu.com/xiepanda/19950456'
-    post = zhihu.Post(url)
+    post = client.post(url)
 
     # 获取文章地址
     print(post.url)
@@ -342,11 +340,20 @@ def test_post():
     # 当前目录下生成
     # 为什么最近有很多名人，比如比尔盖茨，马斯克、霍金等，让人们警惕人工智能？ - 谢熊猫君.md
 
-if os.path.isfile('cookies.json') is False:
-    zhihu.create_cookies()
 
 if os.path.exists("test"):
     shutil.rmtree("test")
+
+if os.path.isfile(Cookies_File):
+    with open(Cookies_File, 'r') as f:
+        cookies_str = f.read()
+else:
+    cookies_str = None
+
+client = ZhihuClient(cookies_str)
+
+if cookies_str is None:
+    client.login_in_terminal()
 
 os.mkdir("test")
 os.chdir("test")
