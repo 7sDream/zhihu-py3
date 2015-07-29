@@ -15,12 +15,12 @@ class ZhihuClient:
 
     """Zhihu Client, with special account and/or cookies file."""
 
-    def __init__(self, cookies_str=None):
+    def __init__(self, cookies=None):
         self._session = requests.Session()
         self._session.headers.update(Default_Header)
-        if cookies_str is not None:
-            assert isinstance(cookies_str, str)
-            self.login_with_cookies(cookies_str)
+        if cookies is not None:
+            assert isinstance(cookies, str)
+            self.login_with_cookies(cookies)
 
     # ===== login staff =====
 
@@ -56,18 +56,21 @@ class ZhihuClient:
         j = r.json()
         code = int(j['r'])
         message = j['msg']
-        cookies = json.dumps(self._session.cookies.get_dict()) \
+        cookies_str = json.dumps(self._session.cookies.get_dict()) \
             if code == 0 else ''
-        return code, message, cookies
+        return code, message, cookies_str
 
-    def login_with_cookies(self, cookies_str):
+    def login_with_cookies(self, cookies):
         """根据cookies字符串登录知乎
 
-        :param cookies_str: cookies 字符串，请传字符串，不要传字典。
+        :param str cookies: cookies, 可接受cookies字符串或文件位置
         :return: 无
         :rtype: None
         """
-        cookies_dict = json.loads(cookies_str)
+        if os.path.isfile(cookies):
+            with open(cookies) as f:
+                cookies = f.read()
+        cookies_dict = json.loads(cookies)
         self._session.cookies.update(cookies_dict)
 
     def login_in_terminal(self):
@@ -99,6 +102,15 @@ class ZhihuClient:
             print('login failed, reason: {0}'.format(msg))
 
         return cookies
+
+    def create_cookies(self, file):
+        cookies_str = self.login_in_terminal()
+        if cookies_str:
+            with open(file, 'w') as f:
+                f.write(cookies_str)
+            print('cookies file created.')
+        else:
+            print('can\'t create cookies.')
 
     # ===== getter staff ======
 

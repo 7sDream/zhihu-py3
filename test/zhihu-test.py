@@ -10,8 +10,7 @@ Cookies_File = 'cookies.json'
 import os
 import shutil
 
-from zhihu.client import ZhihuClient
-from zhihu.acttype import ActType
+from zhihu import ZhihuClient, ActType
 
 
 def test_question():
@@ -44,21 +43,11 @@ def test_question():
 
     # 获取排名前十的十个回答的点赞数
     for answer in question.top_i_answers(10):
-        print(answer.upvote_num)
+        print(answer.author.name, answer.upvote_num)
     # 197
     # 49
     # 89
     # 425
-    # ...
-
-    # 获取所有回答的作者名和点赞数
-    for _, answer in zip(range(0, 10), question.answers):
-        print(answer.author.name, answer.upvote_num)
-        pass
-    # 小不点儿 197
-    # 龙晓航 49
-    # 芝士就是力量 89
-    # 欧阳忆希 424
     # ...
 
 
@@ -82,7 +71,6 @@ def test_answer():
     # 1155
 
     # 获取答案点赞人昵称和感谢赞同提问回答数
-    three_zero_user_num = 0
     for _, upvoter in zip(range(1, 10), answer.upvoters):
         print(upvoter.name, upvoter.upvote_num, upvoter.thank_num,
               upvoter.question_num, upvoter.answer_num, upvoter.is_zero_user())
@@ -341,26 +329,36 @@ def test_post():
     # 为什么最近有很多名人，比如比尔盖茨，马斯克、霍金等，让人们警惕人工智能？ - 谢熊猫君.md
 
 
+def test():
+    test_question()
+    test_answer()
+    test_author()
+    test_collection()
+    test_column()
+    test_post()
+
+
 if os.path.exists("test"):
     shutil.rmtree("test")
 
 if os.path.isfile(Cookies_File):
-    with open(Cookies_File, 'r') as f:
-        cookies_str = f.read()
+    client = ZhihuClient(Cookies_File)
 else:
-    cookies_str = None
-
-client = ZhihuClient(cookies_str)
-
-if cookies_str is None:
-    client.login_in_terminal()
+    client = ZhihuClient()
+    cookies_str = client.login_in_terminal()
+    with open(Cookies_File, 'w') as f:
+        f.write(cookies_str)
 
 os.mkdir("test")
 os.chdir("test")
 
-test_question()
-test_answer()
-test_author()
-test_collection()
-test_column()
-test_post()
+import timeit
+
+try:
+    time = timeit.timeit('test()', setup='from __main__ import test', number=1)
+    print('===== test passed =====')
+    print('no error happen')
+    print('time used: {0}'.format(time))
+except Exception as e:
+    print('===== test failed =====')
+    raise e

@@ -4,7 +4,6 @@
 from __future__ import unicode_literals
 
 import sys
-import os
 import re
 import ast
 
@@ -13,17 +12,14 @@ try:
 except ImportError:
     from distutils.core import setup
 
-if sys.argv[-1] == 'publish':
-    os.system('python setup.py sdist upload')
-    sys.exit()
-
 
 def extract_requirements(filename='requirements.txt'):
     with open(filename, 'rb') as f_require:
         lines = f_require.read().decode('utf-8').split('\n')
 
     # ignore comments and empty lines
-    return [line for line in lines if line and not line.strip().startswith('#')]
+    return [line for line in lines
+            if line and not line.strip().startswith('#')]
 
 
 def extract_version():
@@ -68,9 +64,10 @@ setup(
 
     install_requires=requires,
     extras_require={
-        'lxml': 'lxml'
+        'lxml': ['lxml']
     },
     packages=packages,
+
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',

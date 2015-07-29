@@ -161,8 +161,7 @@ class Question:
                                         photo_url=photo)
                     url = Zhihu_URL + url['href']
                     upvote_num = int(upvote_num['data-votecount'])
-                    content = answer_content_process(
-                        self.soup.new_tag(content))
+                    content = answer_content_process(content)
                     yield Answer(self._session, url, self, author_obj,
                                  upvote_num, content)
             else:
@@ -186,7 +185,9 @@ class Question:
                     content = soup.find(
                         'div', class_='zm-editable-content')
                     content = answer_content_process(content)
-                    author_obj = parser_author_from_tag(author)
+                    a_url, name, motto, photo = parser_author_from_tag(author)
+                    author_obj = Author(self._session, a_url, name, motto,
+                                        photo_url=photo)
                     yield Answer(self._session, answer_url, self, author_obj,
                                  upvote_num, content)
 
@@ -221,6 +222,8 @@ class Question:
         for j, a in enumerate(self.answers):
             if j <= i - 1:
                 yield a
+            else:
+                return
 
     @property
     def id(self):
