@@ -1,12 +1,12 @@
 # zhihu-py3 : 知乎解析器 with Python3
 
-[![Documentation Status][dev-doc-badge-img]][dev-doc-badge-url]
+[![Documentation Status][doc-badge-img]][doc-badge-url]
 
 最近一次更新内容：
 
 重构项目结构，增加zhihu.Client类，各种类（`Answer`，`Question`，`Author`等）建议不再直接使用，新用法请看示例。
 
-具体请看[ChangeLog][dev-changelog-url]
+具体请看[ChangeLog][changelog-url]
 
 **有问题请开Issue，几个小时后无回应可加最后面的QQ群询问。**
 
@@ -398,7 +398,7 @@ def on_login_button_clicked():
 
 终于搞定了文档这个磨人的小妖精，可惜 Sphinx 还是不会用 T^T 先随意弄成这样吧：
 
-Read The Docs： [点击这里查看文档][dev-doc-rtd-url]
+Read The Docs： [点击这里查看文档][doc-rtd-url]
 
 ## TODO List
 
