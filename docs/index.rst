@@ -8,11 +8,12 @@ Welcome to zhihu-py3's documentation!
 
 Contents:
 
-.. toctree::
-   :maxdepth: 2
+..  toctree::
+    :maxdepth: 2
 
-   client
-   classes
+    install
+    examples
+    classes
 
 Indices and tables
 ==================
@@ -20,4 +21,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

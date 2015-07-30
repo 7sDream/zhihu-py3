@@ -16,7 +16,8 @@ class ZhihuClient:
     """知乎客户端类，内部维护了自己专用的网络会话，可用cookies或账号密码登录."""
 
     def __init__(self, cookies=None):
-        """
+        """创建客户端实例.
+
         :param str cookies: 见 :meth:`.login_with_cookies` 中 ``cookies``参数
         :return: 知乎客户端对象
         :rtype: ZhihuClient
