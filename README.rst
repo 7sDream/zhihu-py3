@@ -20,7 +20,7 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 简单例子：
 
-.. code:: python
+..  code:: python
 
     from zhihu import ZhihuClient
 
@@ -53,24 +53,22 @@ zhihu-py3 : 知乎非官方API库 with Python3
     欧阳忆希 425
     ...
 
-另外还有\ ``Author（用户）``\ 、\ ``Answer（答案）``\ 、\ ``Collection（收藏夹）``\ 、\ ``Column（专栏）``\ 、\ ``Post（文章）``\ 、\ ``Topic（话题）``\ 等类可以使用，\ ``Answer``,\ ``Post``\ 类提供了\ ``save``\ 方法能将答案或文章保存为HTML或Markdown格式，具体请看文档，或者\ ``zhihu-test.py``
+另外还有\ ``Author（用户）``\ 、\ ``Answer（答案）``\ 、\ ``Collection（收藏夹）``\ 、\ ``Column（专栏）``\ 、\ ``Post（文章）``\ 、\ ``Topic（话题）``\ 等类可以使用，\ ``Answer``,\ ``Post``\ 类提供了\ ``save``\ 方法能将答案或文章保存为HTML或Markdown格式，具体请看文档，或者\ ``zhihu-test.py``\ 。
 
 安装
 ----
 
-**本项目依赖于
-`requests <https://pypi.python.org/pypi/requests/2.7.0>`__
-、\ `BeautifulSoup4 <http://www.crummy.com/software/BeautifulSoup>`__\ 、\ `html2text <https://github.com/aaronsw/html2text>`__**
+**本项目依赖于\ `requests <https://pypi.python.org/pypi/requests/2.7.0>`__\ 、\ `BeautifulSoup4 <http://www.crummy.com/software/BeautifulSoup>`__\ 、\ `html2text <https://github.com/aaronsw/html2text>`__\ **
 
 已将项目发布到pypi，请使用下列命令安装
 
-.. code:: bash
+..  code:: bash
 
     (sudo) pip3 install zhihu-py3
 
 希望开启lxml的话请使用：
 
-.. code:: bash
+..  code:: bash
 
     (sudo) pip3 install zhihu-py3[lxml]
 
@@ -80,7 +78,7 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 
-.. code:: bash
+..  code:: bash
 
     sudo apt-get install libxml2 libxml2-dev libxslt1.1 libxslt1-dev
 
@@ -89,7 +87,7 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 
 第一次使用推荐运行以下代码生成 cookies 文件：
 
-.. code:: python
+..  code:: python
 
     from zhihu import ZhihuClient
 
@@ -97,7 +95,7 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 
 运行结果
 
-.. code:: bash
+::
 
     ====== zhihu login =====
     email: <your-email>
@@ -122,7 +120,7 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 获取某用户的基本信息
 ~~~~~~~~~~~~~~~~~~~~
 
-.. code:: python
+..  code:: python
 
     from zhihu import ZhihuClient
 
@@ -174,7 +172,7 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 备份某问题所有答案
 ~~~~~~~~~~~~~~~~~~
 
-.. code:: python
+..  code:: python
 
     question = client.question('http://www.zhihu.com/question/28092572')
     for answer in question.answers:
@@ -184,7 +182,7 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 
 ``save``\ 函数默认目录为当前目录下以问题标题命名的目录，默认文件名为问题标题加上答题者昵称，有相同昵称的情况下自动加上序号。
 
-.. code:: python
+..  code:: python
 
     answer.save(mode="md")
 
@@ -193,7 +191,7 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 备份某用户所有答案
 ~~~~~~~~~~~~~~~~~~
 
-.. code:: python
+..  code:: python
 
     author = client.author('http://www.zhihu.com/people/7sdream')
     for answer in author.answers:
@@ -359,7 +357,7 @@ login\_in\_terminal
 
 如果你只是写个小脚本测试玩玩，可以使用：
 
-.. code:: python
+..  code:: python
 
     from zhihu import ZhihuClient
     client = ZhiuhClien()
@@ -369,7 +367,7 @@ login\_in\_terminal
 
 如果你的脚本不是大项目，又要多次运行，可以先按照上文方法create\_cookies，再使用：
 
-.. code:: python
+..  code:: python
 
     from zhihu import ZhihuClient
     Cookies_File = 'cookies.json'
@@ -377,7 +375,7 @@ login\_in\_terminal
 
 如果项目比较大（以GUI项目为例），可以在判断出是首次使用（没有cookies文件）时，弹出登录对话框，使用get\_captcha获取验证码数据，再调用login函数手动登录并在登录成功后保存cookies文件：
 
-.. code:: python
+..  code:: python
 
     import os
     from zhihu import ZhihuClient
@@ -439,7 +437,7 @@ Github：\ `@7sDream <https://github.com/7sDream>`__
 
 知乎：\ `@7sDream <http://www.zhihu.com/people/7sdream>`__
 
-新浪微博：[@Dilover]\ `my-weibo-url <http://weibo.com/didilover>`__
+新浪微博：\ `@Dilover <http://weibo.com/didilover>`__
 
 邮箱：\ `给我发邮件 <mailto:xixihaha.xiha@qq.com>`__
 
