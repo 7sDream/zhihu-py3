@@ -7,7 +7,7 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 发布到Pypi。
 
-具体请看\ `ChangeLog <https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.md>`__\ 。
+具体请看\ `ChangeLog <https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.rst>`__\ 。
 
 **有问题请开Issue，几个小时后无回应可加最后面的QQ群询问。**
 
@@ -58,7 +58,9 @@ zhihu-py3 : 知乎非官方API库 with Python3
 安装
 ----
 
-**本项目依赖于\ `requests <https://pypi.python.org/pypi/requests/2.7.0>`__\ 、\ `BeautifulSoup4 <http://www.crummy.com/software/BeautifulSoup>`__\ 、\ `html2text <https://github.com/aaronsw/html2text>`__**
+..  class:: bold
+
+   本项目依赖于\ `requests <https://pypi.python.org/pypi/requests/2.7.0>`__\ 、\ `BeautifulSoup4 <http://www.crummy.com/software/BeautifulSoup>`__\ 、\ `html2text <https://github.com/aaronsw/html2text>`__
 
 已将项目发布到pypi，请使用下列命令安装
 

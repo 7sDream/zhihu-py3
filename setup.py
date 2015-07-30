@@ -26,10 +26,10 @@ def extract_version():
     return version
 
 
-with open('README.md', 'rb') as f_readme:
+with open('README.rst', 'rb') as f_readme:
     readme = f_readme.read().decode('utf-8')
 
-with open('ChangeLog.md', 'rb') as f_changelog:
+with open('ChangeLog.rst', 'rb') as f_changelog:
     changelog = f_changelog, f_changelog.read().decode('utf-8')
 
 packages = ['zhihu']
@@ -73,3 +73,4 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules'
     ]
 )
+
