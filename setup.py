@@ -13,15 +13,6 @@ except ImportError:
     from distutils.core import setup
 
 
-def extract_requirements(filename='requirements.txt'):
-    with open(filename, 'rb') as f_require:
-        lines = f_require.read().decode('utf-8').split('\n')
-
-    # ignore comments and empty lines
-    return [line for line in lines
-            if line and not line.strip().startswith('#')]
-
-
 def extract_version():
     with open('zhihu/__init__.py', 'rb') as f_version:
         ast_tree = re.search(
@@ -45,7 +36,6 @@ packages = ['zhihu']
 if sys.version_info < (3, 0):
     packages = [str(bytearray(package, 'ascii')) for package in packages]
 version = extract_version()
-requires = extract_requirements()
 
 
 setup(
@@ -62,7 +52,11 @@ setup(
     url='https://github.com/7sDream/zhihu-py3',
     download_url='https://github.com/7sDream/zhihu-py3/releases',
 
-    install_requires=requires,
+    install_requires=[
+        'beautifulsoup4',
+        'requests',
+        'html2text'
+    ],
     extras_require={
         'lxml': ['lxml']
     },
