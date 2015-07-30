@@ -7,6 +7,7 @@ import functools
 import re
 import os
 
+import requests
 from bs4 import BeautifulSoup as _Bs
 
 try:
@@ -66,9 +67,24 @@ def check_soup(attr, soup_type='_make_soup'):
                 return value
             else:
                 return value
-
         return wrapper
+    return real
 
+
+def class_common_init(url_re):
+    def real(func):
+        @functools.wraps(func)
+        def wrapper(self, url, *args, **kwargs):
+            if url is not None:
+                if url_re.match(url) is None:
+                    raise ValueError('Invalid URL')
+                if url.endswith('/') is False:
+                    url += '/'
+            if 'session' not in kwargs.keys() or kwargs['session'] is None:
+                kwargs['session'] = requests.Session()
+            self.soup = None
+            return func(self, url, *args, **kwargs)
+        return wrapper
     return real
 
 

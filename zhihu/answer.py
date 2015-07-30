@@ -7,29 +7,24 @@ from .common import *
 
 
 class Answer:
-    """答案类，用一个答案的网址作为参数构造对象，其他参数可选."""
+    """答案类，请使用``ZhihuClient.answer``方法构造对象."""
 
-    def __init__(self, session, url, question=None, author=None,
-                 upvote_num=None,
-                 content=None):
-        """类对象初始化.
+    @class_common_init(re_ans_url)
+    def __init__(self, url, question=None, author=None,
+                 upvote_num=None, content=None, session=None):
+        """创建答案类实例.
 
-        :param str url: 答案网址，形如
-            http://www.zhihu.com/question/28297599/answer/40327808
-        :param Question question: 答案所在的问题对象，自己构造对象不需要此参数
-        :param Author author: 答案的回答者对象，同上。
-        :param int upvote_num: 此答案的赞同数量，同上。
-        :param str content: 此答案内容，同上。
-        :return: 答案对象。
+        :param str url: 答案url
+        :param Question question: 答案所在的问题对象，可选
+        :param Author author: 答案回答者对象，可选
+        :param int upvote_num: 答案赞同数量，可选
+        :param str content: 答案内容，可选
+        :param Session session: 使用的网络会话，为空则使用新会话
+        :return: 答案对象
         :rtype: Answer
         """
-        if re_ans_url.match(url) is None:
-            raise ValueError('URL invalid')
-        if url.endswith('/') is False:
-            url += '/'
         self.url = url
         self._session = session
-        self.soup = None
         self._question = question
         self._author = author
         self._upvote_num = upvote_num
@@ -45,7 +40,7 @@ class Answer:
     @property
     @check_soup('_html')
     def html(self):
-        """获取网页html源码……话说我写这个属性是为了干啥来着.
+        """获取网页源码
 
         :return: 网页源码
         :rtype: str
@@ -55,21 +50,21 @@ class Answer:
     @property
     @check_soup('_author')
     def author(self):
-        """获取答案作者对象.
+        """获取答案作者.
 
-        :return: 答案作者对象
+        :return: 答案作者
         :rtype: Author
         """
         from .author import Author
 
         author = self.soup.find('h3', class_='zm-item-answer-author-wrap')
         url, name, motto, photo = parser_author_from_tag(author)
-        return Author(self._session, url, name, motto, photo_url=photo)
+        return Author(url, name, motto, photo_url=photo, session=self._session)
 
     @property
     @check_soup('_question')
     def question(self):
-        """获取答案所在问题对象.
+        """获取答案所在问题.
 
         :return: 答案所在问题
         :rtype: Question
@@ -84,8 +79,8 @@ class Answer:
             'div', class_='zh-question-followers-sidebar').div.a.strong.text)
         answers_num = int(re_get_number.match(self.soup.find(
             'div', class_='zh-answers-title').h3.a.text).group(1))
-        return Question(self._session, url, title, followers_num,
-                        answers_num)
+        return Question(url, title, followers_num, answers_num,
+                        session=self._session)
 
     @property
     @check_soup('_upvote_num')
@@ -100,9 +95,9 @@ class Answer:
 
     @property
     def upvoters(self):
-        """获取答案点赞用户，返回迭代器.
+        """获取答案点赞用户，返回生成器.
 
-        :return: 点赞用户迭代器
+        :return: 点赞用户
         :rtype: Author.Iterable
         """
         from .author import Author
@@ -130,14 +125,14 @@ class Answer:
                     numbers = [None] * 4
                     photo_url = None
                 # noinspection PyTypeChecker
-                yield Author(self._session, author_url, author_name,
-                             author_motto, None, numbers[2], numbers[3],
-                             numbers[0], numbers[1], photo_url)
+                yield Author(author_url, author_name, author_motto, None,
+                             numbers[2], numbers[3], numbers[0], numbers[1],
+                             photo_url, session=self._session)
 
     @property
     @check_soup('_content')
     def content(self):
-        """返回答案内容，以处理过的Html代码形式.
+        """以处理过的Html代码形式返回答案内容.
 
         :return: 答案内容
         :rtype: str
@@ -149,13 +144,14 @@ class Answer:
     def save(self, filepath=None, filename=None, mode="html"):
         """保存答案为Html文档或markdown文档.
 
-        :param str filepath: 要保存的文件所在的绝对目录或相对目录，
-            不填为当前目录下以问题标题命名的目录, 设为"."则为当前目录
+        :param str filepath: 要保存的文件所在的目录，
+            不填为当前目录下以问题标题命名的目录, 设为"."则为当前目录。
         :param str filename: 要保存的文件名，
-            不填则默认为 所在问题标题 - 答主名.html/md
+            不填则默认为 所在问题标题 - 答主名.html/md。
             如果文件已存在，自动在后面加上数字区分。
-            自定义文件名时请不要输入后缀 .html 或 .md
-        :return: None
+            **自定义文件名时请不要输入后缀 .html 或 .md。**
+        :param str mode: 保存类型，可选 `html` 、 `markdown` 、 `md` 。
+        :return: 无
         :rtype: None
         """
         if mode not in ["html", "md", "markdown"]:
@@ -173,9 +169,9 @@ class Answer:
 
     @property
     def id(self):
-        """答案的ID，也就是网址最后的那串数字.
+        """答案的id
 
-        :return: 答案ID
+        :return: 答案id
         :rtype: int
         """
         print(self.url)

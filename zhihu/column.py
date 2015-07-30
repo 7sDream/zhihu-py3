@@ -8,29 +8,24 @@ from .common import *
 
 class Column:
 
-    """专栏类，用专栏网址为参数来构造对象."""
+    """专栏类，请使用``ZhihuClient.column``方法构造对象."""
 
-    def __init__(self, session, url, name=None, follower_num=None,
-                 post_num=None):
-        """类对象初始化.
+    @class_common_init(re_column_url)
+    def __init__(self, url, name=None, follower_num=None,
+                 post_num=None, session=None):
+        """创建专栏类实例.
 
-        :param str url: 专栏网址
-        :param str name: 专栏名
-        :param int follower_num: 关注者数量
-        :param int post_num: 文章数量
+        :param str url: 专栏url
+        :param str name: 专栏名，可选
+        :param int follower_num: 关注者数量，可选
+        :param int post_num: 文章数量，可选
+        :param Session session: 使用的网络会话，为空则使用新会话。
         :return: 专栏对象
         :rtype: Column
         """
-        match = re_column_url.match(url)
-        if match is None:
-            raise ValueError('URL invalid')
-        else:
-            self._in_name = match.group(1)
-        if url.endswith('/') is False:
-            url += '/'
+        self._in_name = re_column_url.match(url).group(1)
         self.url = url
         self._session = session
-        self.soup = None
         self._name = name
         self._follower_num = follower_num
         self._post_num = post_num
@@ -77,7 +72,7 @@ class Column:
     def posts(self):
         """获取专栏的所有文章.
 
-        :return: 专栏所有文章的迭代器
+        :return: 专栏所有文章，返回生成器
         :rtype: Post.Iterable
         """
         from .author import Author
@@ -95,12 +90,12 @@ class Column:
                 template = post['author']['avatar']['template']
                 photo_id = post['author']['avatar']['id']
                 photo_url = template.format(id=photo_id, size='r')
-                author = Author(self._session, post['author']['profileUrl'],
+                author = Author(post['author']['profileUrl'],
                                 post['author']['name'], post['author']['bio'],
-                                photo_url=photo_url)
+                                photo_url=photo_url, session=self._session)
                 title = post['title']
                 upvote_num = post['likesCount']
                 comment_num = post['commentsCount']
                 print(url)
-                yield Post(self._session, url, self, author, title, upvote_num,
-                           comment_num)
+                yield Post(url, self, author, title, upvote_num, comment_num,
+                           session=self._session)

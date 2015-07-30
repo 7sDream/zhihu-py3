@@ -8,25 +8,24 @@ from .common import *
 
 class Post:
 
-    """知乎专栏的文章类，以文章网址为参数构造对象."""
+    """专栏文章类，请使用``ZhihuClient.post``方法构造对象."""
 
-    def __init__(self, session, url, column=None, author=None, title=None,
-                 upvote_num=None, comment_num=None):
-        """类对象初始化.
+    @class_common_init(re_post_url)
+    def __init__(self, url, column=None, author=None, title=None,
+                 upvote_num=None, comment_num=None, session=None):
+        """创建专栏文章类实例.
 
-        :param str url: 文章所在URL
-        :param Column column: 所属专栏
-        :param Author author: 文章作者
-        :param str title: 文章标题
-        :param int upvote_num: 赞同数
-        :param int comment_num: 评论数
-        :return: Post
+        :param str url: 文章url
+        :param Column column: 文章所属专栏，可选
+        :param Author author: 文章作者，可选
+        :param str title: 文章标题，可选
+        :param int upvote_num: 文章赞同数，可选
+        :param int comment_num: 文章评论数，可选
+        :param Session session: 使用的网络会话，为空则使用新会话
+        :return: 专栏文章对象
+        :rtype: Post
         """
         match = re_post_url.match(url)
-        if match is None:
-            raise ValueError('URL invalid')
-        if url.endswith('/') is False:
-            url += '/'
         self.url = url
         self._session = session
         self._column_in_name = match.group(1)
@@ -36,7 +35,6 @@ class Post:
         self._title = title
         self._upvote_num = upvote_num
         self._comment_num = comment_num
-        self.soup = None
 
     def _make_soup(self):
         if self.soup is None:
@@ -59,7 +57,7 @@ class Post:
 
         url = Columns_Prefix + '/' + self.soup['column']['slug']
         name = self.soup['column']['name']
-        return Column(self._session, url, name)
+        return Column(url, name, session=self._session)
 
     @property
     @check_soup('_author')
@@ -77,7 +75,8 @@ class Post:
         template = self.soup['author']['avatar']['template']
         photo_id = self.soup['author']['avatar']['id']
         photo_url = template.format(id=photo_id, size='r')
-        return Author(self._session, url, name, motto, photo_url=photo_url)
+        return Author(url, name, motto, photo_url=photo_url,
+                      session=self._session)
 
     @property
     @check_soup('_title')
@@ -125,7 +124,6 @@ class Post:
                         self.title + ' - ' + self.author.name)
         with open(file, 'wb') as f:
             import html2text
-
             h2t = html2text.HTML2Text()
             h2t.body_width = 0
             f.write(h2t.handle(self.soup['content']).encode('utf-8'))

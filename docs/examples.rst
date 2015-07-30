@@ -16,7 +16,7 @@
 
     Cookies_File = 'cookies.json'
 
-    client = ZhihuClient(Cookies_Fi.. _installing_requirements:le)
+    client = ZhihuClient(Cookies_File)
 
     url = 'http://www.zhihu.com/people/zord-vczh'
     author = client.author(url)

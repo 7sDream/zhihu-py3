@@ -14,3 +14,6 @@ from .collection import Collection
 from .column import Column
 from .post import Post
 from .topic import Topic
+
+__all__ = ['ZhihuClient', 'Question', 'Author', 'ActType', 'Activity',
+           'Answer', 'Collection', 'Column', 'Post', 'Topic']

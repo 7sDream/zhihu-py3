@@ -16,9 +16,9 @@ class ZhihuClient:
     """知乎客户端类，内部维护了自己专用的网络会话，可用cookies或账号密码登录."""
 
     def __init__(self, cookies=None):
-        """创建客户端实例.
+        """创建客户端类实例.
 
-        :param str cookies: 见 :meth:`.login_with_cookies` 中 ``cookies``参数
+        :param str cookies: 见 :meth:`.login_with_cookies` 中 ``cookies`` 参数
         :return: 知乎客户端对象
         :rtype: ZhihuClient
         """
@@ -128,12 +128,20 @@ class ZhihuClient:
         else:
             print('can\'t create cookies.')
 
+    # ===== network staff =====
+
+    def set_proxy(self, proxies):
+        self._session.proxies.update(proxies)
+
     # ===== getter staff ======
 
     def __getattr__(self, item: str):
+        def getter(*args, **kwargs):
+            if 'session' not in kwargs.keys():
+                kwargs['session'] = self._session
+            return getattr(module, item.capitalize())(*args, **kwargs)
         attr_list = ['answer', 'author', 'collection',
                      'column', 'post', 'question', 'topic']
         if item.lower() in attr_list:
             module = importlib.import_module('.'+item.lower(), 'zhihu')
-            return lambda url: \
-                getattr(module, item.capitalize())(self._session, url)
+            return getter

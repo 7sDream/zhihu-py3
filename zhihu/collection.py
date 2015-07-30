@@ -8,29 +8,27 @@ from .common import *
 
 class Collection:
 
-    """收藏夹类，用收藏夹主页网址为参数来构造对象."""
+    """收藏夹，请使用``ZhihuClient.collection``方法构造对象."""
 
-    def __init__(self, session, url, owner=None, name=None, follower_num=None):
-        """类对象初始化.
+    @class_common_init(re_collection_url)
+    def __init__(self, url, owner=None, name=None, follower_num=None,
+                 session=None):
+        """创建收藏夹类实例.
 
-        :param str url: 收藏夹主页网址，必须
-        :param Author owner: 收藏夹拥有者，可选，最好不要自己设置
-        :param str name: 收藏夹标题，可选，可以自己设置
-        :param int follower_num: 收藏夹关注人数，可选，可以自己设置
+        :param str url: 收藏夹主页url，必须
+        :param Author owner: 收藏夹拥有者，可选
+        :param str name: 收藏夹标题，可选
+        :param int follower_num: 收藏夹关注人数，可选
+        :param Session session: 使用的网络会话，为空则使用新会话。
         :return: 收藏夹对象
         :rtype: Collection
         """
-        if re_collection_url.match(url) is None:
-            raise ValueError('URL invalid')
-        else:
-            if url.endswith('/') is False:
-                url += '/'
-            self.url = url
-            self._session = session
-            self.soup = None
-            self._name = name
-            self._owner = owner
-            self._follower_num = follower_num
+        self.url = url
+        self._session = session
+        self.soup = None
+        self._name = name
+        self._owner = owner
+        self._follower_num = follower_num
 
     def _make_soup(self):
         if self.soup is None:
@@ -64,7 +62,8 @@ class Collection:
             'div', id='zh-single-answer-author-info').div.text
         photo_url = self.soup.find(
             'img', class_='zm-list-avatar-medium')['src'].replace('_m', '_r')
-        return Author(self._session, url, name, motto, photo_url=photo_url)
+        return Author(url, name, motto, photo_url=photo_url,
+                      session=self._session)
 
     @property
     @check_soup('_follower_num')
@@ -81,7 +80,7 @@ class Collection:
     def questions(self):
         """获取收藏夹内所有问题对象.
 
-        :return: 收藏夹内所有问题，以生成器形式返回
+        :return: 收藏夹内所有问题，返回生成器
         :rtype: Question.Iterable
         """
         self._make_soup()
@@ -102,7 +101,7 @@ class Collection:
     def answers(self):
         """获取收藏夹内所有答案对象.
 
-        :return: 收藏夹内所有答案，以生成器形式返回
+        :return: 收藏夹内所有答案，返回生成器
         :rtype: Answer.Iterable
         """
         self._make_soup()
@@ -131,7 +130,8 @@ class Collection:
                 if question_tag.h2 is not None:
                     question_title = question_tag.h2.a.text
                     question_url = Zhihu_URL + question_tag.h2.a['href']
-                    yield Question(self._session, question_url, question_title)
+                    yield Question(question_url, question_title,
+                                   session=self._session)
 
     def _page_get_answers(self, soup):
         from .question import Question
@@ -157,8 +157,8 @@ class Collection:
                 if tag.h2 is not None:
                     question_title = tag.h2.a.text
                     question_url = Zhihu_URL + tag.h2.a['href']
-                    question = Question(self._session, question_url,
-                                        question_title)
+                    question = Question(question_url, question_title,
+                                        session=self._session)
                 answer_url = Zhihu_URL + url_tag['href']
                 h3 = tag.find('h3')
                 if h3.text != '匿名用户':
@@ -166,10 +166,11 @@ class Collection:
                     author_name = h3.a.text
                     if h3.strong is not None:
                         author_motto = tag.find('h3').strong['title']
-                author = Author(self._session, author_url, author_name,
-                                author_motto)
+                print(author_url)
+                author = Author(author_url, author_name, author_motto,
+                                session=self._session)
                 upvote = int(tag.find(
                     'a', class_='zm-item-vote-count')['data-votecount'])
-                answer = Answer(self._session, answer_url, question, author,
-                                upvote)
+                answer = Answer(answer_url, question, author,
+                                upvote, session=self._session)
                 yield answer

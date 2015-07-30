@@ -8,23 +8,19 @@ from .common import *
 
 class Topic:
 
-    """话题类，传入话题网址构造对象."""
+    """答案类，请使用``ZhihuClient.topic``方法构造对象."""
 
-    def __init__(self, session, url, name=None):
-        """类对象初始化.
+    @class_common_init(re_topic_url)
+    def __init__(self, url, name=None, session=None):
+        """创建话题类实例.
 
-        :param url: 话题地址
-        :param name: 话题名称
+        :param url: 话题url
+        :param name: 话题名称，可选
         :return: Topic
         """
-        if re_topic_url.match(url) is None:
-            raise ValueError('URL invalid')
-        if url.endswith('/') is False:
-            url += '/'
         self.url = url
         self._session = session
         self._name = name
-        self.soup = None
 
     def _make_soup(self):
         if self.soup is None:

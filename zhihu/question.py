@@ -10,31 +10,26 @@ from .common import *
 
 class Question:
 
-    """问题类，请使用zhihu.ZhihuClient.getQuestion()创建"""
+    """问题类，请使用``ZhihuClient.question``方法构造对象."""
 
-    def __init__(self, session, url, title=None, followers_num=None,
-                 answer_num=None):
-        """类对象初始化.
+    @class_common_init(re_question_url)
+    def __init__(self, url, title=None, followers_num=None,
+                 answer_num=None, session=None):
+        """创建问题类实例.
 
-        :param str url: 问题地址，形如： http://www.zhihu.com/question/27936038
-        :param str title: 可选, 问题标题
-        :param int followers_num: 可选，问题关注人数
-        :param int answer_num: 可选，问题答案数
-        :return: Question对象
+        :param str url: 问题url
+        :param str title: 问题标题，可选,
+        :param int followers_num: 问题关注人数，可选
+        :param int answer_num: 问题答案数，可选
+        :return: 问题对象
         :rtype: Question
         """
-        if re_question_url.match(url) is None:
-            raise ValueError('URL invalid')
-        else:
-            if url.endswith('/') is False:
-                url += '/'
-            self._session = session
-            self.soup = None
-            self.url = url
-            self._title = title
-            self._answer_num = answer_num
-            self._followers_num = followers_num
-            self._xsrf = ''
+        self._session = session
+        self.url = url
+        self._title = title
+        self._answer_num = answer_num
+        self._followers_num = followers_num
+        self._xsrf = ''
 
     def _make_soup(self):
         if self.soup is None:
@@ -46,9 +41,9 @@ class Question:
     @property
     @check_soup('_html')
     def html(self):
-        """获取页面HTML源码.
+        """获取页面源码.
 
-        :return: html源码
+        :return: 页面源码
         :rtype: str
         """
         return self.soup.prettify()
@@ -58,7 +53,7 @@ class Question:
     def title(self):
         """获取问题标题.
 
-        :return: title of question
+        :return: 问题标题
         :rtype: str
         """
         return self.soup.find('h2', class_='zm-item-title') \
@@ -67,9 +62,9 @@ class Question:
     @property
     @check_soup('_details')
     def details(self):
-        """获取问题详细描述。 **目前实现方法只是直接获取文本，效果不满意……等更新.
+        """获取问题详细描述，目前实现方法只是直接获取文本，效果不满意……等更新.
 
-        :return: 问题详细描述文本
+        :return: 问题详细描述
         :rtype: str
         """
         return self.soup.find("div", id="zh-question-detail").div.text
@@ -79,7 +74,7 @@ class Question:
     def answer_num(self):
         """获取问题答案数量.
 
-        :return: 答案数量
+        :return: 问题答案数量
         :rtype: int
         """
         answer_num_block = self.soup.find('h3', id='zh-question-answer-num')
@@ -112,7 +107,7 @@ class Question:
     def topics(self):
         """获取问题所属话题.
 
-        :return: 问题所属话题列表
+        :return: 问题所属话题
         :rtype: list(str)
         """
         topics_list = []
@@ -122,10 +117,9 @@ class Question:
 
     @property
     def answers(self):
-        """获取问题的所有答案，返回可迭代生成器.
+        """获取问题的所有答案.
 
-        :return: 每次迭代返回一个Answer对象， 获取到的Answer对象自带
-            所在问题、答主、赞同数量、回答内容四个属性。获取其他属性需要解析另外的网页。
+        :return: 问题的所有答案，返回生成器
         :rtype: Answer.Iterable
         """
         from .author import Author
@@ -157,13 +151,13 @@ class Question:
                 for author, url, upvote_num, content in \
                         zip(authors, urls, upvote_nums, contents):
                     a_url, name, motto, photo = parser_author_from_tag(author)
-                    author_obj = Author(self._session, a_url, name, motto,
-                                        photo_url=photo)
+                    author_obj = Author(a_url, name, motto, photo_url=photo,
+                                        session=self._session)
                     url = Zhihu_URL + url['href']
                     upvote_num = int(upvote_num['data-votecount'])
                     content = answer_content_process(content)
-                    yield Answer(self._session, url, self, author_obj,
-                                 upvote_num, content)
+                    yield Answer(url, self, author_obj, upvote_num, content,
+                                 session=self._session)
             else:
                 params['offset'] = i * 50
                 data['params'] = json.dumps(params)
@@ -186,16 +180,16 @@ class Question:
                         'div', class_='zm-editable-content')
                     content = answer_content_process(content)
                     a_url, name, motto, photo = parser_author_from_tag(author)
-                    author_obj = Author(self._session, a_url, name, motto,
-                                        photo_url=photo)
-                    yield Answer(self._session, answer_url, self, author_obj,
-                                 upvote_num, content)
+                    author_obj = Author(a_url, name, motto, photo_url=photo,
+                                        session=self._session)
+                    yield Answer(answer_url, self, author_obj,
+                                 upvote_num, content, session=self._session)
 
     @property
     def top_answer(self):
         """获取排名第一的答案.
 
-        :return: 排名第一的答案对象，能直接获取的属性参见answers方法
+        :return: 排名第一的答案
         :rtype: Answer
         """
         for a in self.answers:
@@ -215,8 +209,8 @@ class Question:
     def top_i_answers(self, i):
         """获取排名在前几位的答案.
 
-        :param int i: 获取高位排名答案数量
-        :return: 答案对象生成器，这些对象能直接获取的属性参见answers方法
+        :param int i: 获取前几个
+        :return: 答案对象，返回生成器
         :rtype: Answer.Iterable
         """
         for j, a in enumerate(self.answers):
@@ -227,7 +221,7 @@ class Question:
 
     @property
     def id(self):
-        """获取答问题id，就是网址最后那串数字.
+        """获取答问题id.
 
         :return: 问题id
         :rtype: int

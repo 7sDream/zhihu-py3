@@ -6,15 +6,19 @@ __author__ = '7sDream'
 
 class Activity:
 
-    """用户动态类，不建议手动使用，请使用Author.activities获取."""
+    """用户动态类，请使用Author.activities获取."""
 
     def __init__(self, act_type, act_time, **kwarg):
-        """类对象初始化.
+        """创建用户动态类实例.
 
         :param ActType act_type: 动态类型
         :param datatime.datatime act_time: 动态发生时间
-        :return: 活动对象
+        :return: 用户动态对象
         :rtype: Activity
+
+        :说明:
+            根据Activity.type的不同可以获取的属性，具体请看 :class:`.ActType`
+
         """
         from .acttype import ActType
 

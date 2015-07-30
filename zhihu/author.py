@@ -11,32 +11,29 @@ from .common import *
 
 class Author:
 
-    """用户类，用用户主页地址作为参数来构造对象，其他参数可选."""
+    """用户类，请使用``ZhihuClient.answer``方法构造对象."""
 
-    def __init__(self, session, url, name=None, motto=None, follower_num=None,
+    @class_common_init(re_author_url)
+    def __init__(self, url, name=None, motto=None, follower_num=None,
                  question_num=None, answer_num=None, upvote_num=None,
-                 thank_num=None, photo_url=None):
-        """类对象初始化.
+                 thank_num=None, photo_url=None, session=None):
+        """创建用户类实例.
 
-        :param str url: 用户主页地址，形如 http://www.zhihu.com/people/7sdream
+        :param str url: 用户主页url，形如 http://www.zhihu.com/people/7sdream
         :param str name: 用户名字，可选
         :param str motto: 用户简介，可选
         :param int follower_num: 用户粉丝数，可选
         :param int question_num: 用户提问数，可选
         :param int answer_num: 用户答案数，可选
         :param int upvote_num: 用户获得赞同数，可选
+        :param int thank_num: 用户获得感谢数，可选
         :param str photo_url: 用户头像地址，可选
-        :return: Author对象
+        :param Session session: 使用的网络会话，为空则使用新会话。
+        :return: 用户对象
         :rtype: Author
         """
-        if url is not None:
-            if re_author_url.match(url) is None:
-                raise ValueError('URL invalid')
-            if url.endswith('/') is False:
-                url += '/'
         self.url = url
         self._session = session
-        self.soup = None
         self.card = None
         self._nav_list = None
         self._name = name
@@ -245,10 +242,9 @@ class Author:
 
     @property
     def questions(self):
-        """获取此人问过的所有问题对象，返回生成器.
+        """获取用户的所有问题.
 
-        :return: 每次迭代返回一个问题对象，获取到的问题对象自带
-            标题，关注人数，答案数量三个属性
+        :return: 用户的所有问题，返回生成器.
         :rtype: Question.Iterable
         """
         from .question import Question
@@ -269,16 +265,15 @@ class Author:
                     re_get_number.match(data.div.contents[4]).group(1))
                 follower_num = int(
                     re_get_number.match(data.div.contents[6]).group(1))
-                q = Question(self._session, url, title, follower_num,
-                             answer_num)
+                q = Question(url, title, follower_num, answer_num,
+                             session=self._session)
                 yield q
 
     @property
     def answers(self):
-        """获取此人写的所有答案对象，返回生成器.
+        """获取用户的所有答案.
 
-        :return: 此人的所有答案，能直接获取所在问题，答主，赞同数三个属性。
-            其中所在问题对象可以直接获取标题。答主对象即为此对象本身。
+        :return: 用户所有答案，返回生成器.
         :rtype: Answer.Iterable
         """
         from .question import Question
@@ -297,15 +292,16 @@ class Author:
                 question_url = Zhihu_URL + re_a2q.match(q['href']).group(1)
                 question_title = q.text
                 upvote = int(upvote['data-votecount'])
-                question = Question(self._session, question_url,
-                                    question_title)
-                yield Answer(self._session, answer_url, question, self, upvote)
+                question = Question(question_url, question_title,
+                                    session=self._session)
+                yield Answer(answer_url, question, self, upvote,
+                             session=self._session)
 
     @property
     def followers(self):
-        """获取此关注此用户的人.
+        """获取关注此用户的人.
 
-        :return: 关注此用户的人的生成器
+        :return: 关注此用户的人，返回生成器
         :rtype: Author.Iterable
         """
         for x in self._follow_ee_ers('er'):
@@ -313,9 +309,9 @@ class Author:
 
     @property
     def followees(self):
-        """获取此用户关注的人.
+        """获取用户关注的人.
 
-        :return: 用户关注的人的生成器
+        :return: 用户关注的人的，返回生成器
         :rtype: Author.Iterable
         """
         for x in self._follow_ee_ers('ee'):
@@ -347,16 +343,14 @@ class Author:
                 author_photo = soup.a.img['src'].replace('_m', '_r')
                 numbers = [int(re_get_number.match(x.text).group(1))
                            for x in soup.find_all('a', target='_blank')]
-                yield Author(self._session, author_url, author_name,
-                             author_motto, *numbers, thank_num=None,
-                             photo_url=author_photo)
+                yield Author(author_url, author_name, author_motto, *numbers,
+                             photo_url=author_photo, session=self._session)
 
     @property
     def collections(self):
-        """获取此人收藏夹对象集合，返回生成器.
+        """获取用户收藏夹.
 
-        :return: 此人所有的收藏夹， 能直接获取拥有者，收藏夹名字，关注人数三个属性。
-            其中拥有者即为此对象本身。
+        :return: 用户收藏夹，返回生成器
         :rtype: Collection.Iterable
         """
         from .collection import Collection
@@ -377,13 +371,14 @@ class Author:
                     c_url = Zhihu_URL + c['href']
                     c_name = c.text
                     c_fn = int(re_get_number.match(f.contents[2]).group(1))
-                    yield Collection(self._session, c_url, self, c_name, c_fn)
+                    yield Collection(c_url, self, c_name, c_fn,
+                                     session=self._session)
 
     @property
     def columns(self):
-        """获取此人专栏，返回生成器.
+        """获取用户专栏.
 
-        :return: 此人所有的专栏，能直接获取拥有者，名字，网址，文章数，关注人数。
+        :return: 用户专栏，返回生成器
         :rtype: Column.Iterable
         """
         from .column import Column
@@ -409,7 +404,7 @@ class Author:
     def activities(self):
         """获取用户的最近动态.
 
-        :return: 最近动态生成器，根据不同的动态类型提供不同的成员
+        :return: 最近动态，返回生成器，具体说明见 :class:`.Activity`
         :rtype: Activity.Iterable
         """
         from .activity import Activity
@@ -446,7 +441,8 @@ class Author:
 
                     column_url = act.find('a', class_='column_link')['href']
                     column_name = act.find('a', class_='column_link').text
-                    column = Column(self._session, column_url, column_name)
+                    column = Column(column_url, column_name,
+                                    session=self._session)
                     try:
                         author_tag = act.find('div', class_='author-info')
                         author_url = Zhihu_URL + author_tag.a['href']
@@ -462,40 +458,40 @@ class Author:
                         author_name = '匿名用户'
                         author_motto = ''
                         photo_url = None
-                    author = Author(self._session, author_url, author_name,
-                                    author_motto, photo_url=photo_url)
+                    author = Author(author_url, author_name, author_motto,
+                                    photo_url=photo_url, session=self._session)
                     post_url = act.find('a', class_='post-link')['href']
                     post_title = act.find('a', class_='post-link').text
                     post_comment_num, post_upvote_num = self._parse_un_cn(act)
-                    post = Post(self._session, post_url, column, author,
-                                post_title, post_upvote_num, post_comment_num)
+                    post = Post(post_url, column, author, post_title,
+                                post_upvote_num, post_comment_num,
+                                session=self._session)
 
                     yield Activity(act_type, act_time, post=post)
                 elif type_string == '关注了专栏':
                     act_type = ActType.FOLLOW_COLUMN
-                    column = Column(self._session, act.div.a['href'],
-                                    act.div.a.text)
+                    column = Column(act.div.a['href'], act.div.a.text,
+                                    session=self._session)
                     yield Activity(act_type, act_time, column=column)
                 elif type_string == '关注了问题':
                     act_type = ActType.FOLLOW_QUESTION
-                    question = Question(self._session,
-                                        Zhihu_URL + act.div.a['href'],
-                                        act.div.a.text)
+                    question = Question(Zhihu_URL + act.div.a['href'],
+                                        act.div.a.text, session=self._session)
                     yield Activity(act_type, act_time, question=question)
                 elif type_string == '提了一个问题':
                     act_type = ActType.ASK_QUESTION
-                    question = Question(self._session,
-                                        Zhihu_URL +
+                    question = Question(Zhihu_URL +
                                         act.div.contents[3]['href'],
-                                        list(act.div.children)[3].text)
+                                        list(act.div.children)[3].text,
+                                        session=self._session)
                     yield Activity(act_type, act_time, question=question)
                 elif type_string == '赞同了回答':
                     act_type = ActType.UPVOTE_ANSWER
                     question_url = Zhihu_URL + re_a2q.match(
                         act.div.a['href']).group(1)
                     question_title = act.div.a.text
-                    question = Question(self._session, question_url,
-                                        question_title)
+                    question = Question(question_url, question_title,
+                                        session=self._session)
 
                     try_find_author = act.find('h3').find_all(
                         'a', href=re.compile('^/people/[^/]*$'))
@@ -515,14 +511,14 @@ class Author:
                             author_motto = try_find_motto['title']
                         photo_url = try_find_author.parent.a.img['src']\
                             .replace('_s', '_r')
-                    author = Author(self._session, author_url, author_name,
-                                    author_motto, photo_url=photo_url)
+                    author = Author(author_url, author_name, author_motto,
+                                    photo_url=photo_url, session=self._session)
 
                     answer_url = Zhihu_URL + act.div.a['href']
                     answer_comment_num, answer_upvote_num = \
                         self._parse_un_cn(act)
-                    answer = Answer(self._session, answer_url, question,
-                                    author, answer_upvote_num)
+                    answer = Answer(answer_url, question, author,
+                                    answer_upvote_num, session=self._session)
 
                     yield Activity(act_type, act_time, answer=answer)
                 elif type_string == '回答了问题':
@@ -530,27 +526,26 @@ class Author:
                     question_url = Zhihu_URL + re_a2q.match(
                         act.div.find_all('a')[-1]['href']).group(1)
                     question_title = act.div.find_all('a')[-1].text
-                    question = Question(self._session, question_url,
-                                        question_title)
+                    question = Question(question_url, question_title,
+                                        session=self._session)
 
                     answer_url = Zhihu_URL + \
                         act.div.find_all('a')[-1]['href']
                     answer_comment_num, answer_upvote_num = \
                         self._parse_un_cn(act)
-                    answer = Answer(self._session, answer_url, question, self,
-                                    answer_upvote_num)
+                    answer = Answer(answer_url, question, self,
+                                    answer_upvote_num, session=self._session)
 
                     yield Activity(act_type, act_time, answer=answer)
                 elif type_string == '关注了话题':
                     act_type = ActType.FOLLOW_TOPIC
                     topic_url = Zhihu_URL + act.div.a['href']
                     topic_name = act.div.a['title']
-
-                    yield Activity(self._session, act_type, act_time,
-                                   topic=Topic(topic_url, topic_name))
+                    topic = Topic(topic_url, topic_name, session=self._session)
+                    yield Activity(act_type, act_time, topic=topic)
 
     def is_zero_user(self):
-        """返回当前用户是否为三零用户，其实是四零，分别为： 赞同0，感谢0，提问0，回答0.
+        """返回当前用户是否为三零用户，其实是四零： 赞同0，感谢0，提问0，回答0.
 
         :return: 是否是三零用户
         :rtype: bool
