@@ -4,9 +4,9 @@
 
 最近一次更新内容：
 
-重构项目结构，增加zhihu.Client类，各种类（`Answer`，`Question`，`Author`等）建议不再直接使用，新用法请看示例。
+发布到Pypi。
 
-具体请看[ChangeLog][changelog-url]
+具体请看[ChangeLog][changelog-url]。
 
 **有问题请开Issue，几个小时后无回应可加最后面的QQ群询问。**
 
@@ -52,35 +52,31 @@ for answer in question.answers:
 
 另外还有`Author（用户）`、`Answer（答案）`、`Collection（收藏夹）`、`Column（专栏）`、`Post（文章）`、`Topic（话题）`等类可以使用，`Answer`,`Post`类提供了`save`方法能将答案或文章保存为HTML或Markdown格式，具体请看文档，或者`zhihu-test.py`
 
-## 依赖
-
-**本项目依赖于 [requests][req-url] 、[BeautifulSoup4][bs4-url]、[html2text][html2text-url] 使用前请先安装**
-
-**html2text 只在导出为 markdown 格式功能被使用时才会被 import，如果没有此模块其他功能也能正常完成。**
-
-```bash
-pip install requests
-pip install beautifulsoup4
-pip install html2text
-```
-
-Linux下同时安装了Python2和3的用户请使用`pip3 install xxx`代替（应该不用我说……）
-
 ## 安装
 
-已将项目整理为标准Python模块，请使用下列命令安装
+**本项目依赖于 [requests][req-url] 、[BeautifulSoup4][bs4-url]、[html2text][html2text-url]**
+
+已将项目发布到pypi，请使用下列命令安装
 
 ```bash
-git clone https://github.com/7sDream/zhihu-py3.git
-cd zhihu-py3
-./setup.py install
+(sudo) pip3 install zhihu-py3
 ```
 
-最后一行命令可能需要sudo。
+希望开启lxml的话请使用：
 
-安装完后推荐安装[lxml][lxml-url]，因为解析html效率高而且容错率强，在知乎使用`<br>`时，自带的html.parser会将其转换成`<br>...</br>`，而lxml则转换为`<br/>`，更为标准且美观。
+```bash
+(sudo) pip3 install zhihu-py3[lxml]
+```
+
+因为lxml解析html效率高而且容错率强，在知乎使用`<br>`时，自带的html.parser会将其转换成`<br>...</br>`，而lxml则转换为`<br/>`，更为标准且美观，所以推荐使用第二个命令。
 
 不安装lxml也能使用本模块，此时会自动使用html.parser作为解析器。
+
+PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
+
+```bash
+sudo apt-get install libxml2 libxml2-dev libxslt1.1 libxslt1-dev
+```
 
 ## 准备工作
 
