@@ -130,18 +130,37 @@ class ZhihuClient:
 
     # ===== network staff =====
 
-    def set_proxy(self, proxies):
-        self._session.proxies.update(proxies)
+    def set_proxy(self, proxy):
+        """设置代理
+
+        :param str proxy: 代理字典，使用 "http://example.com:port" 的形式
+        :return: 无
+        :rtype: None
+        """
+        self._session.proxies.update({'http': proxy})
 
     # ===== getter staff ======
 
-    def __getattr__(self, item: str):
-        def getter(*args, **kwargs):
-            if 'session' not in kwargs.keys():
-                kwargs['session'] = self._session
-            return getattr(module, item.capitalize())(*args, **kwargs)
+    def __getattr__(self, Class: str):
+        """本函数用户获取各种类，如 `Answer` `Question` 等.
+
+        :支持的形式有:
+            1. client.answer()
+            2. client.author()
+            3. client.collection()
+            4. client.column()
+            5. client.post()
+            6. client.question()
+            7. client.topic()
+
+            参数均为对应页面的url，返回对应的类的实例。
+        """
+        def getter(url):
+            return getattr(module, Class.capitalize())(url,
+                                                      session=self._session)
         attr_list = ['answer', 'author', 'collection',
                      'column', 'post', 'question', 'topic']
-        if item.lower() in attr_list:
-            module = importlib.import_module('.'+item.lower(), 'zhihu')
-            return getter
+        if Class.lower() in attr_list:
+            module = importlib.import_module('.'+Class.lower(), 'zhihu')
+            return lambda url: getattr(
+                module, Class.capitalize())(url, session=self._session)
