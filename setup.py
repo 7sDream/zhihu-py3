@@ -29,9 +29,6 @@ def extract_version():
 with open('README.rst', 'rb') as f_readme:
     readme = f_readme.read().decode('utf-8')
 
-with open('ChangeLog.rst', 'rb') as f_changelog:
-    changelog = f_changelog, f_changelog.read().decode('utf-8')
-
 packages = ['zhihu']
 if sys.version_info < (3, 0):
     packages = [str(bytearray(package, 'ascii')) for package in packages]
@@ -41,9 +38,10 @@ version = extract_version()
 setup(
     name='zhihu-py3',
     version=version,
+    keywords=['zhihu', 'netword', 'spider', 'html'],
     description='Zhihu UNOFFICIAL API library in python3, '
                 'with help of bs4, lxml, requests and html2text.',
-    long_description='{0}\n\n{1}'.format(readme, changelog),
+    long_description=readme,
 
     author='7sDream',
     author_email='didislover@gmail.com',
@@ -73,4 +71,3 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules'
     ]
 )
-
