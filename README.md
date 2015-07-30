@@ -1,4 +1,4 @@
-# zhihu-py3 : 知乎解析器 with Python3
+# zhihu-py3 : 知乎非官方API库 with Python3
 
 [![Documentation Status][doc-badge-img]][doc-badge-url]
 

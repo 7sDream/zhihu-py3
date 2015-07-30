@@ -41,8 +41,8 @@ version = extract_version()
 setup(
     name='zhihu-py3',
     version=version,
-    description='A parser of zhihu.com '
-                'with help of bs4 and requests in python3',
+    description='Zhihu UNOFFICIAL API library in python3, '
+                'with help of bs4, lxml, requests and html2text.',
     long_description='{0}\n\n{1}'.format(readme, changelog),
 
     author='7sDream',
