@@ -32,13 +32,14 @@ with open('README.rst', 'rb') as f_readme:
 packages = ['zhihu']
 if sys.version_info < (3, 0):
     packages = [str(bytearray(package, 'ascii')) for package in packages]
+
 version = extract_version()
 
 
 setup(
     name='zhihu-py3',
     version=version,
-    keywords=['zhihu', 'netword', 'spider', 'html'],
+    keywords=['zhihu', 'network', 'spider', 'html'],
     description='Zhihu UNOFFICIAL API library in python3, '
                 'with help of bs4, lxml, requests and html2text.',
     long_description=readme,

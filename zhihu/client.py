@@ -61,7 +61,7 @@ class ZhihuClient:
         :rtype: (int, str, str)
         """
         data = {'email': email, 'password': password,
-                'rememberme': 'y', 'captcha': captcha}
+                'remember_me': 'true', 'captcha': captcha}
         r = self._session.post(Login_URL, data=data)
         j = r.json()
         code = int(j['r'])
