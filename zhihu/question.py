@@ -116,6 +116,19 @@ class Question:
         return topics_list
 
     @property
+    def followers(self):
+        """获取关注此问题的用户
+
+        :return: 关注此问题的用户
+        :rtype: Author.Iterable
+        :问题: 要注意若执行过程中另外有人关注，可能造成重复获取到某些用户
+        """
+        self._make_soup()
+        followers_url = self.url + 'followers'
+        for x in common_follower(followers_url, self._xsrf, self._session):
+            yield x
+
+    @property
     def answers(self):
         """获取问题的所有答案.
 

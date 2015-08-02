@@ -7,7 +7,7 @@ import functools
 import re
 import os
 
-import requests
+from requests import Session
 from bs4 import BeautifulSoup as _Bs
 
 try:
@@ -81,7 +81,7 @@ def class_common_init(url_re):
                 if url.endswith('/') is False:
                     url += '/'
             if 'session' not in kwargs.keys() or kwargs['session'] is None:
-                kwargs['session'] = requests.Session()
+                kwargs['session'] = Session()
             self.soup = None
             return func(self, url, *args, **kwargs)
         return wrapper
@@ -151,3 +151,36 @@ def get_path(path, filename, mode, default_path, default_name):
         i += 1
         temp = filename + str(i)
     return os.path.join(path, temp) + '.' + mode
+
+
+def common_follower(url, xsrf, session):
+        from .author import Author
+        headers = dict(Default_Header)
+        headers['Referer'] = url
+        data = {'offset': 0, '_xsrf': xsrf}
+        gotten_data_num = 20
+        offset = 0
+        while gotten_data_num == 20:
+            data['offset'] = offset
+            res = session.post(url, data=data, headers=headers)
+            json_data = res.json()['msg']
+            gotten_data_num = json_data[0]
+            offset += gotten_data_num
+            soup = BeautifulSoup(json_data[1])
+            follower_divs = soup.find_all('div', class_='zm-profile-card')
+            for div in follower_divs:
+                if div.a is not None:
+                    author_name = div.a['title']
+                    author_url = Zhihu_URL + div.a['href']
+                    author_motto = div.find('div', class_='zg-big-gray').text
+                    author_photo = div.img['src'].replace('_m', '_r')
+                    numbers = [re_get_number.match(a.text).group(1)
+                               for a in div.find_all('a', target='_blank')]
+                else:
+                    author_name = '匿名用户'
+                    author_url = None
+                    author_motto = ''
+                    author_photo = None
+                    numbers = [None] * 4
+                yield Author(author_url, author_name, author_motto, *numbers,
+                             photo_url=author_photo, session=session)

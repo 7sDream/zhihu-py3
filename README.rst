@@ -5,7 +5,9 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 最近一次更新内容：
 
-知乎登录参数变化，从rememberme变成了remember_me，做了跟进。
+- 增加了获取收藏夹关注者的功能
+- 增加了获取问题关注者的功能
+- Column的一个小Bug修复
 
 具体请看\ `ChangeLog <https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.rst>`__\ 。
 

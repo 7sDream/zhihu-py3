@@ -33,6 +33,8 @@ class Collection:
     def _make_soup(self):
         if self.soup is None:
             self.soup = BeautifulSoup(self._session.get(self.url).text)
+            self._xsrf = self.soup.find(
+                'input', attrs={'name': '_xsrf'})['value']
 
     @property
     @check_soup('_name')
@@ -75,6 +77,18 @@ class Collection:
         """
         href = re_collection_url_split.match(self.url).group(1)
         return int(self.soup.find('a', href=href + 'followers').text)
+
+    @property
+    def followers(self):
+        """获取关注此收藏夹的用户
+
+        :return: 关注此收藏夹的用户
+        :rtype: Author.Iterable
+        """
+        self._make_soup()
+        followers_url = self.url + 'followers'
+        for x in common_follower(followers_url, self._xsrf, self._session):
+            yield x
 
     @property
     def questions(self):

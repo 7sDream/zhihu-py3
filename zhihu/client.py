@@ -133,16 +133,20 @@ class ZhihuClient:
     def set_proxy(self, proxy):
         """设置代理
 
-        :param str proxy: 代理字典，使用 "http://example.com:port" 的形式
+        :param str proxy: 使用 "http://example.com:port" 的形式
         :return: 无
         :rtype: None
+
+        :说明:
+            由于一个 :class:`.ZhihuClient` 对象和它创建出来的其他知乎对象共用
+            一个Session，所以调用这个方法也会将所有生成出的知乎类设置上代理。
         """
         self._session.proxies.update({'http': proxy})
 
     # ===== getter staff ======
 
-    def __getattr__(self, Class: str):
-        """本函数用户获取各种类，如 `Answer` `Question` 等.
+    def __getattr__(self, item: str):
+        """本函数用于获取各种类，如 `Answer` `Question` 等.
 
         :支持的形式有:
             1. client.answer()
@@ -156,11 +160,10 @@ class ZhihuClient:
             参数均为对应页面的url，返回对应的类的实例。
         """
         def getter(url):
-            return getattr(module, Class.capitalize())(url,
+            return getattr(module, item.capitalize())(url,
                                                       session=self._session)
         attr_list = ['answer', 'author', 'collection',
                      'column', 'post', 'question', 'topic']
-        if Class.lower() in attr_list:
-            module = importlib.import_module('.'+Class.lower(), 'zhihu')
-            return lambda url: getattr(
-                module, Class.capitalize())(url, session=self._session)
+        if item.lower() in attr_list:
+            module = importlib.import_module('.'+item.lower(), 'zhihu')
+            return lambda url: getter(url)

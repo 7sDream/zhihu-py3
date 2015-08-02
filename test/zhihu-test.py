@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
-
 __author__ = '7sDream'
 
 Cookies_File = 'cookies.json'
@@ -31,7 +29,15 @@ def test_question():
 
     # 获取关注该问题的人数
     print(question.follower_num)
-    # 4320
+    # 4326
+
+    # 获取关注问题的用户
+    for _, follower in zip(range(0, 10), question.followers):
+        print(follower.name)
+    # J Drop
+    # 熊猫
+    # Steve He
+    # ...
 
     # 获取该问题所属话题
     print(question.topics)
@@ -44,7 +50,6 @@ def test_question():
     # 获取排名前十的十个回答的点赞数
     for answer in question.top_i_answers(10):
         print(answer.author.name, answer.upvote_num)
-    # 197
     # 49
     # 89
     # 425
@@ -75,7 +80,6 @@ def test_answer():
         print(upvoter.name, upvoter.upvote_num, upvoter.thank_num,
               upvoter.question_num, upvoter.answer_num, upvoter.is_zero_user())
     # ...
-    # 空空 23 14 1 7
     # 五月 42 15 3 35
     # 陈半边 6311 1037 3 101
     # 刘柯 3107 969 273 36
@@ -237,16 +241,24 @@ def test_author():
 
 
 def test_collection():
-    url = 'http://www.zhihu.com/collection/37770691'
+    url = 'http://www.zhihu.com/collection/28698204'
     collection = client.collection(url)
 
     # 获取收藏夹名字
     print(collection.name)
-    # 教学精品。
+    # 可以用来背的答案
 
     # 获取收藏夹关注人数
     print(collection.follower_num)
-    # 0
+    # 6343
+
+    # 获取收藏夹关注用户
+    for _, follower in zip(range(0, 10), collection.followers):
+        print(follower.name)
+    # 花椰菜
+    # 邱火羽白
+    # 枫丹白露
+    # ...
 
     # 获取收藏夹创建者名字
     print(collection.owner.name)
@@ -258,7 +270,6 @@ def test_collection():
     # 2561
     # 535
     # 223
-    # 258
     # ...
 
     # 获取收藏夹内所有问题标题

@@ -68,6 +68,9 @@ class Author:
             real_params = {'params': json.dumps(params)}
             r = self._session.get(Get_Profile_Card_URL, params=real_params)
             self.card = BeautifulSoup(r.content)
+            if self._hash_id is None:
+                btn = self.card.find('button')
+                self._hash_id = btn['data-id'] if btn is not None else None
 
     @property
     def id(self):
@@ -79,7 +82,7 @@ class Author:
         return re.match(r'^.*/([^/]+)/$', self.url).group(1)
 
     @property
-    @check_soup('_name')
+    @check_soup('_name', '_make_card')
     def name(self):
         """获取用户名字.
 
@@ -88,10 +91,14 @@ class Author:
         """
         if self.url is None:
             return '匿名用户'
-        return self.soup.find('div', class_='title-section ellipsis').span.text
+        if self.soup is not None:
+            return self.soup.find('div', class_='title-section').span.text
+        else:
+            assert self.card is not None
+            return self.card.find('span', class_='name').text
 
     @property
-    @check_soup('_motto')
+    @check_soup('_motto', '_make_card')
     def motto(self):
         """获取用户自我介绍，由于历史原因，我还是把这个属性叫做motto吧.
 
@@ -101,12 +108,17 @@ class Author:
         if self.url is None:
             return ''
         else:
-            bar = self.soup.find(
-                'div', class_='title-section ellipsis')
-            if len(bar.contents) < 4:
-                return ''
+            if self.soup is not None:
+                bar = self.soup.find(
+                    'div', class_='title-section')
+                if len(bar.contents) < 4:
+                    return ''
+                else:
+                    return bar.contents[3].text
             else:
-                return bar.contents[3].text
+                assert self.card is not None
+                motto = self.card.find('div', class_='tagline')
+                return motto.text if motto is not None else ''
 
     @property
     @check_soup('_photo_url', '_make_card')
@@ -123,7 +135,7 @@ class Author:
                 return img.replace('_l', '_r')
             else:
                 assert(self.card is not None)
-                return self.card.img['src'].replace('_m', '_l')
+                return self.card.img['src'].replace('_xs', '_r')
         else:
             return 'http://pic1.zhimg.com/da8e974dc_r.jpg'
 
@@ -321,20 +333,26 @@ class Author:
         if self.url is None:
             return
         if t == 'er':
-            all_number = self.follower_num
             request_url = Get_More_Followers_URL
         else:
-            all_number = self.followee_num
             request_url = Get_More_Followees_URL
-        if all_number == 0:
-            return
+        self._make_card()
+        if self._hash_id is None:
+            self._make_soup()
+        headers = dict(Default_Header)
+        headers['Referer'] = self.url + 'follow' + t + 's'
         params = {"order_by": "created", "offset": 0, "hash_id": self._hash_id}
         data = {'_xsrf': self._xsrf, 'method': 'next', 'params': ''}
-        for i in range(0, all_number, 20):
-            params['offset'] = i
+        gotten_date_num = 20
+        offset = 0
+        while gotten_date_num == 20:
+            params['offset'] = offset
             data['params'] = json.dumps(params)
-            res = self._session.post(request_url, data=data)
-            for html in res.json()['msg']:
+            res = self._session.post(request_url, data=data, headers=headers)
+            json_data = res.json()
+            gotten_date_num = len(json_data['msg'])
+            offset += gotten_date_num
+            for html in json_data['msg']:
                 soup = BeautifulSoup(html)
                 h2 = soup.find('h2')
                 author_name = h2.a.text
@@ -398,7 +416,8 @@ class Author:
             else:
                 post_num = int(
                     re_get_number.match(footer.a.text).group(1))
-            yield Column(self._session, url, name, follower_num, post_num)
+            yield Column(url, name, follower_num, post_num,
+                         session=self._session)
 
     @property
     def activities(self):
