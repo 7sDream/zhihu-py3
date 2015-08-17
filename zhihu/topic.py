@@ -62,3 +62,15 @@ class Topic:
             img = self.soup.find(
                 'a', id='zh-avartar-edit-form').img['src']
             return img.replace('_m', '_r')
+    @property
+    @check_soup('_description')
+    def description(self):
+        """获取话题描述信息.
+
+        :return: 话题描述信息
+        :rtype: str
+        """
+        if self.soup is not None:
+            desc = self.soup.find(
+                'div', class_='zm-editable-content').text
+            return desc

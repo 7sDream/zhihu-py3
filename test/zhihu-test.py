@@ -331,8 +331,13 @@ def test_post():
     # 为什么最近有很多名人，比如比尔盖茨，马斯克、霍金等，让人们警惕人工智能？ - 谢熊猫君.md
 
 def test_topic():
-    url='http://m.zhihu.com/topic/19550517/'
+    url='http://www.zhihu.com/topic/19550517/'
     topic=client.topic(url)
+    
+    #获取话题描述信息
+    print(topic.description)
+    #国际互联网（Internetwork，简称Internet），始于1969年的美国，又称因特网，是全球性的网络……
+
 
     #获取话题地址
     print(topic.url)
