@@ -3,9 +3,9 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{fa37557c-8a59-49e1-8389-12569a51dfb3}</ProjectGuid>
+    <ProjectGuid>{111bc9ac-9fe9-4043-8e47-3823450a7562}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>setup.py</StartupFile>
+    <StartupFile>test\zhihu-test.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -13,6 +13,7 @@
     <LaunchProvider>Standard Python launcher</LaunchProvider>
     <InterpreterId />
     <InterpreterVersion />
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
@@ -23,7 +24,7 @@
   <ItemGroup>
     <Compile Include="docs\conf.py" />
     <Compile Include="setup.py" />
-    <Compile Include="zhihu-test.py" />
+    <Compile Include="test\zhihu-test.py" />
     <Compile Include="zhihu\activity.py" />
     <Compile Include="zhihu\acttype.py" />
     <Compile Include="zhihu\answer.py" />
@@ -39,7 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="docs\requirements.txt" />
-    <Content Include="test\关系亲密的人之间要说「谢谢」吗？-甜阁下.html" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="docs" />

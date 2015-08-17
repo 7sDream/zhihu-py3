@@ -331,7 +331,7 @@ def test_post():
     # 为什么最近有很多名人，比如比尔盖茨，马斯克、霍金等，让人们警惕人工智能？ - 谢熊猫君.md
 
 def test_topic():
-    url='http://www.zhihu.com/topic/19550517'
+    url='http://m.zhihu.com/topic/19550517/'
     topic=client.topic(url)
 
     #获取话题地址
@@ -344,6 +344,10 @@ def test_topic():
     #获取话题关注人数
     print(topic.follower_num)
     #2425736
+
+    #获取话题头像url
+    print(topic.photo_url)
+    #
 
 
 
@@ -358,8 +362,8 @@ def test():
 
 if __name__=='__main__':
 
-    if os.path.exists("test"):
-        shutil.rmtree("test")
+    if os.path.exists("test_tmp"):
+        shutil.rmtree("test_tmp")
 
     if os.path.isfile(Cookies_File):
         client = ZhihuClient(Cookies_File)
@@ -369,8 +373,8 @@ if __name__=='__main__':
         with open(Cookies_File, 'w') as f:
             f.write(cookies_str)
 
-    os.mkdir("test")
-    os.chdir("test")
+    os.mkdir("test_tmp")
+    os.chdir("test_tmp")
 
     import timeit
 

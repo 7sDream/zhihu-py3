@@ -58,3 +58,7 @@ class Topic:
         :return: 话题头像url
         :rtype: str
         """
+        if self.soup is not None:
+            img = self.soup.find(
+                'a', id='zh-avartar-edit-form').img['src']
+            return img.replace('_m', '_r')
