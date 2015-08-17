@@ -35,3 +35,26 @@ class Topic:
         :rtype: str
         """
         return self.soup.find('h1').text
+
+    @property
+    @check_soup('_follower_num')
+    def follower_num(self):
+        """获取话题关注人数.
+
+        :return: 关注人数
+        :rtype: int
+        """
+        follower_num_block = self.soup.find('div', class_='zm-topic-side-followers-info')
+        # 无人关注时 找不到对应block，直接返回0 （感谢知乎用户 段晓晨 提出此问题）
+        if follower_num_block.strong is None:
+            return 0
+        return int(follower_num_block.strong.text)
+    
+    @property
+    @check_soup('_photo_url')
+    def photo_url(self):
+        """获取话题头像图片地址.
+
+        :return: 话题头像url
+        :rtype: str
+        """
