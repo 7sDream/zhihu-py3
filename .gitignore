@@ -107,8 +107,3 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-*.pyproj
-*.suo
-zhihu-py3.pyproj
-*.sln
-*.json
