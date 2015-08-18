@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import sys
+sys.path.append(sys.path[0]+'\\..\\')
 __author__ = '7sDream'
 
 Cookies_File = 'cookies.json'
 
 import os
 import shutil
-
 from zhihu import ZhihuClient, ActType
+
+
 
 
 def test_question():
@@ -55,7 +58,6 @@ def test_question():
     # 425
     # ...
 
-
 def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
     answer = client.answer(url)
@@ -99,7 +101,6 @@ def test_answer():
     # 保存markdown
     answer.save(filepath='.', mode="md")
     # 当前目录下生成 "亲密关系之间要说「谢谢」吗？ - 甜阁下.md"
-
 
 def test_author():
     url = 'http://www.zhihu.com/people/7sdream'
@@ -205,39 +206,31 @@ def test_author():
     for _, act in zip(range(0, 10), author.activities):
         print(act.content.url)
         if act.type == ActType.FOLLOW_COLUMN:
-            print('%s 在 %s 关注了专栏 %s' %
-                  (author.name, act.time, act.column.name))
+            print('%s 在 %s 关注了专栏 %s' % (author.name, act.time, act.column.name))
         elif act.type == ActType.FOLLOW_QUESTION:
-            print('%s 在 %s 关注了问题 %s' %
-                  (author.name, act.time, act.question.title))
+            print('%s 在 %s 关注了问题 %s' % (author.name, act.time, act.question.title))
         elif act.type == ActType.ASK_QUESTION:
-            print('%s 在 %s 提了个问题 %s' %
-                  (author.name, act.time, act.question.title))
+            print('%s 在 %s 提了个问题 %s' % (author.name, act.time, act.question.title))
         elif act.type == ActType.UPVOTE_POST:
             print('%s 在 %s 赞同了专栏 %s 中 %s 的文章 %s, '
-                  '此文章赞同数 %d, 评论数 %d' %
-                  (author.name, act.time, act.post.column.name,
+                  '此文章赞同数 %d, 评论数 %d' % (author.name, act.time, act.post.column.name,
                    act.post.author.name, act.post.title, act.post.upvote_num,
                    act.post.comment_num))
         elif act.type == ActType.PUBLISH_POST:
             print('%s 在 %s 在专栏 %s 中发布了文章 %s, '
-                  '此文章赞同数 %d, 评论数 %d' %
-                  (author.name, act.time, act.post.column.name,
+                  '此文章赞同数 %d, 评论数 %d' % (author.name, act.time, act.post.column.name,
                    act.post.title, act.post.upvote_num,
                    act.post.comment_num))
         elif act.type == ActType.UPVOTE_ANSWER:
             print('%s 在 %s 赞同了问题 %s 中 %s(motto: %s) 的回答, '
-                  '此回答赞同数 %d' %
-                  (author.name, act.time, act.answer.question.title,
+                  '此回答赞同数 %d' % (author.name, act.time, act.answer.question.title,
                    act.answer.author.name, act.answer.author.motto,
                    act.answer.upvote_num))
         elif act.type == ActType.ANSWER_QUESTION:
-            print('%s 在 %s 回答了问题 %s 此回答赞同数 %d' %
-                  (author.name, act.time, act.answer.question.title,
+            print('%s 在 %s 回答了问题 %s 此回答赞同数 %d' % (author.name, act.time, act.answer.question.title,
                    act.answer.upvote_num))
         elif act.type == ActType.FOLLOW_TOPIC:
-            print('%s 在 %s 关注了话题 %s' %
-                  (author.name, act.time, act.topic.name))
+            print('%s 在 %s 关注了话题 %s' % (author.name, act.time, act.topic.name))
 
 
 def test_collection():
@@ -281,7 +274,6 @@ def test_collection():
     # 有哪些计算机的书适合推荐给大一学生？
     # ...
 
-
 def test_column():
     url = 'http://zhuanlan.zhihu.com/xiepanda'
     column = client.column(url)
@@ -305,7 +297,6 @@ def test_column():
     # 为什么你来到伦敦?——没有抽到h1b
     # “城邦之国”新加坡强在哪？
     # ...
-
 
 def test_post():
     url = 'http://zhuanlan.zhihu.com/xiepanda/19950456'
@@ -339,6 +330,37 @@ def test_post():
     # 当前目录下生成
     # 为什么最近有很多名人，比如比尔盖茨，马斯克、霍金等，让人们警惕人工智能？ - 谢熊猫君.md
 
+def test_topic():
+    url='http://www.zhihu.com/topic/19947695/'
+    topic=client.topic(url)
+    
+    #获取话题地址
+    print(topic.url)
+
+    #获取话题名称
+    print(topic.name)
+    #互联网
+
+    #获取话题关注人数
+    print(topic.follower_num)
+    #2425736
+
+    #获取话题头像url
+    print(topic.photo_url)
+    #
+    
+    #获取话题描述信息
+    print(topic.description)
+    #国际互联网（Internetwork，简称Internet），始于1969年的美国，又称因特网，是全球性的网络……
+
+
+    #获取话题下的精华回答
+    for ans in topic.top_answers:
+        print(ans.question.title,ans.author.name,ans.upvote_num)
+        break
+    #循环一次退出，可去掉break查看效果
+        
+
 
 def test():
     test_question()
@@ -347,29 +369,31 @@ def test():
     test_collection()
     test_column()
     test_post()
+    test_topic()
 
+if __name__=='__main__':
 
-if os.path.exists("test"):
-    shutil.rmtree("test")
+    if os.path.exists("test_tmp"):
+        shutil.rmtree("test_tmp")
 
-if os.path.isfile(Cookies_File):
-    client = ZhihuClient(Cookies_File)
-else:
-    client = ZhihuClient()
-    cookies_str = client.login_in_terminal()
-    with open(Cookies_File, 'w') as f:
-        f.write(cookies_str)
+    if os.path.isfile(Cookies_File):
+        client = ZhihuClient(Cookies_File)
+    else:
+        client = ZhihuClient()
+        cookies_str = client.login_in_terminal()
+        with open(Cookies_File, 'w') as f:
+            f.write(cookies_str)
 
-os.mkdir("test")
-os.chdir("test")
+    os.mkdir("test_tmp")
+    os.chdir("test_tmp")
 
-import timeit
+    import timeit
 
-try:
-    time = timeit.timeit('test()', setup='from __main__ import test', number=1)
-    print('===== test passed =====')
-    print('no error happen')
-    print('time used: {0}'.format(time))
-except Exception as e:
-    print('===== test failed =====')
-    raise e
+    try:
+        time = timeit.timeit('test()', setup='from __main__ import test', number=1)
+        print('===== test passed =====')
+        print('no error happen')
+        print('time used: {0}'.format(time))
+    except Exception as e:
+        print('===== test failed =====')
+        raise e
