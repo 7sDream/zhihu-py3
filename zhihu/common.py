@@ -29,7 +29,10 @@ Get_Profile_Card_URL = 'http://www.zhihu.com/node/MemberProfileCardV2'
 Get_More_Answer_URL = 'http://www.zhihu.com/node/QuestionAnswerListV2'
 Get_More_Followers_URL = 'http://www.zhihu.com/node/ProfileFollowersListV2'
 Get_More_Followees_URL = 'http://www.zhihu.com/node/ProfileFolloweesListV2'
+GET_ME_INFO_URL = 'http://zhuanlan.zhihu.com/api/me'
 Cookies_File_Name = 'cookies.json'
+
+Upvote_Answer_Url = 'http://www.zhihu.com/node/AnswerVoteBarV2'
 
 Columns_Prefix = 'http://zhuanlan.zhihu.com'
 Columns_Data = Columns_Prefix + '/api/columns/{0}'
@@ -56,7 +59,7 @@ def check_soup(attr, soup_type='_make_soup'):
         @functools.wraps(func)
         def wrapper(self):
             # noinspection PyTypeChecker
-            value = getattr(self, attr, None)
+            value = getattr(self, attr) if hasattr(self, attr) else None
             if value is None:
                 if soup_type == '_make_soup':
                     getattr(self, soup_type)()
