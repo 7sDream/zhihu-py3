@@ -13,8 +13,6 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 **有问题请开Issue，几个小时后无回应可加最后面的QQ群询问。**
 
-友链： \ `zhihurss <https://github.com/SimplyY/zhihu-rss>`__\  一个基于 zhihu-py3 做的跨平台知乎 rss(any user) 的客户端 \ `github 仓库 <https://github.com/SimplyY/zhihu-rss>`__\
-
 功能
 ----
 
