@@ -357,16 +357,18 @@ def test_topic():
     #获取话题下的精华回答
     for ans in topic.top_answers:
         print(ans.question.title,ans.author.name,ans.upvote_num)
+        break
+    #循环一次退出，可去掉break查看效果
         
 
 
 def test():
-    #test_question()
-    #test_answer()
-    #test_author()
-    #test_collection()
-    #test_column()
-    #test_post()
+    test_question()
+    test_answer()
+    test_author()
+    test_collection()
+    test_column()
+    test_post()
     test_topic()
 
 if __name__=='__main__':
