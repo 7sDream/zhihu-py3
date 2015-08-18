@@ -7,7 +7,6 @@ Cookies_File = 'cookies.json'
 
 import os
 import shutil
-
 from zhihu import ZhihuClient, ActType
 
 
@@ -339,6 +338,36 @@ def test_post():
     # 当前目录下生成
     # 为什么最近有很多名人，比如比尔盖茨，马斯克、霍金等，让人们警惕人工智能？ - 谢熊猫君.md
 
+def test_topic():
+    url='http://www.zhihu.com/topic/19947695/'
+    topic=client.topic(url)
+    
+    #获取话题地址
+    print(topic.url)
+
+    #获取话题名称
+    print(topic.name)
+    #互联网
+
+    #获取话题关注人数
+    print(topic.follower_num)
+    #2425736
+
+    #获取话题头像url
+    print(topic.photo_url)
+    #
+    
+    #获取话题描述信息
+    print(topic.description)
+    #国际互联网（Internetwork，简称Internet），始于1969年的美国，又称因特网，是全球性的网络……
+
+
+    #获取话题下的精华回答
+    for ans in topic.top_answers:
+        print(ans.question.title,ans.author.name,ans.upvote_num)
+        break
+    #循环一次退出，可去掉break查看效果
+
 
 def test():
     test_question()
@@ -347,29 +376,31 @@ def test():
     test_collection()
     test_column()
     test_post()
+    test_topic()
 
+if __name__=='__main__':
 
-if os.path.exists("test"):
-    shutil.rmtree("test")
+    if os.path.exists("test_tmp"):
+        shutil.rmtree("test_tmp")
 
-if os.path.isfile(Cookies_File):
-    client = ZhihuClient(Cookies_File)
-else:
-    client = ZhihuClient()
-    cookies_str = client.login_in_terminal()
-    with open(Cookies_File, 'w') as f:
-        f.write(cookies_str)
+    if os.path.isfile(Cookies_File):
+        client = ZhihuClient(Cookies_File)
+    else:
+        client = ZhihuClient()
+        cookies_str = client.login_in_terminal()
+        with open(Cookies_File, 'w') as f:
+            f.write(cookies_str)
 
-os.mkdir("test")
-os.chdir("test")
+    os.mkdir("test_tmp")
+    os.chdir("test_tmp")
 
-import timeit
+    import timeit
 
-try:
-    time = timeit.timeit('test()', setup='from __main__ import test', number=1)
-    print('===== test passed =====')
-    print('no error happen')
-    print('time used: {0}'.format(time))
-except Exception as e:
-    print('===== test failed =====')
-    raise e
+    try:
+        time = timeit.timeit('test()', setup='from __main__ import test', number=1)
+        print('===== test passed =====')
+        print('no error happen')
+        print('time used: {0}'.format(time))
+    except Exception as e:
+        print('===== test failed =====')
+        raise e

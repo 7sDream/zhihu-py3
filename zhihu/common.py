@@ -59,7 +59,7 @@ def check_soup(attr, soup_type='_make_soup'):
         @functools.wraps(func)
         def wrapper(self):
             # noinspection PyTypeChecker
-            value = getattr(self, attr) if hasattr(self, attr) else None
+            value = getattr(self, attr, None)
             if value is None:
                 if soup_type == '_make_soup':
                     getattr(self, soup_type)()
