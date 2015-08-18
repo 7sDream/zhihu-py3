@@ -145,6 +145,25 @@ class ZhihuClient:
 
     # ===== getter staff ======
 
+    @property
+    def me(self):
+        """获取使用特定cookies的Me实例
+
+        :return: cookies对应的Me对象
+        :rtype: Me
+        """
+        from .me import Me
+        headers = dict(Default_Header)
+        headers['Host'] = 'zhuanlan.zhihu.com'
+        res = self._session.get(GET_ME_INFO_URL, headers=headers)
+        json_data = res.json()
+        url = json_data['profileUrl']
+        name = json_data['name']
+        motto = json_data['bio']
+        photo = json_data['avatar']['template'].format(
+            id=json_data['avatar']['id'], size='r')
+        return Me(url, name, motto, photo, session=self._session)
+
     def __getattr__(self, item: str):
         """本函数用于获取各种类，如 `Answer` `Question` 等.
 

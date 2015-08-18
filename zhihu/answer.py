@@ -29,6 +29,8 @@ class Answer:
         self._author = author
         self._upvote_num = upvote_num
         self._content = content
+        self._aid = None
+        self._xsrf = None
 
     def _make_soup(self):
         if self.soup is None:
@@ -36,6 +38,8 @@ class Answer:
             self.soup = BeautifulSoup(r.content)
             self._aid = self.soup.find(
                 'div', class_='zm-item-answer')['data-aid']
+            self._xsrf = self.soup.find(
+                'input', attrs={'name': '_xsrf'})['value']
 
     @property
     @check_soup('_html')
@@ -174,5 +178,24 @@ class Answer:
         :return: 答案id
         :rtype: int
         """
-        print(self.url)
         return int(re.match(r'.*/(\d+)/$', self.url).group(1))
+
+    @property
+    def xsrf(self):
+        """获取知乎的反xsrf参数（用不到就忽视吧~）
+
+        :return: xsrf参数
+        :rtype: str
+        """
+        self._make_soup()
+        return self._xsrf
+
+    @property
+    def aid(self):
+        """获取答案的内部id，某些POST操作需要此参数
+
+        :return: 答案内部id
+        :rtype: str
+        """
+        self._make_soup()
+        return self._aid
