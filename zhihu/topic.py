@@ -11,7 +11,7 @@ class Topic:
     """答案类，请使用``ZhihuClient.topic``方法构造对象."""
 
     @class_common_init(re_topic_url)
-    def __init__(self, url, name = None, session = None):
+    def __init__(self, url, name=None, session=None):
         """创建话题类实例.
 
         :param url: 话题url
@@ -44,12 +44,13 @@ class Topic:
         :return: 关注人数
         :rtype: int
         """
-        follower_num_block = self.soup.find('div', class_='zm-topic-side-followers-info')
+        follower_num_block = self.soup.find(
+            'div', class_='zm-topic-side-followers-info')
         # 无人关注时 找不到对应block，直接返回0 （感谢知乎用户 段晓晨 提出此问题）
         if follower_num_block.strong is None:
             return 0
         return int(follower_num_block.strong.text)
-    
+
     @property
     @check_soup('_photo_url')
     def photo_url(self):
@@ -61,6 +62,7 @@ class Topic:
         if self.soup is not None:
             img = self.soup.find('a', id='zh-avartar-edit-form').img['src']
             return img.replace('_m', '_r')
+
     @property
     @check_soup('_description')
     def description(self):
@@ -87,28 +89,29 @@ class Topic:
         if self.url is None:
             return
         for page_index in range(1, 50):
-            html = self._session.get(self.url + 'top-answers?page=' + str(page_index)).text
+            html = self._session.get(
+                self.url + 'top-answers?page=' + str(page_index)).text
             soup = BeautifulSoup(html)
-            if soup.find('div',class_='error')!=None:
+            if soup.find('div', class_='error') != None:
                 return
             questions = soup.find_all('a', class_='question_link')
-            answers = soup.find_all('a', class_=re.compile(r'answer-date-link.*'))
+            answers = soup.find_all(
+                'a', class_=re.compile(r'answer-date-link.*'))
             authors = soup.find_all('h3', class_='zm-item-answer-author-wrap')
             upvotes = soup.find_all('a', class_='zm-item-vote-count')
             for ans, up, q, au in zip(answers, upvotes, questions, authors):
-                
+
                 answer_url = Zhihu_URL + ans['href']
                 question_url = Zhihu_URL + q['href']
                 question_title = q.text
                 upvote = int(up['data-votecount'])
                 question = Question(question_url, question_title,
                                     session=self._session)
-                if au.text=='匿名用户':
-                    author = Author(None, name = '匿名用户', session = self._session)
+                if au.text == '匿名用户':
+                    author = Author(None, name='匿名用户', session=self._session)
                 else:
-                    author_url = Zhihu_URL+au.a['href']
-                    author = Author(author_url, session = self._session)
+                    author_url = Zhihu_URL + au.a['href']
+                    author = Author(author_url, session=self._session)
 
                 yield Answer(answer_url, question, author, upvote,
-                             session = self._session)
-
+                             session=self._session)
