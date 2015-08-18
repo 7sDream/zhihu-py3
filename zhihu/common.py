@@ -67,9 +67,7 @@ def check_soup(attr, soup_type='_make_soup'):
                     getattr(self, soup_type)()
                 value = func(self)
                 setattr(self, attr, value)
-                return value
-            else:
-                return value
+            return value
         return wrapper
     return real
 

@@ -59,9 +59,8 @@ class Topic:
         :return: 话题头像url
         :rtype: str
         """
-        if self.soup is not None:
-            img = self.soup.find('a', id='zh-avartar-edit-form').img['src']
-            return img.replace('_m', '_r')
+        img = self.soup.find('a', id='zh-avartar-edit-form').img['src']
+        return img.replace('_m', '_r')
 
     @property
     @check_soup('_description')
@@ -71,12 +70,10 @@ class Topic:
         :return: 话题描述信息
         :rtype: str
         """
-        if self.soup is not None:
-            desc = self.soup.find('div', class_='zm-editable-content').text
-            return desc
+        desc = self.soup.find('div', class_='zm-editable-content').text
+        return desc
 
     @property
-    @check_soup('_top_answers')
     def top_answers(self):
         """获取话题下的精华答案.
 
@@ -92,7 +89,8 @@ class Topic:
             html = self._session.get(
                 self.url + 'top-answers?page=' + str(page_index)).text
             soup = BeautifulSoup(html)
-            if soup.find('div', class_='error') != None:
+            # 不够50页，来到错误页面 返回
+            if soup.find('div', class_='error') is not None:
                 return
             questions = soup.find_all('a', class_='question_link')
             answers = soup.find_all(
@@ -100,18 +98,22 @@ class Topic:
             authors = soup.find_all('h3', class_='zm-item-answer-author-wrap')
             upvotes = soup.find_all('a', class_='zm-item-vote-count')
             for ans, up, q, au in zip(answers, upvotes, questions, authors):
-
                 answer_url = Zhihu_URL + ans['href']
                 question_url = Zhihu_URL + q['href']
                 question_title = q.text
                 upvote = int(up['data-votecount'])
                 question = Question(question_url, question_title,
                                     session=self._session)
-                if au.text == '匿名用户':
-                    author = Author(None, name='匿名用户', session=self._session)
+                if au.a is None:
+                    author_url = None
+                    author_name = '匿名用户'
+                    author_motto = ''
                 else:
                     author_url = Zhihu_URL + au.a['href']
-                    author = Author(author_url, session=self._session)
+                    author_name = au.a.text
+                    author_motto = au.strong['title'] if au.strong else ''
 
+                author = Author(author_url, author_name, author_motto,
+                                session=self._session)
                 yield Answer(answer_url, question, author, upvote,
                              session=self._session)

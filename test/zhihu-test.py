@@ -3,8 +3,6 @@
 
 __author__ = '7sDream'
 
-Cookies_File = 'cookies.json'
-
 import os
 import shutil
 from zhihu import ZhihuClient, ActType
@@ -338,35 +336,38 @@ def test_post():
     # 当前目录下生成
     # 为什么最近有很多名人，比如比尔盖茨，马斯克、霍金等，让人们警惕人工智能？ - 谢熊猫君.md
 
+
 def test_topic():
     url='http://www.zhihu.com/topic/19947695/'
     topic=client.topic(url)
     
-    #获取话题地址
+    # 获取话题地址
     print(topic.url)
+    #
 
-    #获取话题名称
+    # 获取话题名称
     print(topic.name)
-    #互联网
+    # 互联网
 
-    #获取话题关注人数
+    # 获取话题关注人数
     print(topic.follower_num)
-    #2425736
+    # 2425736
 
-    #获取话题头像url
+    # 获取话题头像url
     print(topic.photo_url)
     #
     
-    #获取话题描述信息
+    # 获取话题描述信息
     print(topic.description)
-    #国际互联网（Internetwork，简称Internet），始于1969年的美国，又称因特网，是全球性的网络……
+    # 国际互联网（Internetwork，简称Internet），始于1969年的美国...
 
-
-    #获取话题下的精华回答
-    for ans in topic.top_answers:
+    # 获取话题下的精华回答
+    for _, ans in zip(range(0, 10), topic.top_answers):
         print(ans.question.title,ans.author.name,ans.upvote_num)
-        break
-    #循环一次退出，可去掉break查看效果
+    # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ Ben Chen 2956
+    # 黑客逃避追踪，为什么要用虚拟机 + TOR + VPN 呢？ Ario 526
+    # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ acel rovsion 420
+    # ...
 
 
 def test():
@@ -378,21 +379,40 @@ def test():
     test_post()
     test_topic()
 
-if __name__=='__main__':
 
-    if os.path.exists("test_tmp"):
-        shutil.rmtree("test_tmp")
+if __name__ == '__main__':
+    Cookies_File = 'cookies.json'
+    BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+    TEST_DIR = os.path.join(BASE_DIR, 'test')
+
+    print("Test dir: ", TEST_DIR)
+
+    if os.path.exists(TEST_DIR):
+        print("Cleaning it...", end='')
+        shutil.rmtree(TEST_DIR)
+        print("Done")
+    else:
+        print("Test dir not exist.")
+
+    os.chdir(BASE_DIR)
 
     if os.path.isfile(Cookies_File):
+        print("Cookies file found.")
         client = ZhihuClient(Cookies_File)
     else:
+        print("Cookies file not exist, please login...")
         client = ZhihuClient()
         cookies_str = client.login_in_terminal()
         with open(Cookies_File, 'w') as f:
             f.write(cookies_str)
 
-    os.mkdir("test_tmp")
-    os.chdir("test_tmp")
+    print("Making test dir...", end="")
+    os.mkdir(TEST_DIR)
+    print("Done", end="\n\n")
+
+    os.chdir(TEST_DIR)
+
+    print("===== test start =====")
 
     import timeit
 
@@ -404,3 +424,8 @@ if __name__=='__main__':
     except Exception as e:
         print('===== test failed =====')
         raise e
+    finally:
+        os.chdir(BASE_DIR)
+        print("Clearing...", end='')
+        shutil.rmtree(TEST_DIR)
+        print("Done")
