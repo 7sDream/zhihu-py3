@@ -415,7 +415,7 @@ def test_me():
     """
     answer = client.answer('')      # 填写答案Url，不可填写自己的答案
     post = client.post('')          # 填写文章Url，不可填写自己的文章
-    author = client.author('')      # 填写用户Url，不可填写用户
+    author = client.author('')      # 填写用户Url，不可填写自己
     question = client.question('')  # 填写问题Url
     topic = client.topic('')        # 填写话题Url
 
