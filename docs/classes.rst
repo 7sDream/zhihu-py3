@@ -9,6 +9,7 @@
     author
     collection
     column
+    me
     post
     question
     topic

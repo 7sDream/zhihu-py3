@@ -28,13 +28,13 @@ class Post:
         match = re_post_url.match(url)
         self.url = url
         self._session = session
-        self._column_in_name = match.group(1)
-        self._slug = match.group(2)
         self._column = column
         self._author = author
         self._title = title
         self._upvote_num = upvote_num
         self._comment_num = comment_num
+        self._column_in_name = match.group(1)    # 专栏内部名称
+        self._slug = int(match.group(2))  # 文章编号
 
     def _make_soup(self):
         if self.soup is None:
@@ -42,8 +42,26 @@ class Post:
             self._session.headers.update(Host='zhuanlan.zhihu.com')
             self.soup = self._session.get(
                 Columns_Post_Data.format(
-                    self._column_in_name, self._slug)).json()
+                    self.column_in_name, self.slug)).json()
             self._session.headers.update(Host=origin_host)
+
+    @property
+    def column_in_name(self):
+        """获取文章所在专栏的内部名称（用不到就忽视吧~）
+
+        :return: 专栏的内部名称
+        :rtype: str
+        """
+        return self._column_in_name
+
+    @property
+    def slug(self):
+        """获取文章的编号（用不到就忽视吧~）
+
+        :return: 文章编号
+        :rtype: int
+        """
+        return self._slug
 
     @property
     @check_soup('_column')
@@ -55,7 +73,7 @@ class Post:
         """
         from .column import Column
 
-        url = Columns_Prefix + '/' + self.soup['column']['slug']
+        url = Columns_Url + '/' + self.soup['column']['slug']
         name = self.soup['column']['name']
         return Column(url, name, session=self._session)
 

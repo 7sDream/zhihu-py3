@@ -25,20 +25,29 @@ Default_Header = {'X-Requested-With': 'XMLHttpRequest',
 Zhihu_URL = 'http://www.zhihu.com'
 Login_URL = Zhihu_URL + '/login/email'
 Captcha_URL_Prefix = Zhihu_URL + '/captcha.gif?r='
-Get_Profile_Card_URL = 'http://www.zhihu.com/node/MemberProfileCardV2'
-Get_More_Answer_URL = 'http://www.zhihu.com/node/QuestionAnswerListV2'
-Get_More_Followers_URL = 'http://www.zhihu.com/node/ProfileFollowersListV2'
-Get_More_Followees_URL = 'http://www.zhihu.com/node/ProfileFolloweesListV2'
-GET_ME_INFO_URL = 'http://zhuanlan.zhihu.com/api/me'
-Cookies_File_Name = 'cookies.json'
+Get_Profile_Card_URL = Zhihu_URL + '/node/MemberProfileCardV2'
+Question_Get_More_Answer_URL = Zhihu_URL + '/node/QuestionAnswerListV2'
+Author_Get_More_Followers_URL = Zhihu_URL + '/node/ProfileFollowersListV2'
+Author_Get_More_Followees_URL = Zhihu_URL + '/node/ProfileFolloweesListV2'
 
-Upvote_Answer_Url = 'http://www.zhihu.com/node/AnswerVoteBarV2'
+Columns_Url = 'http://zhuanlan.zhihu.com'
+Columns_API = Columns_Url + '/api/columns'
+Columns_Data = Columns_API + '/{0}'
+Columns_Posts_Data = Columns_API + '/{0}/posts?limit=10&offset={1}'
+Columns_Post_Data = Columns_API + '/{0}/posts/{1}'
 
-Columns_Prefix = 'http://zhuanlan.zhihu.com'
-Columns_Data = Columns_Prefix + '/api/columns/{0}'
-Columns_Posts_Data = Columns_Prefix + \
-    '/api/columns/{0}/posts?limit=10&offset={1}'
-Columns_Post_Data = Columns_Prefix + '/api/columns/{0}/posts/{1}'
+Get_Me_Info_Url = Columns_Url + '/api/me'
+Upvote_Answer_Url = Zhihu_URL + '/node/AnswerVoteBarV2'
+Upvote_Article_Url = Columns_API + '/{0}/posts/{1}/rating'
+Follow_Author_Url = Zhihu_URL + '/node/MemberFollowBaseV2'
+Follow_Question_Url = Zhihu_URL + '/node/QuestionFollowBaseV2'
+Thanks_Url = Zhihu_URL + '/answer/thanks'
+Cancel_Thanks_Url = Zhihu_URL + '/answer/cancel_thanks'
+
+Topic_Url = Zhihu_URL + '/topic'
+Topic_Get_Children_API = Topic_Url + '/{0}/organize/entire'
+Topic_Get_More_Follower_Url = Topic_Url + '/{0}/followers'
+Topic_Question_Url = Topic_Url + '/{0}/questions'
 
 re_question_url = re.compile(r'^http://www\.zhihu\.com/question/\d+/?$')
 re_ans_url = re.compile(
@@ -67,17 +76,17 @@ def check_soup(attr, soup_type='_make_soup'):
                     getattr(self, soup_type)()
                 value = func(self)
                 setattr(self, attr, value)
-                return value
-            else:
-                return value
+            return value
         return wrapper
     return real
 
 
-def class_common_init(url_re):
+def class_common_init(url_re, allowed_none=False):
     def real(func):
         @functools.wraps(func)
         def wrapper(self, url, *args, **kwargs):
+            if url is None and not allowed_none:
+                raise ValueError('Invalid Url')
             if url is not None:
                 if url_re.match(url) is None:
                     raise ValueError('Invalid URL')

@@ -33,8 +33,17 @@ class Collection:
     def _make_soup(self):
         if self.soup is None:
             self.soup = BeautifulSoup(self._session.get(self.url).text)
-            self._xsrf = self.soup.find(
-                'input', attrs={'name': '_xsrf'})['value']
+
+    @property
+    @check_soup('_xsrf')
+    def xsrf(self):
+        """获取知乎的反xsrf参数（用不到就忽视吧~）
+
+        :return: xsrf参数
+        :rtype: str
+        """
+        return self.soup.find(
+            'input', attrs={'name': '_xsrf'})['value']
 
     @property
     @check_soup('_name')
@@ -87,7 +96,7 @@ class Collection:
         """
         self._make_soup()
         followers_url = self.url + 'followers'
-        for x in common_follower(followers_url, self._xsrf, self._session):
+        for x in common_follower(followers_url, self.xsrf, self._session):
             yield x
 
     @property
