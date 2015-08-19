@@ -222,3 +222,21 @@ class Topic:
                                 session=self._session)
                 yield Answer(answer_url, question, author, upvote,
                              session=self._session)
+
+    @property
+    def top_authors(self):
+        """获取最佳回答者
+
+        :return: 此话题下最佳回答者，一般来说是5个，要不就没有，返回生成器
+        :rtype: Author.Iterable
+        """
+        from .author import Author
+        self._make_soup()
+        t = self.soup.find('div', id='zh-topic-top-answerer')
+        if t is None:
+            return
+        for d in t.find_all('div', class_='zm-topic-side-person-item-content'):
+            url = Zhihu_URL + d.a['href']
+            name = d.a.text
+            motto = d.div['title']
+            yield Author(url, name, motto, session=self._session)

@@ -22,7 +22,7 @@ Topic类相关操作：
 -  [ ] 获取所有问题
 -  [x] 获取关注者数量
 -  [x] 获取关注者
--  [ ] 获取优秀答主
+-  [x] 获取优秀答主
 -  [x] 获取子话题
 -  [x] 获取父话题
 
@@ -464,5 +464,5 @@ Github：\ `@7sDream <https://github.com/7sDream>`__
 
 编程交流群：478786205
 
-..  |Documentation Status| image:: https://readthedocs.org/projects/zhihu-py3/badge/?version=latest
-    :target: https://readthedocs.org/projects/zhihu-py3/?badge=latest
+.. |Documentation Status| image:: https://readthedocs.org/projects/zhihu-py3/badge/?version=latest
+   :target: https://readthedocs.org/projects/zhihu-py3/?badge=latest
