@@ -38,7 +38,7 @@ class Question:
 
     @property
     def id(self):
-        """获取答问题id.
+        """获取问题id（网址最后的部分）.
 
         :return: 问题id
         :rtype: int
@@ -48,12 +48,22 @@ class Question:
     @property
     @check_soup('_qid')
     def qid(self):
-        return self.soup.find(
-            'div', id='zh-question-detail')['data-resourceid']
+        """获取问题内部id（用不到就忽视吧）
+
+        :return: 问题内部id
+        :rtype: int
+        """
+        return int(self.soup.find(
+            'div', id='zh-question-detail')['data-resourceid'])
 
     @property
     @check_soup('_xsrf')
     def xsrf(self):
+        """获取知乎的反xsrf参数（用不到就忽视吧~）
+
+        :return: xsrf参数
+        :rtype: str
+        """
         return self.soup.find(
             'input', attrs={'name': '_xsrf'})['value']
 

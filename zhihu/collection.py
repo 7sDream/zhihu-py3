@@ -37,6 +37,11 @@ class Collection:
     @property
     @check_soup('_xsrf')
     def xsrf(self):
+        """获取知乎的反xsrf参数（用不到就忽视吧~）
+
+        :return: xsrf参数
+        :rtype: str
+        """
         return self.soup.find(
             'input', attrs={'name': '_xsrf'})['value']
 

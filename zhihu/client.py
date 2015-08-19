@@ -184,4 +184,4 @@ class ZhihuClient:
                      'column', 'post', 'question', 'topic']
         if item.lower() in attr_list:
             module = importlib.import_module('.'+item.lower(), 'zhihu')
-            return lambda url: getter(url)
+            return getter

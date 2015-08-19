@@ -10,7 +10,9 @@ from .author import Author
 
 
 class Me(Author):
-    """封装了相关操作（如点赞，关注问题）的类，需要登录后使用"""
+    """封装了相关操作（如点赞，关注问题）的类。
+    请使用 :meth:`.ZhihuClient.me` 方法获取实例。
+    """
 
     def __init__(self, url, name, motto, photo_url, session):
         super(Me, self).__init__(url, name, motto,
@@ -21,13 +23,13 @@ class Me(Author):
 
         :param Answer/Post something: 需要点赞的答案或文章对象
         :param str vote:
-            ----- ---------------- ----
-            取值        说明       默认
-            ----- ---------------- ----
-            up    赞同              是
-            down  反对              否
-            clear 既不赞同也不反对  否
-            ----- ---------------- ----
+            ===== ================ ======
+            取值        说明       默认值
+            ===== ================ ======
+            up    赞同              √
+            down  反对              X
+            clear 既不赞同也不反对  X
+            ===== ================ ======
 
         :return: 成功返回True，失败返回False
         :rtype: bool
@@ -121,7 +123,7 @@ class Me(Author):
             data = {
                 '_xsrf': something.xsrf,
                 'method': 'follow_question' if follow else 'unfollow_question',
-                'params': json.dumps({'question_id': something.qid})
+                'params': json.dumps({'question_id': str(something.qid)})
             }
             res = self._session.post(Follow_Question_Url, data=data)
             return res.json()['r'] == 0

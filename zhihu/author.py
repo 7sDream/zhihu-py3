@@ -71,6 +71,11 @@ class Author:
     @property
     @check_soup('_xsrf')
     def xsrf(self):
+        """获取知乎的反xsrf参数（用不到就忽视吧~）
+
+        :return: xsrf参数
+        :rtype: str
+        """
         self._make_soup()
         return self.soup.find(
             'input', attrs={'name': '_xsrf'})['value']
@@ -78,6 +83,11 @@ class Author:
     @property
     @check_soup('_hash_id')
     def hash_id(self):
+        """获取作者的内部hash id（用不到就忽视吧~）
+
+        :return: 用户hash id
+        :rtype: str
+        """
         div = self.soup.find('div', class_='zm-profile-header-op-btns')
         if div is not None:
             return div.button['data-id']
