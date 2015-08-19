@@ -48,6 +48,7 @@ Topic_Url = Zhihu_URL + '/topic'
 Topic_Get_Children_API = Topic_Url + '/{0}/organize/entire'
 Topic_Get_More_Follower_Url = Topic_Url + '/{0}/followers'
 Topic_Question_Url = Topic_Url + '/{0}/questions'
+Topic_Top_Answers_Url = Topic_Url + '/{0}/top-answers'
 
 re_question_url = re.compile(r'^http://www\.zhihu\.com/question/\d+/?$')
 re_ans_url = re.compile(
