@@ -13,7 +13,7 @@ class Author:
 
     """用户类，请使用``ZhihuClient.answer``方法构造对象."""
 
-    @class_common_init(re_author_url)
+    @class_common_init(re_author_url, True)
     def __init__(self, url, name=None, motto=None, follower_num=None,
                  question_num=None, answer_num=None, upvote_num=None,
                  thank_num=None, photo_url=None, session=None):
@@ -347,9 +347,9 @@ class Author:
         if self.url is None:
             return
         if t == 'er':
-            request_url = Get_More_Followers_URL
+            request_url = Author_Get_More_Followers_URL
         else:
-            request_url = Get_More_Followees_URL
+            request_url = Author_Get_More_Followees_URL
         self._make_card()
         if self.hash_id is None:
             self._make_soup()

@@ -26,9 +26,9 @@ Zhihu_URL = 'http://www.zhihu.com'
 Login_URL = Zhihu_URL + '/login/email'
 Captcha_URL_Prefix = Zhihu_URL + '/captcha.gif?r='
 Get_Profile_Card_URL = Zhihu_URL + '/node/MemberProfileCardV2'
-Get_More_Answer_URL = Zhihu_URL + '/node/QuestionAnswerListV2'
-Get_More_Followers_URL = Zhihu_URL + '/node/ProfileFollowersListV2'
-Get_More_Followees_URL = Zhihu_URL + '/node/ProfileFolloweesListV2'
+Question_Get_More_Answer_URL = Zhihu_URL + '/node/QuestionAnswerListV2'
+Author_Get_More_Followers_URL = Zhihu_URL + '/node/ProfileFollowersListV2'
+Author_Get_More_Followees_URL = Zhihu_URL + '/node/ProfileFolloweesListV2'
 
 Columns_Url = 'http://zhuanlan.zhihu.com'
 Columns_API = Columns_Url + '/api/columns'
@@ -43,6 +43,10 @@ Follow_Author_Url = Zhihu_URL + '/node/MemberFollowBaseV2'
 Follow_Question_Url = Zhihu_URL + '/node/QuestionFollowBaseV2'
 Thanks_Url = Zhihu_URL + '/answer/thanks'
 Cancel_Thanks_Url = Zhihu_URL + '/answer/cancel_thanks'
+
+Topic_Url = Zhihu_URL + '/topic'
+Topic_Get_Children_API = Topic_Url + '/{0}/organize/entire'
+Topic_Get_More_Follower_Url = Topic_Url + '/{0}/followers'
 
 re_question_url = re.compile(r'^http://www\.zhihu\.com/question/\d+/?$')
 re_ans_url = re.compile(
@@ -76,10 +80,12 @@ def check_soup(attr, soup_type='_make_soup'):
     return real
 
 
-def class_common_init(url_re):
+def class_common_init(url_re, allowed_none=False):
     def real(func):
         @functools.wraps(func)
         def wrapper(self, url, *args, **kwargs):
+            if url is None and not allowed_none:
+                raise ValueError('Invalid Url')
             if url is not None:
                 if url_re.match(url) is None:
                     raise ValueError('Invalid URL')

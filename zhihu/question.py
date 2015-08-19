@@ -203,7 +203,7 @@ class Question:
             else:
                 params['offset'] = i * 50
                 data['params'] = json.dumps(params)
-                r = self._session.post(Get_More_Answer_URL, data=data,
+                r = self._session.post(Question_Get_More_Answer_URL, data=data,
                                        headers=new_header)
                 answer_list = r.json()['msg']
                 for answer_html in answer_list:

@@ -21,10 +21,30 @@ class Topic:
         self.url = url
         self._session = session
         self._name = name
+        self._id = int(re_topic_url.match(self.url).group(1))
 
     def _make_soup(self):
         if self.soup is None:
             self.soup = BeautifulSoup(self._session.get(self.url).content)
+
+    @property
+    def id(self):
+        """获取话题Id（网址最后那串数字）
+
+        :return: 话题Id
+        :rtype: int
+        """
+        return self._id
+
+    @property
+    @check_soup('_xsrf')
+    def xsrf(self):
+        """获取知乎的反xsrf参数（用不到就忽视吧~）
+
+        :return: xsrf参数
+        :rtype: str
+        """
+        return self.soup.find('input', attrs={'name': '_xsrf'})['value']
 
     @property
     @check_soup('_name')
@@ -35,6 +55,63 @@ class Topic:
         :rtype: str
         """
         return self.soup.find('h1').text
+
+    @property
+    def parents(self):
+        """获取此话题的父话题。
+        注意：由于没找到有很多父话题的话题来测试，
+        所以本方法可能再某些时候出现问题，请不吝反馈。
+
+        :return: 此话题的父话题，返回生成器
+        :rtype: Topic.Iterable
+        """
+        self._make_soup()
+        parent_topic_tag = self.soup.find('div', class_='parent-topic')
+        if parent_topic_tag is None:
+            return []
+        else:
+            for topic_tag in parent_topic_tag.find_all('a'):
+                yield Topic(Zhihu_URL + topic_tag['href'],
+                            topic_tag.text.strip(),
+                            session=self._session)
+
+    @property
+    def children(self):
+        """获取此话题的子话题
+
+        :return: 此话题的子话题， 返回生成器
+        :rtype: Topic.Iterable
+        """
+        self._make_soup()
+        child_topic_tag = self.soup.find('div', class_='child-topic')
+        if child_topic_tag is None:
+            return []
+        elif '共有' not in child_topic_tag.contents[-2].text:
+            for topic_tag in child_topic_tag.div.find_all('a'):
+                yield Topic(Zhihu_URL + topic_tag['href'],
+                            topic_tag.text.strip(),
+                            session=self._session)
+        else:
+            flag = 'load'
+            params_child = ''
+            data = {'_xsrf': self.xsrf}
+            params = {
+                'parent': self.id
+            }
+            while flag == 'load':
+                params['child'] = params_child
+                res = self._session.post(Topic_Get_Children_API,
+                                         params=params, data=data)
+                j = map(lambda x: x[0], res.json()['msg'][1])
+                *topics, last = j
+                for topic in topics:
+                    yield Topic(Zhihu_URL + '/topic/' + topic[2], topic[1],
+                                session=self._session)
+                flag = last[0]
+                params_child = last[2]
+                if flag == 'topic':
+                    yield Topic(Zhihu_URL + '/topic/' + last[2], last[1],
+                                session=self._session)
 
     @property
     @check_soup('_follower_num')
@@ -50,6 +127,36 @@ class Topic:
         if follower_num_block.strong is None:
             return 0
         return int(follower_num_block.strong.text)
+
+    @property
+    def followers(self):
+        """获取话题关注者
+
+        :return: 话题关注者，返回生成器
+        :rtype: Author.Iterable
+        """
+        from .author import Author
+        self._make_soup()
+        gotten_data_num = 20
+        data = {
+            '_xsrf': self.xsrf,
+            'start': '',
+            'offset': 0
+        }
+        while gotten_data_num == 20:
+            res = self._session.post(Topic_Get_More_Follower_Url.format(self.id), data=data)
+            j = res.json()['msg']
+            gotten_data_num = j[0]
+            data['offset'] += gotten_data_num
+            soup = BeautifulSoup(j[1])
+            divs = soup.find_all('div', class_='zm-person-item')
+            for div in divs:
+                h2 = div.h2
+                url = Zhihu_URL + h2.a['href']
+                name = h2.a.text
+                motto = h2.next_element.text
+                yield Author(url, name, motto, session=self._session)
+            data['start'] = int(re_get_number.match(divs[-1]['id']).group(1))
 
     @property
     @check_soup('_photo_url')
@@ -83,8 +190,6 @@ class Topic:
         from .question import Question
         from .answer import Answer
         from .author import Author
-        if self.url is None:
-            return
         for page_index in range(1, 50):
             html = self._session.get(
                 self.url + 'top-answers?page=' + str(page_index)).text
