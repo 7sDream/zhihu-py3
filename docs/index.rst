@@ -13,6 +13,7 @@ Contents:
 
     install
     examples
+    login
     classes
 
 Indices and tables
