@@ -462,6 +462,5 @@ Github：\ `@7sDream <https://github.com/7sDream>`__
 
 编程交流群：478786205
 
-.. |Documentation Status| image:: https://readthedocs.org/projects/zhihu-py3/badge/?version=latest
-:target: https://readthedocs.org/projects/zhihu-py3/?badge=latest
--  [x] 获取关注人数
+..  |Documentation Status| image:: https://readthedocs.org/projects/zhihu-py3/badge/?version=latest
+    :target: https://readthedocs.org/projects/zhihu-py3/?badge=latest
