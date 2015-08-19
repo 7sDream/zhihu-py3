@@ -44,6 +44,8 @@ class Me(Author):
             }
             if vote not in mapping.keys():
                 raise ValueError('Invalid vote value: {0}'.format(vote))
+            if something.author.url == self.url:
+                return False
             params = {'answer_id': str(something.aid)}
             data = {
                 '_xsrf': something.xsrf,
@@ -63,6 +65,8 @@ class Me(Author):
             }
             if vote not in mapping.keys():
                 raise ValueError('Invalid vote value: {0}'.format(vote))
+            if something.author.url == self.url:
+                return False
             put_url = Upvote_Article_Url.format(
                 something.column_in_name, something.slug)
             data = {'value': mapping[vote]}
@@ -91,6 +95,8 @@ class Me(Author):
         from .answer import Answer
         if isinstance(answer, Answer) is False:
             raise ValueError('argument answer need to be Zhihu.Answer object.')
+        if answer.author.url == self.url:
+                return False
         data = {
             '_xsrf': answer.xsrf,
             'aid': answer.aid

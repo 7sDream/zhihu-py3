@@ -338,28 +338,54 @@ def test_post():
 
 
 def test_topic():
-    url='http://www.zhihu.com/topic/19947695/'
-    topic=client.topic(url)
+    url = 'http://www.zhihu.com/topic/19947695/'
+    topic = client.topic(url)
     
     # 获取话题地址
     print(topic.url)
-    #
+    # http://www.zhihu.com/topic/19947695/
 
     # 获取话题名称
     print(topic.name)
-    # 互联网
+    # 深网（Deep Web）
 
-    # 获取话题关注人数
-    print(topic.follower_num)
-    # 2425736
+    # 获取话题描述信息
+    print(topic.description)
+    # 暗网（英语：Deep Web，又称深网、不可见网、隐藏网）
 
     # 获取话题头像url
     print(topic.photo_url)
-    #
-    
-    # 获取话题描述信息
-    print(topic.description)
-    # 国际互联网（Internetwork，简称Internet），始于1969年的美国...
+    # http://pic1.zhimg.com/a3b0d77c052e45399da1fe26fb4c9734_r.jpg
+
+    # 获取话题关注人数
+    print(topic.follower_num)
+    # 3309
+
+    # 获取关注者
+    for _, follower in zip(range(0, 10), topic.followers):
+        print(follower.name, follower.motto)
+    # 韦小宝 韦小宝
+    # 吉陆遥 吉陆遥
+    # qingyuan ma qingyuan ma
+    # ...
+
+    # 获取父话题
+    for _, parent in zip(range(0, 10), topic.parents):
+        print(parent.name)
+    # 互联网
+
+    # 获取子话题
+    for _, child in zip(range(0, 10), topic.children):
+        print(child.name)
+    # Tor
+
+    # 获取优秀答主
+    for _, author in zip(range(0, 10), topic.top_authors):
+        print(author.name, author.motto)
+    # Ben Chen
+    # acel rovsion 我只不过规范基点上的建构论者
+    # 沈万马
+    # ...
 
     # 获取话题下的精华回答
     for _, ans in zip(range(0, 10), topic.top_answers):
@@ -368,6 +394,64 @@ def test_topic():
     # 黑客逃避追踪，为什么要用虚拟机 + TOR + VPN 呢？ Ario 526
     # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ acel rovsion 420
     # ...
+
+    # 获取所有问题
+    for _, question in zip(range(0, 10), topic.questions):
+        print(question.title)
+    # 马里亚纳网络存在吗？
+    # 玛丽亚纳网络存在吗？
+    # 为什么暗网里这么多违法的东西FBI不顺藤摸瓜呢?
+    # ...
+
+
+def test_me():
+    """
+    本函数默认不会开启，因为函数涉及到点赞，反对，感谢，关注等主观操作
+
+    请确认您有能力在测试代码生错误的情况下，判断出出错在哪一行，
+    并将代码进行的操作回滚（即：将点赞，感谢，关注等操作取消）
+
+    如果确认有能力，请填写代码中的空白，并将test函数中相关行注释取消
+    """
+    answer = client.answer('')      # 填写答案Url，不可填写自己的答案
+    post = client.post('')          # 填写文章Url，不可填写自己的文章
+    author = client.author('')      # 填写用户Url，不可填写用户
+    question = client.question('')  # 填写问题Url
+    topic = client.topic('')        # 填写话题Url
+
+    me = client.me()
+
+    print('赞同答案...', end='')
+    assert me.vote(answer, 'up')        # 赞同
+    assert me.vote(answer, 'down')      # 反对
+    assert me.vote(answer, 'clear')     # 取消
+    print('通过')
+
+    print('感谢答案...', end='')
+    assert me.thanks(answer)            # 感谢
+    assert me.thanks(answer, False)     # 取消感谢
+    print('通过')
+
+    print('赞同文章...', end='')
+    assert me.vote(post, 'up')          # 赞同
+    assert me.vote(post, 'down')        # 反对
+    assert me.vote(post, 'clear')       # 取消
+    print('通过')
+
+    print('关注用户...', end='')
+    assert me.follow(author)            # 关注
+    assert me.follow(author, False)     # 取消关注
+    print('通过')
+
+    print('关注问题...', end='')
+    assert me.follow(question)          # 关注
+    assert me.follow(question, False)   # 取消关注
+    print('通过')
+
+    print('关注话题...', end='')
+    assert me.follow(topic)             # 关注
+    assert me.follow(topic, False)      # 取消关注
+    print('通过')
 
 
 def test():
@@ -378,6 +462,7 @@ def test():
     test_column()
     test_post()
     test_topic()
+    # test_me()
 
 
 if __name__ == '__main__':
@@ -417,10 +502,11 @@ if __name__ == '__main__':
     import timeit
 
     try:
-        time = timeit.timeit('test()', setup='from __main__ import test', number=1)
+        time = timeit.timeit(
+            'test()', setup='from __main__ import test', number=1)
         print('===== test passed =====')
         print('no error happen')
-        print('time used: {0}'.format(time))
+        print('time used: {0} ms'.format(time * 1000))
     except Exception as e:
         print('===== test failed =====')
         raise e
