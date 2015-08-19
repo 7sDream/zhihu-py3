@@ -191,10 +191,15 @@ class Topic:
         from .question import Question
         from .answer import Answer
         from .author import Author
-        for page_index in range(1, 50):
-            html = self._session.get(
-                self.url + 'top-answers?page=' + str(page_index)).text
-            soup = BeautifulSoup(html)
+        top_answers_url = Topic_Top_Answers_Url.format(self.id)
+        params = {'page': 1}
+        while True:
+            #超出50页直接返回
+            if params['page'] > 50:
+                return
+            res = self._session.get(top_answers_url, params=params)
+            params['page'] += 1
+            soup = BeautifulSoup(res.content)
             # 不够50页，来到错误页面 返回
             if soup.find('div', class_='error') is not None:
                 return
