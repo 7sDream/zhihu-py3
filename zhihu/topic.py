@@ -4,7 +4,7 @@
 __author__ = '7sDream'
 
 from .common import *
-
+import time
 
 class Topic:
 
@@ -144,7 +144,8 @@ class Topic:
             'offset': 0
         }
         while gotten_data_num == 20:
-            res = self._session.post(Topic_Get_More_Follower_Url.format(self.id), data=data)
+            res = self._session.post(
+                Topic_Get_More_Follower_Url.format(self.id), data=data)
             j = res.json()['msg']
             gotten_data_num = j[0]
             data['offset'] += gotten_data_num
@@ -240,3 +241,30 @@ class Topic:
             name = d.a.text
             motto = d.div['title']
             yield Author(url, name, motto, session=self._session)
+
+    @property
+    def questions(self):
+        """获取话题下的所有问题
+
+        :return: 话题下的所有问题，返回生成器
+        :rtype: Question.Iterable
+        """
+        from .question import Question
+        question_url = Topic_Question_Url.format(self.id)
+        params = {'page': 1}
+        older_time_stamp = int(time.time()) * 1000
+        while True:
+            res = self._session.get(question_url, params=params)
+            soup = BeautifulSoup(res.content)
+            if soup.find('div', class_='error') is not None:
+                return
+            questions = soup.find_all('div', class_='question-item')
+            questions = list(filter(
+                lambda x: int(x.h2.span['data-timestamp']) < older_time_stamp,
+                questions))
+            for qu_div in questions:
+                url = Zhihu_URL + qu_div.h2.a['href']
+                title = qu_div.h2.a.text
+                yield Question(url, title, session=self._session)
+            older_time_stamp = int(questions[-1].h2.span['data-timestamp'])
+            params['page'] += 1

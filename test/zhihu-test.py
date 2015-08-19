@@ -426,6 +426,6 @@ if __name__ == '__main__':
         raise e
     finally:
         os.chdir(BASE_DIR)
-        print("Clearing...", end='')
+        print("Cleaning...", end='')
         shutil.rmtree(TEST_DIR)
         print("Done")
