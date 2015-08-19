@@ -44,8 +44,6 @@ class Author:
         self._upvote_num = upvote_num
         self._thank_num = thank_num
         self._photo_url = photo_url
-        self._xsrf = None
-        self._hash_id = None
 
     def _make_soup(self):
         if self.soup is None and self.url is not None:
@@ -53,14 +51,6 @@ class Author:
             self.soup = BeautifulSoup(r.content)
             self._nav_list = self.soup.find(
                 'div', class_='profile-navbar').find_all('a')
-            self._xsrf = self.soup.find(
-                'input', attrs={'name': '_xsrf'})['value']
-            div = self.soup.find('div', class_='zm-profile-header-op-btns')
-            if div is not None:
-                self._hash_id = div.button['data-id']
-            else:
-                ga = self.soup.find('script', attrs={'data-name': 'ga_vars'})
-                self._hash_id = json.loads(ga.text)['user_hash']
 
     def _make_card(self):
         if self.card is None and self.url is not None:
@@ -68,9 +58,6 @@ class Author:
             real_params = {'params': json.dumps(params)}
             r = self._session.get(Get_Profile_Card_URL, params=real_params)
             self.card = BeautifulSoup(r.content)
-            if self._hash_id is None:
-                btn = self.card.find('button')
-                self._hash_id = btn['data-id'] if btn is not None else None
 
     @property
     def id(self):
@@ -80,6 +67,23 @@ class Author:
         :rtype: str
         """
         return re.match(r'^.*/([^/]+)/$', self.url).group(1)
+
+    @property
+    @check_soup('_xsrf')
+    def xsrf(self):
+        self._make_soup()
+        return self.soup.find(
+            'input', attrs={'name': '_xsrf'})['value']
+
+    @property
+    @check_soup('_hash_id')
+    def hash_id(self):
+        div = self.soup.find('div', class_='zm-profile-header-op-btns')
+        if div is not None:
+            return div.button['data-id']
+        else:
+            ga = self.soup.find('script', attrs={'data-name': 'ga_vars'})
+            return json.loads(ga.text)['user_hash']
 
     @property
     @check_soup('_name', '_make_card')
@@ -337,12 +341,12 @@ class Author:
         else:
             request_url = Get_More_Followees_URL
         self._make_card()
-        if self._hash_id is None:
+        if self.hash_id is None:
             self._make_soup()
         headers = dict(Default_Header)
         headers['Referer'] = self.url + 'follow' + t + 's'
-        params = {"order_by": "created", "offset": 0, "hash_id": self._hash_id}
-        data = {'_xsrf': self._xsrf, 'method': 'next', 'params': ''}
+        params = {"order_by": "created", "offset": 0, "hash_id": self.hash_id}
+        data = {'_xsrf': self.xsrf, 'method': 'next', 'params': ''}
         gotten_date_num = 20
         offset = 0
         while gotten_date_num == 20:
@@ -440,7 +444,7 @@ class Author:
         gotten_feed_num = 20
         start = '0'
         while gotten_feed_num == 20:
-            data = {'_xsrf': self._xsrf, 'start': start}
+            data = {'_xsrf': self.xsrf, 'start': start}
             res = self._session.post(self.url + 'activities', data=data)
             gotten_feed_num = res.json()['msg'][0]
             soup = BeautifulSoup(res.json()['msg'][1])

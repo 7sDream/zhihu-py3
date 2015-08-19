@@ -3,11 +3,24 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 |Documentation Status|
 
-最近一次更新内容：
+目前dev分支正在coding的功能：
 
-- 增加了获取收藏夹关注者的功能
-- 增加了获取问题关注者的功能
-- Column的一个小Bug修复
+Me类及其相关操作
+-  [x] 点赞，取消点赞，反对，取消反对某回答
+-  [x] 点赞，取消点赞，反对，取消反对某文章
+-  [x] 感谢，取消感谢某回答
+-  [x] 关注，取消关注某用户
+-  [x] 关注，取消关注某问题
+
+Topic类相关操作：
+-  [x] 获取话题描述
+-  [x] 获取话题图标
+-  [ ] 获取最近动态
+-  [x] 获取精华回答
+-  [ ] 获取所有问题
+-  [x] 获取关注者数量
+-  [ ] 获取关注者
+-  [ ] 获取优秀答主
 
 具体请看\ `ChangeLog <https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.rst>`__\ 。
 
@@ -206,7 +219,7 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 获取某用户点赞的动态
 ~~~~~~~~~~~~~~~~~~~~
 
-.. code:: python
+..  code:: python
 
     author = zhihu.author('http://www.zhihu.com/people/zord-vczh')
     for act in author.activities:
@@ -230,7 +243,7 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 获取用户关注的人和关注此用户的人
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: python
+..  code:: python
 
     author = client.author('http://www.zhihu.com/people/7sdream')
 
@@ -260,7 +273,7 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 计算某答案点赞中三零用户比例
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: python
+..  code:: python
 
     url = 'http://www.zhihu.com/question/30404450/answer/47939822'
     answer = client.answer(url)
@@ -288,7 +301,7 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 爬取某用户关注的人的头像
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: python
+..  code:: python
 
     import requests
     import os
@@ -448,4 +461,5 @@ Github：\ `@7sDream <https://github.com/7sDream>`__
 编程交流群：478786205
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/zhihu-py3/badge/?version=latest
-   :target: https://readthedocs.org/projects/zhihu-py3/?badge=latest
+:target: https://readthedocs.org/projects/zhihu-py3/?badge=latest
+-  [x] 获取关注人数

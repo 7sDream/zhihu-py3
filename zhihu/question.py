@@ -29,14 +29,33 @@ class Question:
         self._title = title
         self._answer_num = answer_num
         self._followers_num = followers_num
-        self._xsrf = ''
+        self._id = int(re.match(r'.*/(\d+)', self.url).group(1))
 
     def _make_soup(self):
         if self.soup is None:
             r = self._session.get(self.url)
             self.soup = BeautifulSoup(r.content)
-            self._xsrf = self.soup.find(
-                'input', attrs={'name': '_xsrf'})['value']
+
+    @property
+    def id(self):
+        """获取答问题id.
+
+        :return: 问题id
+        :rtype: int
+        """
+        return self._id
+
+    @property
+    @check_soup('_qid')
+    def qid(self):
+        return self.soup.find(
+            'div', id='zh-question-detail')['data-resourceid']
+
+    @property
+    @check_soup('_xsrf')
+    def xsrf(self):
+        return self.soup.find(
+            'input', attrs={'name': '_xsrf'})['value']
 
     @property
     @check_soup('_html')
@@ -125,7 +144,7 @@ class Question:
         """
         self._make_soup()
         followers_url = self.url + 'followers'
-        for x in common_follower(followers_url, self._xsrf, self._session):
+        for x in common_follower(followers_url, self.xsrf, self._session):
             yield x
 
     @property
@@ -144,7 +163,7 @@ class Question:
         params = {"url_token": self.id,
                   'pagesize': '50',
                   'offset': 0}
-        data = {'_xsrf': self._xsrf,
+        data = {'_xsrf': self.xsrf,
                 'method': 'next',
                 'params': ''}
         for i in range(0, (self.answer_num - 1) // 50 + 1):
@@ -231,12 +250,3 @@ class Question:
                 yield a
             else:
                 return
-
-    @property
-    def id(self):
-        """获取答问题id.
-
-        :return: 问题id
-        :rtype: int
-        """
-        return int(re.match(r'.*/(\d+)', self.url).group(1))

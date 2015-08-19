@@ -145,7 +145,6 @@ class ZhihuClient:
 
     # ===== getter staff ======
 
-    @property
     def me(self):
         """获取使用特定cookies的Me实例
 
@@ -155,7 +154,7 @@ class ZhihuClient:
         from .me import Me
         headers = dict(Default_Header)
         headers['Host'] = 'zhuanlan.zhihu.com'
-        res = self._session.get(GET_ME_INFO_URL, headers=headers)
+        res = self._session.get(Get_Me_Info_Url, headers=headers)
         json_data = res.json()
         url = json_data['profileUrl']
         name = json_data['name']

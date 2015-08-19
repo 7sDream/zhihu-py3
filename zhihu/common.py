@@ -25,20 +25,24 @@ Default_Header = {'X-Requested-With': 'XMLHttpRequest',
 Zhihu_URL = 'http://www.zhihu.com'
 Login_URL = Zhihu_URL + '/login/email'
 Captcha_URL_Prefix = Zhihu_URL + '/captcha.gif?r='
-Get_Profile_Card_URL = 'http://www.zhihu.com/node/MemberProfileCardV2'
-Get_More_Answer_URL = 'http://www.zhihu.com/node/QuestionAnswerListV2'
-Get_More_Followers_URL = 'http://www.zhihu.com/node/ProfileFollowersListV2'
-Get_More_Followees_URL = 'http://www.zhihu.com/node/ProfileFolloweesListV2'
-GET_ME_INFO_URL = 'http://zhuanlan.zhihu.com/api/me'
-Cookies_File_Name = 'cookies.json'
+Get_Profile_Card_URL = Zhihu_URL + '/node/MemberProfileCardV2'
+Get_More_Answer_URL = Zhihu_URL + '/node/QuestionAnswerListV2'
+Get_More_Followers_URL = Zhihu_URL + '/node/ProfileFollowersListV2'
+Get_More_Followees_URL = Zhihu_URL + '/node/ProfileFolloweesListV2'
 
-Upvote_Answer_Url = 'http://www.zhihu.com/node/AnswerVoteBarV2'
+Columns_Url = 'http://zhuanlan.zhihu.com'
+Columns_API = Columns_Url + '/api/columns'
+Columns_Data = Columns_API + '/{0}'
+Columns_Posts_Data = Columns_API + '/{0}/posts?limit=10&offset={1}'
+Columns_Post_Data = Columns_API + '/{0}/posts/{1}'
 
-Columns_Prefix = 'http://zhuanlan.zhihu.com'
-Columns_Data = Columns_Prefix + '/api/columns/{0}'
-Columns_Posts_Data = Columns_Prefix + \
-    '/api/columns/{0}/posts?limit=10&offset={1}'
-Columns_Post_Data = Columns_Prefix + '/api/columns/{0}/posts/{1}'
+Get_Me_Info_Url = Columns_Url + '/api/me'
+Upvote_Answer_Url = Zhihu_URL + '/node/AnswerVoteBarV2'
+Upvote_Article_Url = Columns_API + '/{0}/posts/{1}/rating'
+Follow_Author_Url = Zhihu_URL + '/node/MemberFollowBaseV2'
+Follow_Question_Url = Zhihu_URL + '/node/QuestionFollowBaseV2'
+Thanks_Url = Zhihu_URL + '/answer/thanks'
+Cancel_Thanks_Url = Zhihu_URL + '/answer/cancel_thanks'
 
 re_question_url = re.compile(r'^http://www\.zhihu\.com/question/\d+/?$')
 re_ans_url = re.compile(

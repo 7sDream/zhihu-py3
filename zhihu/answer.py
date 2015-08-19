@@ -29,17 +29,43 @@ class Answer:
         self._author = author
         self._upvote_num = upvote_num
         self._content = content
-        self._aid = None
-        self._xsrf = None
 
     def _make_soup(self):
         if self.soup is None:
             r = self._session.get(self.url)
             self.soup = BeautifulSoup(r.content)
-            self._aid = self.soup.find(
-                'div', class_='zm-item-answer')['data-aid']
-            self._xsrf = self.soup.find(
-                'input', attrs={'name': '_xsrf'})['value']
+
+    @property
+    def id(self):
+        """答案的id
+
+        :return: 答案id
+        :rtype: int
+        """
+        return int(re.match(r'.*/(\d+)/$', self.url).group(1))
+
+    @property
+    @check_soup('_xsrf')
+    def xsrf(self):
+        """获取知乎的反xsrf参数（用不到就忽视吧~）
+
+        :return: xsrf参数
+        :rtype: str
+        """
+        return self.soup.find(
+            'input', attrs={'name': '_xsrf'})['value']
+
+    @property
+    @check_soup('_aid')
+    def aid(self):
+        """获取答案的内部id，某些POST操作需要此参数
+
+        :return: 答案内部id
+        :rtype: str
+        """
+        self._make_soup()
+        return int(self.soup.find(
+            'div', class_='zm-item-answer')['data-aid'])
 
     @property
     @check_soup('_html')
@@ -107,7 +133,7 @@ class Answer:
         from .author import Author
 
         self._make_soup()
-        next_req = '/answer/' + self._aid + '/voters_profile'
+        next_req = '/answer/' + str(self.aid) + '/voters_profile'
         while next_req != '':
             data = self._session.get(Zhihu_URL + next_req).json()
             next_req = data['paging']['next']
@@ -170,32 +196,3 @@ class Answer:
                 h2t = html2text.HTML2Text()
                 h2t.body_width = 0
                 f.write(h2t.handle(self.content).encode('utf-8'))
-
-    @property
-    def id(self):
-        """答案的id
-
-        :return: 答案id
-        :rtype: int
-        """
-        return int(re.match(r'.*/(\d+)/$', self.url).group(1))
-
-    @property
-    def xsrf(self):
-        """获取知乎的反xsrf参数（用不到就忽视吧~）
-
-        :return: xsrf参数
-        :rtype: str
-        """
-        self._make_soup()
-        return self._xsrf
-
-    @property
-    def aid(self):
-        """获取答案的内部id，某些POST操作需要此参数
-
-        :return: 答案内部id
-        :rtype: str
-        """
-        self._make_soup()
-        return self._aid

@@ -86,7 +86,7 @@ class Column:
             soup = res.json()
             self._session.headers.update(Host=origin_host)
             for post in soup:
-                url = Columns_Prefix + post['url']
+                url = Columns_Url + post['url']
                 template = post['author']['avatar']['template']
                 photo_id = post['author']['avatar']['id']
                 photo_url = template.format(id=photo_id, size='r')
