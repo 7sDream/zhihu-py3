@@ -132,7 +132,7 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 
 为了精简Readme，本部分移动至文档内。
 
-请看文档的拍「登录方法综述」部分。
+请看文档的「登录方法综述」部分。
 
 文档
 ----
@@ -140,8 +140,9 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 终于搞定了文档这个磨人的小妖精，可惜 Sphinx 还是不会用 T^T
 先随意弄成这样吧：
 
-Read The Docs：
-`点击这里查看文档 <http://zhihu-py3.readthedocs.org/zh_CN/latest>`__
+`Master版文档 <http://zhihu-py3.readthedocs.org/zh_CN/latest>`__
+
+`Dev版文档 <http://zhihu-py3.readthedocs.org/zh_CN/dev>`__
 
 TODO List
 ---------
