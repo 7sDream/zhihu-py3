@@ -402,6 +402,14 @@ def test_topic():
     # 玛丽亚纳网络存在吗？
     # 为什么暗网里这么多违法的东西FBI不顺藤摸瓜呢?
     # ...
+    
+    #获取话题下的热门动态问题，按热门度由高到底返回
+    for _, q in zip(range(0, 10), topic.hot_questions):
+        print(q.title)
+    # 《纸牌屋》中提到的深网 (Deep Web) 是什么？
+    # 黑客逃避追踪，为什么要用虚拟机 + TOR + VPN 呢？
+    # 微博热传的关于暗网的变态故事是真的还是假的啊？
+    # ...
 
 
 def test_me():
