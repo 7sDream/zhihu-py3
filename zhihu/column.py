@@ -34,7 +34,7 @@ class Column:
         if self.soup is None:
             origin_host = self._session.headers.get('Host')
             self._session.headers.update(Host='zhuanlan.zhihu.com')
-            res = self._session.get(Columns_Data.format(self._in_name))
+            res = self._session.get(Column_Data.format(self._in_name))
             self._session.headers.update(Host=origin_host)
             self.soup = res.json()
 
@@ -82,11 +82,11 @@ class Column:
         for offset in range(0, (self.post_num - 1) // 10 + 1):
             self._session.headers.update(Host='zhuanlan.zhihu.com')
             res = self._session.get(
-                Columns_Posts_Data.format(self._in_name, offset * 10))
+                Column_Posts_Data.format(self._in_name, offset * 10))
             soup = res.json()
             self._session.headers.update(Host=origin_host)
             for post in soup:
-                url = Columns_Url + post['url']
+                url = Column_Url + post['url']
                 template = post['author']['avatar']['template']
                 photo_id = post['author']['avatar']['id']
                 photo_url = template.format(id=photo_id, size='r')

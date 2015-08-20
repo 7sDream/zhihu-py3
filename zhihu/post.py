@@ -41,7 +41,7 @@ class Post:
             origin_host = self._session.headers.get('Host')
             self._session.headers.update(Host='zhuanlan.zhihu.com')
             self.soup = self._session.get(
-                Columns_Post_Data.format(
+                Column_Post_Data.format(
                     self.column_in_name, self.slug)).json()
             self._session.headers.update(Host=origin_host)
 
@@ -73,7 +73,7 @@ class Post:
         """
         from .column import Column
 
-        url = Columns_Url + '/' + self.soup['column']['slug']
+        url = Column_Url + '/' + self.soup['column']['slug']
         name = self.soup['column']['name']
         return Column(url, name, session=self._session)
 

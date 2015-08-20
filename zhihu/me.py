@@ -44,6 +44,8 @@ class Me(Author):
             }
             if vote not in mapping.keys():
                 raise ValueError('Invalid vote value: {0}'.format(vote))
+            if something.author.url == self.url:
+                return False
             params = {'answer_id': str(something.aid)}
             data = {
                 '_xsrf': something.xsrf,
@@ -63,6 +65,8 @@ class Me(Author):
             }
             if vote not in mapping.keys():
                 raise ValueError('Invalid vote value: {0}'.format(vote))
+            if something.author.url == self.url:
+                return False
             put_url = Upvote_Article_Url.format(
                 something.column_in_name, something.slug)
             data = {'value': mapping[vote]}
@@ -91,6 +95,8 @@ class Me(Author):
         from .answer import Answer
         if isinstance(answer, Answer) is False:
             raise ValueError('argument answer need to be Zhihu.Answer object.')
+        if answer.author.url == self.url:
+                return False
         data = {
             '_xsrf': answer.xsrf,
             'aid': answer.aid
@@ -100,18 +106,19 @@ class Me(Author):
         return res.json()['r'] == 0
 
     def follow(self, something, follow=True):
-        """关注用户或问题
+        """关注用户、问题、话题或收藏夹
 
-        :param Author/Question something: 需要关注的用户或问题对象
+        :param Author/Question/Topic something: 需要关注的对象
         :param bool follow: True-->关注，False-->取消关注
         :return: 成功返回True，失败返回False
         :rtype: bool
         """
         from .question import Question
+        from .topic import Topic
+        from .collection import Collection
         if isinstance(something, Author):
             if something.url == self.url:
                 return False
-            something._make_soup()
             data = {
                 '_xsrf': something.xsrf,
                 'method': '	follow_member' if follow else 'unfollow_member',
@@ -127,6 +134,24 @@ class Me(Author):
             }
             res = self._session.post(Follow_Question_Url, data=data)
             return res.json()['r'] == 0
+        elif isinstance(something, Topic):
+            data = {
+                '_xsrf': something.xsrf,
+                'method': 'follow_topic' if follow else 'unfollow_topic',
+                'params': json.dumps({'topic_id': something.tid})
+            }
+            res = self._session.post(Follow_Topic_Url, data=data)
+            return res.json()['r'] == 0
+        elif isinstance(something, Collection):
+            data = {
+                '_xsrf': something.xsrf,
+                'favlist_id': something.cid
+            }
+            res = self._session.post(
+                Follow_Collection_Url if follow else Unfollow_Collection_Url,
+                data=data)
+            return res.json()['r'] == 0
         else:
             raise ValueError('argument something need to be '
-                             'zhihu.Author or zhihu.Question object.')
+                             'zhihu.Author, zhihu.Question'
+                             ', Zhihu.Topic or Zhihu.Collection object.')

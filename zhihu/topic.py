@@ -47,6 +47,17 @@ class Topic:
         return self.soup.find('input', attrs={'name': '_xsrf'})['value']
 
     @property
+    @check_soup('_tid')
+    def tid(self):
+        """话题内部Id，有时候要用到
+
+        :return: 话题内部Id
+        :rtype: int
+        """
+        return int(self.soup.find(
+            'div', id='zh-topic-desc')['data-resourceid'])
+
+    @property
     @check_soup('_name')
     def name(self):
         """获取话题名称.
@@ -93,14 +104,14 @@ class Topic:
                             session=self._session)
         else:
             flag = 'load'
-            params_child = ''
+            child = ''
             data = {'_xsrf': self.xsrf}
             params = {
                 'parent': self.id
             }
             while flag == 'load':
-                params['child'] = params_child
-                res = self._session.post(Topic_Get_Children_API,
+                params['child'] = child
+                res = self._session.post(Topic_Get_Children_Url,
                                          params=params, data=data)
                 j = map(lambda x: x[0], res.json()['msg'][1])
                 *topics, last = j
