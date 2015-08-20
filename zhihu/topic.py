@@ -6,6 +6,7 @@ __author__ = '7sDream'
 from .common import *
 import time
 
+
 class Topic:
 
     """答案类，请使用``ZhihuClient.topic``方法构造对象."""
