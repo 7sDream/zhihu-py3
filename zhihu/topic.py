@@ -6,6 +6,7 @@ __author__ = '7sDream'
 from .common import *
 import time
 
+
 class Topic:
 
     """答案类，请使用``ZhihuClient.topic``方法构造对象."""
@@ -119,7 +120,7 @@ class Topic:
                     yield Topic(Zhihu_URL + '/topic/' + topic[2], topic[1],
                                 session=self._session)
                 flag = last[0]
-                params_child = last[2]
+                child = last[2]
                 if flag == 'topic':
                     yield Topic(Zhihu_URL + '/topic/' + last[2], last[1],
                                 session=self._session)
@@ -205,7 +206,7 @@ class Topic:
         top_answers_url = Topic_Top_Answers_Url.format(self.id)
         params = {'page': 1}
         while True:
-            #超出50页直接返回
+            # 超出50页直接返回
             if params['page'] > 50:
                 return
             res = self._session.get(top_answers_url, params=params)
