@@ -320,8 +320,3 @@ class Topic:
             if gotten_feed_num == 0:
                 return
             soup = BeautifulSoup(res.json()['msg'][1])
-            
-            
-
-            
-
