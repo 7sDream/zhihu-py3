@@ -48,6 +48,8 @@ Upvote_Article_Url = Column_API + '/{0}/posts/{1}/rating'
 Follow_Author_Url = Zhihu_URL + '/node/MemberFollowBaseV2'
 Follow_Question_Url = Zhihu_URL + '/node/QuestionFollowBaseV2'
 Follow_Topic_Url = Zhihu_URL + '/node/TopicFollowBaseV2'
+Follow_Collection_Url = Zhihu_URL + '/collection/follow'
+Unfollow_Collection_Url = Zhihu_URL + '/collection/unfollow'
 Thanks_Url = Zhihu_URL + '/answer/thanks'
 Cancel_Thanks_Url = Zhihu_URL + '/answer/cancel_thanks'
 

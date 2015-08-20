@@ -413,18 +413,19 @@ def test_me():
 
     如果确认有能力，请填写代码中的空白，并将test函数中相关行注释取消
     """
-    answer = client.answer('')      # 填写答案Url，不可填写自己的答案
-    post = client.post('')          # 填写文章Url，不可填写自己的文章
-    author = client.author('')      # 填写用户Url，不可填写自己
-    question = client.question('')  # 填写问题Url
-    topic = client.topic('')        # 填写话题Url
+    answer = client.answer('')          # 填写答案Url，不可填写自己的答案
+    post = client.post('')              # 填写文章Url，不可填写自己的文章
+    author = client.author('')          # 填写用户Url，不可填写自己
+    question = client.question('')      # 填写问题Url
+    topic = client.topic('')            # 填写话题Url
+    collection = client.collection('')  # 填写收藏夹Url
 
     me = client.me()
 
     print('赞同答案...', end='')
     assert me.vote(answer, 'up')        # 赞同
     assert me.vote(answer, 'down')      # 反对
-    assert me.vote(answer, 'clear')     # 取消
+    assert me.vote(answer, 'clear')     # 清除
     print('通过')
 
     print('感谢答案...', end='')
@@ -435,7 +436,7 @@ def test_me():
     print('赞同文章...', end='')
     assert me.vote(post, 'up')          # 赞同
     assert me.vote(post, 'down')        # 反对
-    assert me.vote(post, 'clear')       # 取消
+    assert me.vote(post, 'clear')       # 清除
     print('通过')
 
     print('关注用户...', end='')
@@ -451,6 +452,11 @@ def test_me():
     print('关注话题...', end='')
     assert me.follow(topic)             # 关注
     assert me.follow(topic, False)      # 取消关注
+    print('通过')
+
+    print('关注收藏夹...', end='')
+    assert me.follow(collection)         # 关注
+    assert me.follow(collection, False)  # 取消关注
     print('通过')
 
 

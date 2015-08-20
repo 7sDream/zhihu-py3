@@ -35,6 +35,17 @@ class Collection:
             self.soup = BeautifulSoup(self._session.get(self.url).text)
 
     @property
+    @check_soup('_cid')
+    def cid(self):
+        """获取收藏夹内部Id（用不到忽视就好）
+
+        :return: 内部Id
+        :rtype: int
+        """
+        return int(re_get_number.match(
+            self.soup.find('a', attrs={'name': 'focus'})['id']).group(1))
+
+    @property
     @check_soup('_xsrf')
     def xsrf(self):
         """获取知乎的反xsrf参数（用不到就忽视吧~）

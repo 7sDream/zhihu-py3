@@ -106,7 +106,7 @@ class Me(Author):
         return res.json()['r'] == 0
 
     def follow(self, something, follow=True):
-        """关注用户、问题或话题
+        """关注用户、问题、话题或收藏夹
 
         :param Author/Question/Topic something: 需要关注的对象
         :param bool follow: True-->关注，False-->取消关注
@@ -115,6 +115,7 @@ class Me(Author):
         """
         from .question import Question
         from .topic import Topic
+        from .collection import Collection
         if isinstance(something, Author):
             if something.url == self.url:
                 return False
@@ -141,7 +142,16 @@ class Me(Author):
             }
             res = self._session.post(Follow_Topic_Url, data=data)
             return res.json()['r'] == 0
+        elif isinstance(something, Collection):
+            data = {
+                '_xsrf': something.xsrf,
+                'favlist_id': something.cid
+            }
+            res = self._session.post(
+                Follow_Collection_Url if follow else Unfollow_Collection_Url,
+                data=data)
+            return res.json()['r'] == 0
         else:
             raise ValueError('argument something need to be '
-                             'zhihu.Author, zhihu.Question '
-                             'or Zhihu.Topic object.')
+                             'zhihu.Author, zhihu.Question'
+                             ', Zhihu.Topic or Zhihu.Collection object.')
