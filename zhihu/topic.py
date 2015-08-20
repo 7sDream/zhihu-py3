@@ -273,3 +273,45 @@ class Topic:
                 yield Question(url, title, session=self._session)
             older_time_stamp = int(questions[-1].h2.span['data-timestamp'])
             params['page'] += 1
+
+    @property
+    def hot_questions(self):
+        """获取话题下热门动态中的问题
+
+        :return: 话题下的热门动态中的问题，按热门度顺序返回生成器
+        :rtype: Question.Iterable
+        """
+        from .question import Question
+        hot_questions_url = Topic_Hot_Questions_Url.format(self.id)
+        params = {'start':0, '_xsrf':self.xsrf}
+        res = self._session.get(hot_questions_url)
+        soup = BeautifulSoup(res.content)
+        while True:
+            questions_duplicate = soup.find_all('a', class_='question_link')
+            #如果话题下无问题，则直接返回
+            if len(questions_duplicate) == 0:
+                return 
+            #去除重复的问题
+            questions = []
+            for q in questions_duplicate:
+                if q not in questions:
+                    questions.append(q)
+            last_score = soup.find_all('div', class_='feed-item')[-1]['data-score']
+            for q in questions:
+                question_url = Zhihu_URL + q['href']
+                question_title = q.text
+                question = Question(question_url, question_title,
+                                        session=self._session)
+                yield question
+            params['offset'] = last_score
+            res = self._session.post(hot_questions_url, data=params)
+            gotten_feed_num = res.json()['msg'][0]
+            #如果得到问题数量为0则返回
+            if gotten_feed_num == 0:
+                return
+            soup = BeautifulSoup(res.json()['msg'][1])
+            
+            
+
+            
+

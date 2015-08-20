@@ -343,23 +343,23 @@ def test_topic():
     
     # 获取话题地址
     print(topic.url)
-    #
+    # http://www.zhihu.com/topic/19947695/
 
     # 获取话题名称
     print(topic.name)
-    # 互联网
+    # 深网（Deep Web）
 
     # 获取话题关注人数
     print(topic.follower_num)
-    # 2425736
+    # 3327
 
     # 获取话题头像url
     print(topic.photo_url)
-    #
+    # http://pic1.zhimg.com/a3b0d77c052e45399da1fe26fb4c9734_r.jpg
     
     # 获取话题描述信息
     print(topic.description)
-    # 国际互联网（Internetwork，简称Internet），始于1969年的美国...
+    # 暗网（英语：Deep Web，又称深网、不可见网、隐藏网）是指...
 
     # 获取话题下的精华回答
     for _, ans in zip(range(0, 10), topic.top_answers):
@@ -369,6 +369,13 @@ def test_topic():
     # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ acel rovsion 420
     # ...
 
+    #获取话题下的热门动态问题，按热门度由高到底返回
+    for _, q in zip(range(0, 10), topic.hot_questions):
+        print(q.title)
+    # 《纸牌屋》中提到的深网 (Deep Web) 是什么？
+    # 黑客逃避追踪，为什么要用虚拟机 + TOR + VPN 呢？
+    # 微博热传的关于暗网的变态故事是真的还是假的啊？
+    # ...
 
 def test():
     test_question()

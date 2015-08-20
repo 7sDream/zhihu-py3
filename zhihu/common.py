@@ -49,6 +49,7 @@ Topic_Get_Children_API = Topic_Url + '/{0}/organize/entire'
 Topic_Get_More_Follower_Url = Topic_Url + '/{0}/followers'
 Topic_Question_Url = Topic_Url + '/{0}/questions'
 Topic_Top_Answers_Url = Topic_Url + '/{0}/top-answers'
+Topic_Hot_Questions_Url = Topic_Url + '/{0}/hot'
 
 re_question_url = re.compile(r'^http://www\.zhihu\.com/question/\d+/?$')
 re_ans_url = re.compile(
