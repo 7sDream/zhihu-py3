@@ -5,11 +5,13 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 目前dev分支正在coding的内容：
 
-精简Readme，增加Me类示例。
+-  [x] 精简Readme
+-  [ ] 增加Me类示例
 
 Topic类：
 
--  [ ] 获取最近动态（暂缓）
+-  [x] 获取热门问题
+-  [ ] 获取热门回答
 
 
 具体请看\ `ChangeLog <https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.rst>`__\ 。

@@ -119,7 +119,7 @@ class Topic:
                     yield Topic(Zhihu_URL + '/topic/' + topic[2], topic[1],
                                 session=self._session)
                 flag = last[0]
-                params_child = last[2]
+                child = last[2]
                 if flag == 'topic':
                     yield Topic(Zhihu_URL + '/topic/' + last[2], last[1],
                                 session=self._session)
@@ -205,7 +205,7 @@ class Topic:
         top_answers_url = Topic_Top_Answers_Url.format(self.id)
         params = {'page': 1}
         while True:
-            #超出50页直接返回
+            # 超出50页直接返回
             if params['page'] > 50:
                 return
             res = self._session.get(top_answers_url, params=params)
@@ -299,25 +299,23 @@ class Topic:
         soup = BeautifulSoup(res.content)
         while True:
             questions_duplicate = soup.find_all('a', class_='question_link')
-            #如果话题下无问题，则直接返回
+            # 如果话题下无问题，则直接返回
             if len(questions_duplicate) == 0:
                 return 
-            #去除重复的问题
-            questions = []
-            for q in questions_duplicate:
-                if q not in questions:
-                    questions.append(q)
-            last_score = soup.find_all('div', class_='feed-item')[-1]['data-score']
+            # 去除重复的问题
+            questions = list(set(questions_duplicate))
+            last_score = soup.find_all(
+                'div', class_='feed-item')[-1]['data-score']
             for q in questions:
                 question_url = Zhihu_URL + q['href']
                 question_title = q.text
                 question = Question(question_url, question_title,
-                                        session=self._session)
+                                    session=self._session)
                 yield question
             params['offset'] = last_score
             res = self._session.post(hot_questions_url, data=params)
             gotten_feed_num = res.json()['msg'][0]
-            #如果得到问题数量为0则返回
+            # 如果得到问题数量为0则返回
             if gotten_feed_num == 0:
                 return
             soup = BeautifulSoup(res.json()['msg'][1])
