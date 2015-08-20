@@ -295,7 +295,7 @@ class Topic:
         """
         from .question import Question
         hot_questions_url = Topic_Hot_Questions_Url.format(self.id)
-        params = {'start':0, '_xsrf':self.xsrf}
+        params = {'start': 0, '_xsrf':self.xsrf}
         res = self._session.get(hot_questions_url)
         soup = BeautifulSoup(res.content)
         while True:

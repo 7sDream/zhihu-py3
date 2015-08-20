@@ -389,7 +389,7 @@ def test_topic():
 
     # 获取话题下的精华回答
     for _, ans in zip(range(0, 10), topic.top_answers):
-        print(ans.question.title,ans.author.name,ans.upvote_num)
+        print(ans.question.title, ans.author.name, ans.upvote_num)
     # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ Ben Chen 2956
     # 黑客逃避追踪，为什么要用虚拟机 + TOR + VPN 呢？ Ario 526
     # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ acel rovsion 420
