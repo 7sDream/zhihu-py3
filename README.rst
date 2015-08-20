@@ -3,31 +3,7 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 |Documentation Status|
 
-目前dev分支正在coding的功能：
-
-Me类及其相关操作
-
--  [x] 点赞，取消点赞，反对，取消反对某回答
--  [x] 点赞，取消点赞，反对，取消反对某文章
--  [x] 感谢，取消感谢某回答
--  [x] 关注，取消关注某用户
--  [x] 关注，取消关注某问题
--  [x] 关注，取消关注某话题
--  [x] 关注，取消关注收藏夹
-
-Topic类相关操作：
-
--  [x] 获取话题名称
--  [x] 获取话题描述
--  [x] 获取话题图标
--  [x] 获取关注者数量
--  [x] 获取关注者
--  [x] 获取父话题
--  [x] 获取子话题
--  [x] 获取优秀答主
--  [ ] 获取最近动态（暂缓）
--  [x] 获取精华回答
--  [x] 获取所有问题
+最近一次更新内容：增加了Me类及其操作，增加了Topic类的功能。
 
 具体请看\ `ChangeLog <https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.rst>`__\ 。
 
@@ -88,13 +64,14 @@ Topic类相关操作：
 
 ..  code:: bash
 
-    (sudo) pip3 install zhihu-py3
+    (sudo) pip(3) install (--upgrade) zhihu-py3
 
 希望开启lxml的话请使用：
 
 ..  code:: bash
 
-    (sudo) pip3 install zhihu-py3[lxml]
+    (sudo) pip(3) install (--upgrade) zhihu-py3[lxml]
+
 
 因为lxml解析html效率高而且容错率强，在知乎使用\ ``<br>``\ 时，自带的html.parser会将其转换成\ ``<br>...</br>``\ ，而lxml则转换为\ ``<br/>``\ ，更为标准且美观，所以推荐使用第二个命令。
 
@@ -452,7 +429,7 @@ TODO List
 -  [x] 打包为标准Python模块
 -  [x] 重构代码，增加\ ``ZhihuClient``\ 类，使类可以自定义cookies文件
 -  [x] 收藏夹关注者，问题关注者等等
--  [ ] ``ZhihuClient``\ 增加各种用户操作（比如给某答案点赞）
+-  [x] ``ZhihuClient``\ 增加各种用户操作（比如给某答案点赞）
 
 联系我
 ------
