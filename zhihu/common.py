@@ -41,6 +41,7 @@ Topic_Get_Children_Url = Topic_Url + '/{0}/organize/entire'
 Topic_Get_More_Follower_Url = Topic_Url + '/{0}/followers'
 Topic_Question_Url = Topic_Url + '/{0}/questions'
 Topic_Top_Answers_Url = Topic_Url + '/{0}/top-answers'
+Topic_Hot_Questions_Url = Topic_Url + '/{0}/hot'
 
 Get_Me_Info_Url = Column_Url + '/api/me'
 Upvote_Answer_Url = Zhihu_URL + '/node/AnswerVoteBarV2'
