@@ -305,6 +305,9 @@ class Topic:
                 return 
             # 去除重复的问题
             questions = list(set(questions_duplicate))
+            questions.sort(
+                key=lambda x: x.parent.parent.parent.parent['data-score'],
+                reverse=True)
             last_score = soup.find_all(
                 'div', class_='feed-item')[-1]['data-score']
             for q in questions:
