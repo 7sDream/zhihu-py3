@@ -410,6 +410,13 @@ def test_topic():
     # 黑客逃避追踪，为什么要用虚拟机 + TOR + VPN 呢？
     # 微博热传的关于暗网的变态故事是真的还是假的啊？
     # ...
+    print('testing on newest')
+    for _, ans in zip(range(0, 100), topic.newest_answers):
+        print(ans.question.title, ans.author.name, ans.upvote_num)
+    # 如何用tor登陆qq? 匿名用户 0
+    # 想看一下暗网（deep web），但是怕中病毒，所以有谁能发发截图？？ tor 0
+    # icq是什么 为什么暗网交流一般都用icq？ tor 0
+    # ...
 
 
 def test_me():

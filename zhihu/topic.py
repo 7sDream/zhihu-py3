@@ -323,3 +323,61 @@ class Topic:
             if gotten_feed_num == 0:
                 return
             soup = BeautifulSoup(res.json()['msg'][1])
+
+    @property
+    def newest_answers(self):
+        """获取话题下动态按时间排序的答案
+
+        :return: 获取话题下动态按时间排序的答案，按时间从新到旧顺序返回生成器
+        :rtype: Question.Iterable
+        """
+        from .question import Question
+        from .answer import Answer
+        from .author import Author
+        newest_url = Topic_Newest_Url.format(self.id)
+        params = {'start': 0, '_xsrf':self.xsrf}
+        res = self._session.get(newest_url)
+        soup = BeautifulSoup(res.content)
+        while True:
+            divs = soup.find_all('div', class_='feed-item feed-item-hook  folding')
+            # 如果话题下无答案，则直接返回
+            if len(divs) == 0:
+                return 
+            last_score = soup.find_all('div', class_='feed-item')[-1]['data-score']
+            for div in divs:
+                q = div.find('a',class_="question_link")
+                question_url = Zhihu_URL + q['href']
+                question_title = q.text
+                question = Question(question_url, question_title,
+                                    session=self._session)
+
+                ans = div.find('a',class_='answer-date-link')
+                answer_url = Zhihu_URL + ans['href']
+
+                up = div.find('a', class_='zm-item-vote-count')
+                upvote = int(up['data-votecount'])
+
+                au = div.find('h3',class_='zm-item-answer-author-wrap')
+                if au.a is None:
+                    author_url = None
+                    author_name = '匿名用户'
+                    author_motto = ''
+                else:
+                    author_url = Zhihu_URL + au.a['href']
+                    author_name = au.a.text
+                    author_motto = au.strong['title'] if au.strong else ''
+                author = Author(author_url, author_name, author_motto,
+                                session=self._session)
+                yield Answer(answer_url, question, author, upvote,
+                             session=self._session)
+
+            params['offset'] = last_score
+            res = self._session.post(newest_url, data=params)
+            gotten_feed_num = res.json()['msg'][0]
+            # 如果得到内容数量为0则返回
+            if gotten_feed_num == 0:
+                return
+            soup = BeautifulSoup(res.json()['msg'][1])
+
+            
+            
