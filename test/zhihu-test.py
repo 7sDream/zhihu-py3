@@ -412,7 +412,7 @@ def test_topic():
     # ...
 
     # 获取话题下的动态回答，按时间从新到旧返回
-    for _, ans in zip(range(0, 100), topic.newest_answers):
+    for _, ans in zip(range(0, 10), topic.answers):
         print(ans.question.title, ans.author.name, ans.upvote_num)
     # 如何用tor登陆qq? 匿名用户 0
     # 想看一下暗网（deep web），但是怕中病毒，所以有谁能发发截图？？ tor 0
