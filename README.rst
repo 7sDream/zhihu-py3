@@ -10,8 +10,8 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 Topic类：
 
--  [x] 获取热门问题
--  [ ] 获取热门回答
+-  [ ] 获取热门回答 hot_answer
+-  [x] 获取所有回答 answers
 
 
 具体请看\ `ChangeLog <https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.rst>`__\ 。
