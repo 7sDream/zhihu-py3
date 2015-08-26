@@ -411,6 +411,14 @@ def test_topic():
     # 微博热传的关于暗网的变态故事是真的还是假的啊？
     # ...
 
+    # 获取话题下的动态回答，按时间从新到旧返回
+    for _, ans in zip(range(0, 100), topic.newest_answers):
+        print(ans.question.title, ans.author.name, ans.upvote_num)
+    # 如何用tor登陆qq? 匿名用户 0
+    # 想看一下暗网（deep web），但是怕中病毒，所以有谁能发发截图？？ tor 0
+    # icq是什么 为什么暗网交流一般都用icq？ tor 0
+    # ...
+
 
 def test_me():
     """
