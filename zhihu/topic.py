@@ -329,7 +329,7 @@ class Topic:
         """获取话题下动态按时间排序的答案
 
         :return: 获取话题下动态按时间排序的答案，按时间从新到旧顺序返回生成器
-        :rtype: Question.Iterable
+        :rtype: Answer.Iterable
         """
         from .question import Question
         from .answer import Answer
