@@ -6,9 +6,13 @@ zhihu-py3 : 知乎非官方API库 with Python3
 目前dev分支正在coding的内容：
 
 - [x] 精简Readme
+
 - [ ] 增加Me类示例
+
 - Topic类
+
   -  [ ] 获取热门回答 hot_answer
+  
   -  [x] 获取所有回答 answers
 
 
@@ -152,11 +156,17 @@ TODO List
 ---------
 
 - [x] 增加获取用户关注者，用户追随者
+
 - [x] 增加获取答案点赞用户功能
+
 - [x] 获取用户头像地址
+
 - [x] 打包为标准Python模块
+
 - [x] 重构代码，增加\ ``ZhihuClient``\ 类，使类可以自定义cookies文件
+
 - [x] 收藏夹关注者，问题关注者等等
+
 - [x] ``ZhihuClient``\ 增加各种用户操作（比如给某答案点赞）
 
 联系我
