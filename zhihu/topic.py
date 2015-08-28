@@ -377,6 +377,59 @@ class Topic:
                 return
             soup = BeautifulSoup(res.json()['msg'][1])
 
+    @property
+    def hot_answers(self):
+        """获取话题下热门的回答
+
+        :return: 话题下的热门动态中的回答，按热门度顺序返回生成器
+        :rtype: Question.Iterable
+        """
+        from .question import Question
+        from .author import Author
+        from .answer import Answer
+        hot_questions_url = Topic_Hot_Questions_Url.format(self.id)
+        params = {'start': 0, '_xsrf': self.xsrf}
+        res = self._session.get(hot_questions_url)
+        soup = BeautifulSoup(res.content)
+        while True:
+            answers_div = soup.find_all('div', class_='feed-item')
+            last_score = answers_div[-1]['data-score']
+            for div in answers_div:
+                # 没有 text area 的情况是：答案被和谐。
+                if not (div.h3 and div.textarea):
+                    continue
+                question_url = Zhihu_URL + div.h2.a['href']
+                question_title = div.a.text
+                question = Question(question_url, question_title,
+                                    session=self._session)
+                if div.h3.a is None:
+                    author_url = None
+                    author_name = '匿名用户'
+                    author_motto = ''
+                else:
+                    author_url = Zhihu_URL + div.h3.a['href']
+                    author_name = div.h3.a.text
+                    author_motto = div.strong['title'] if div.strong else ''
+                author = Author(author_url, author_name, author_motto,
+                                session=self._session)
+
+                answer_url = Zhihu_URL + BeautifulSoup(
+                    ''.join(map(str, div.textarea.contents))).find(
+                    'a', class_='answer-date-link')['href']
+                upvote_num = int(div.find(
+                    'a', class_='zm-item-vote-count')['data-votecount'])
+
+                yield Answer(answer_url, question, author, upvote_num,
+                             session=self._session)
+
+            params['offset'] = last_score
+            res = self._session.post(hot_questions_url, data=params)
+            gotten_feed_num = res.json()['msg'][0]
+            # 如果得到问题数量为0则返回
+            if gotten_feed_num == 0:
+                return
+            soup = BeautifulSoup(res.json()['msg'][1])
+
     @staticmethod
     def _get_score(tag):
         h2 = tag.parent

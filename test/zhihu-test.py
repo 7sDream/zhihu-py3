@@ -395,15 +395,23 @@ def test_topic():
     # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ acel rovsion 420
     # ...
 
-    # 获取所有问题
+    # 按时间由近到远获取所有问题
     for _, question in zip(range(0, 10), topic.questions):
         print(question.title)
     # 马里亚纳网络存在吗？
     # 玛丽亚纳网络存在吗？
     # 为什么暗网里这么多违法的东西FBI不顺藤摸瓜呢?
     # ...
-    
-    # 获取话题下的热门动态问题，按热门度由高到底返回
+
+    # 按时间由近到远获取所有回答
+    for _, ans in zip(range(0, 10), topic.answers):
+        print(ans.question.title, ans.author.name, ans.upvote_num)
+    # 如何用tor登陆qq? 匿名用户 0
+    # 想看一下暗网（deep web），但是怕中病毒，所以有谁能发发截图？？ tor 0
+    # icq是什么 为什么暗网交流一般都用icq？ tor 0
+    # ...
+
+    # 获取话题下的热门问题，按热门度由高到低返回
     for _, q in zip(range(0, 10), topic.hot_questions):
         print(q.title)
     # 《纸牌屋》中提到的深网 (Deep Web) 是什么？
@@ -411,12 +419,12 @@ def test_topic():
     # 微博热传的关于暗网的变态故事是真的还是假的啊？
     # ...
 
-    # 获取话题下的动态回答，按时间从新到旧返回
-    for _, ans in zip(range(0, 10), topic.answers):
+    # 获取话题下的热门回答，按热门度由高到低返回
+    for _, ans in zip(range(0, 10), topic.hot_answers):
         print(ans.question.title, ans.author.name, ans.upvote_num)
-    # 如何用tor登陆qq? 匿名用户 0
-    # 想看一下暗网（deep web），但是怕中病毒，所以有谁能发发截图？？ tor 0
-    # icq是什么 为什么暗网交流一般都用icq？ tor 0
+    # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ Ben Chen 3006
+    # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ 提刀夜行 123
+    # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ 匿名用户 21
     # ...
 
 
@@ -477,12 +485,12 @@ def test_me():
 
 
 def test():
-    test_question()
-    test_answer()
-    test_author()
-    test_collection()
-    test_column()
-    test_post()
+    # test_question()
+    # test_answer()
+    # test_author()
+    # test_collection()
+    # test_column()
+    # test_post()
     test_topic()
     # test_me()
 

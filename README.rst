@@ -7,11 +7,11 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 - [x] 精简Readme
 
-- [ ] 增加Me类示例
+- [x] 增加Me类示例（想了一下由于 Me 类可以干的事情太不道德，还是不给实例了。）
 
 - Topic类
 
-  -  [ ] 获取热门回答 hot_answer
+  -  [x] 获取热门回答 hot_answer
   
   -  [x] 获取所有回答 answers
 
