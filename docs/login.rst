@@ -44,7 +44,7 @@ login\_in\_terminal
 ..  code-block:: python
 
     from zhihu import ZhihuClient
-    client = ZhiuhClien()
+    client = ZhihuClient()
     client.login_in_terminal()
 
     # do thing you want with client
@@ -71,7 +71,7 @@ login\_in\_terminal
     def on_window_show()
         login_btn.disable()
         if os.path.isfile(Cookies_File) is False:
-            captcha_imgbox.setData(client.get_capthca())
+            captcha_imgbox.setData(client.get_captcha())
             login_btn.enable()
         else:
             with open(Cookies_File) as f
@@ -83,7 +83,7 @@ login\_in\_terminal
         email = email_edit.get_text()
         password = password_edit.get_text()
         captcha = captcha_edit.get_text()
-        code, msg, cookies = clien.login(email, password, captcha)
+        code, msg, cookies = client.login(email, password, captcha)
         if code == 0:
             with open(Cookies_File, 'w') as f
                 f.write(cookies)

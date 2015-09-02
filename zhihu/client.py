@@ -40,10 +40,15 @@ class ZhihuClient:
         :return: 验证码图片数据。
         :rtype: bytes
         """
+        # some unbelievable zhihu logic
+        self._session.get(Zhihu_URL)
+        data = {'email': '', 'password': '', 'remember_me': 'true'}
+        self._session.post(Login_URL, data=data)
+
         r = self._session.get(self._get_captcha_url())
         return r.content
 
-    def login(self, email='', password='', captcha=''):
+    def login(self, email, password, captcha):
         """登陆知乎.
 
         :param str email: 邮箱

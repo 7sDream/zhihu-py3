@@ -3,14 +3,12 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 |Documentation Status|
 
-目前dev分支正在coding的内容：
+本次更新内容：
 
-- [x] 精简Readme
-- [x] 增加Me类示例（想了一下由于 Me 类可以干的事情太不道德，还是不给实例了。）
-- Topic类
-
-  -  [x] 获取热门回答 hot_answer
-  -  [x] 获取所有回答 answers
+- [fix] Topic.hot_question 的顺序 Bug
+- [fix] 知乎登录逻辑修改（？）
+- [add] Topic 所有答案接口
+- [add] Topic 热门答案接口
 
 
 具体请看\ `ChangeLog <https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.rst>`__\ 。
@@ -132,7 +130,7 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 
 请看文档的「用法示例」部分。
 
-登录方法综述：
+登录方法综述
 ---------------------------------------------
 
 为了精简Readme，本部分移动至文档内。

@@ -3,7 +3,6 @@
 
 from __future__ import unicode_literals
 
-import sys
 import re
 import ast
 
@@ -23,18 +22,13 @@ def extract_version():
             raise RuntimeError('Cannot find version information')
         return str(ast.literal_eval(ast_tree))
 
-    return version
-
 
 with open('README.rst', 'rb') as f_readme:
     readme = f_readme.read().decode('utf-8')
 
 packages = ['zhihu']
-if sys.version_info < (3, 0):
-    packages = [str(bytearray(package, 'ascii')) for package in packages]
 
 version = extract_version()
-
 
 setup(
     name='zhihu-py3',
@@ -49,7 +43,7 @@ setup(
     license='MIT',
 
     url='https://github.com/7sDream/zhihu-py3',
-    download_url='https://github.com/7sDream/zhihu-py3/releases',
+    download_url='https://github.com/7sDream/zhihu-py3',
 
     install_requires=[
         'beautifulsoup4',
