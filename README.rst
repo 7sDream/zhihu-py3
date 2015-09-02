@@ -3,12 +3,9 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 |Documentation Status|
 
-本次更新内容：
+Dev 分支 coding 内容：
 
-- [fix] Topic.hot_question 的顺序 Bug
-- [fix] 知乎登录逻辑修改（？）
-- [add] Topic 所有答案接口
-- [add] Topic 热门答案接口
+暂无。
 
 
 具体请看\ `ChangeLog <https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.rst>`__\ 。
