@@ -6,7 +6,7 @@ import unittest
 import os
 
 from test_utils import TEST_DATA_PATH
-from zhihu import Question
+from zhihu import Question, Author, Answer
 from zhihu.common import BeautifulSoup
 
 
@@ -39,10 +39,19 @@ class QuestionTest(unittest.TestCase):
                         'details': description, 'answer_num': 621,
                         'follower_num': 4427, 'top_answer_id': 39753456,
                         'top_answer_author_name': '芝士就是力量',
-                        'top_answer_upvote_num': 97,
+                        'top_answer_upvote_num': 97, 'top_50_ans_id': 31003847,
+                        'top_50_ans_author_name': '圭多达莱佐',
+                        'top_50_ans_upvote_num': 31, 'more_ans_id': 39958704,
+                        'more_ans_author_name': '柳蜻蜓',
+                        'more_ans_upvote_num': 1,
                         'topics': ['心理学', '恋爱', '社会', '礼仪',
                                    '亲密关系'],
                         }
+
+        more_ans_file_path = os.path.join(TEST_DATA_PATH,
+                                          'question_more_answer.html')
+        with open(more_ans_file_path, 'rb') as f:
+            cls.more_ans_html = f.read()
 
     def test_id(self):
         self.assertEqual(self.expected['id'], self.question.id)
@@ -78,4 +87,21 @@ class QuestionTest(unittest.TestCase):
         self.assertEqual(self.expected['top_answer_author_name'],
                          answer.author.name)
         self.assertEqual(self.expected['top_answer_upvote_num'],
+                         answer.upvote_num)
+
+    def test_top_i_answer(self):
+        answer = self.question.top_i_answer(50)
+        self.assertEqual(self.expected['top_50_ans_id'], answer.id)
+        self.assertEqual(self.expected['top_50_ans_author_name'],
+                         answer.author.name)
+        self.assertEqual(self.expected['top_50_ans_upvote_num'],
+                         answer.upvote_num)
+
+    def test_parse_answer_html(self):
+        answer = self.question._parse_answer_html(self.more_ans_html, Author,
+                                                  Answer)
+        self.assertEqual(self.expected['more_ans_id'], answer.id)
+        self.assertEqual(self.expected['more_ans_author_name'],
+                         answer.author.name)
+        self.assertEqual(self.expected['more_ans_upvote_num'],
                          answer.upvote_num)
