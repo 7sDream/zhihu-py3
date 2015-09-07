@@ -7,7 +7,7 @@ import os
 import json
 
 from test_utils import TEST_DATA_PATH
-from zhihu import Column
+from zhihu import Column, Post
 
 
 class ColumnTest(unittest.TestCase):
@@ -23,7 +23,6 @@ class ColumnTest(unittest.TestCase):
             cls.post_json = json.load(f)
 
         cls.column = Column(url)
-        cls.column._session = None
         cls.column.soup = soup
         cls.expected = {'name': '谢熊猫出没注意', 'follower_num': 76605,
                         'post_num': 69, 'post_author_id': 'xiepanda',
@@ -47,3 +46,8 @@ class ColumnTest(unittest.TestCase):
         self.assertEqual(self.expected['post_title'], post.title)
         self.assertEqual(self.expected['post_upvote_num'], post.upvote_num)
         self.assertEqual(self.expected['post_comment_num'], post.comment_num)
+
+    def test_posts(self):
+        ps = self.column.posts
+        post = next(ps)
+        self.assertTrue(isinstance(post, Post))

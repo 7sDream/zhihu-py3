@@ -105,3 +105,12 @@ class QuestionTest(unittest.TestCase):
                          answer.author.name)
         self.assertEqual(self.expected['more_ans_upvote_num'],
                          answer.upvote_num)
+
+    def test_top_i_answers(self):
+        answers = [a for a in self.question.top_i_answers(1)]
+        answer = answers[0]
+        self.assertEqual(self.expected['top_answer_id'], answer.id)
+        self.assertEqual(self.expected['top_answer_author_name'],
+                         answer.author.name)
+        self.assertEqual(self.expected['top_answer_upvote_num'],
+                         answer.upvote_num)

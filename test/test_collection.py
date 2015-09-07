@@ -33,6 +33,9 @@ class CollectionTest(unittest.TestCase):
                         'top_ans_author_id': 'zhu-xuan-86'
                         }
 
+    def test_cid(self):
+        self.assertEqual(self.expected['cid'], self.collection.cid)
+
     def test_name(self):
         self.assertEqual(self.expected['name'], self.collection.name)
 
@@ -59,6 +62,20 @@ class CollectionTest(unittest.TestCase):
         answers = [a for a in
                    self.collection._page_get_answers(self.collection.soup)]
         ans = answers[0]
+        self.assertEqual(self.expected['top_ans_id'], ans.id)
+        self.assertEqual(self.expected['top_ans_upvote_num'], ans.upvote_num)
+        self.assertEqual(self.expected['top_ans_author_name'], ans.author.name)
+        self.assertEqual(self.expected['top_ans_author_id'], ans.author.id)
+
+    def test_questions(self):
+        qs = self.collection.questions
+        ques = next(qs)
+        self.assertEqual(self.expected['top_ques_id'], ques.id)
+        self.assertEqual(self.expected['top_ques_title'], ques.title)
+
+    def test_answers(self):
+        anses = self.collection.answers
+        ans = next(anses)
         self.assertEqual(self.expected['top_ans_id'], ans.id)
         self.assertEqual(self.expected['top_ans_upvote_num'], ans.upvote_num)
         self.assertEqual(self.expected['top_ans_author_name'], ans.author.name)

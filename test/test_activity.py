@@ -31,3 +31,12 @@ class ActivityTest(unittest.TestCase):
 
     def test_content(self):
         self.assertIs(self.question, self.activity.content)
+
+    def test_init_errors(self):
+        act_time = datetime.datetime.fromtimestamp(1439395600)
+        act_type = ActType.FOLLOW_QUESTION
+
+        with self.assertRaises(ValueError):
+            Activity(100, act_time)
+        with self.assertRaises(ValueError):
+            Activity(act_type, act_time)
