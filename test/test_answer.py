@@ -84,3 +84,8 @@ class AnswerTest(unittest.TestCase):
 
         self.assertEqual(self.expected['upvoter_name'], upvoter.name)
         self.assertEqual(self.expected['upvoter_id'], upvoter.id)
+
+    def test_save_error(self):
+        with self.assertRaises(ValueError):
+            self.answer.save(filepath=TEST_DATA_PATH, filename='invalid',
+                             mode='invalid')

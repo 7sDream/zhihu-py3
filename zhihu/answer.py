@@ -165,7 +165,8 @@ class Answer:
         :rtype: None
         """
         if mode not in ["html", "md", "markdown"]:
-            return
+            raise ValueError("`mode` must be 'html', 'markdown' or 'md',"
+                             " got {0}".format(mode))
         file = get_path(filepath, filename, mode, self.question.title,
                         self.question.title + '-' + self.author.name)
         with open(file, 'wb') as f:
