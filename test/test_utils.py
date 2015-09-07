@@ -12,4 +12,4 @@ def module_path(local_function):
 
 
 TEST_DATA_PATH = os.path.join(
-    os.path.split(module_path(module_path))[0], 'html')
+    os.path.split(module_path(module_path))[0], 'data')
