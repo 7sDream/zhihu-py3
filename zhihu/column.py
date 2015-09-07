@@ -75,9 +75,6 @@ class Column:
         :return: 专栏所有文章，返回生成器
         :rtype: Post.Iterable
         """
-        from .author import Author
-        from .post import Post
-
         origin_host = self._session.headers.get('Host')
         for offset in range(0, (self.post_num - 1) // 10 + 1):
             self._session.headers.update(Host='zhuanlan.zhihu.com')
@@ -86,16 +83,22 @@ class Column:
             soup = res.json()
             self._session.headers.update(Host=origin_host)
             for post in soup:
-                url = Column_Url + post['url']
-                template = post['author']['avatar']['template']
-                photo_id = post['author']['avatar']['id']
-                photo_url = template.format(id=photo_id, size='r')
-                author = Author(post['author']['profileUrl'],
-                                post['author']['name'], post['author']['bio'],
-                                photo_url=photo_url, session=self._session)
-                title = post['title']
-                upvote_num = post['likesCount']
-                comment_num = post['commentsCount']
-                print(url)
-                yield Post(url, self, author, title, upvote_num, comment_num,
-                           session=self._session)
+                yield self._parse_post_data(post)
+
+    def _parse_post_data(self, post):
+        from .author import Author
+        from .post import Post
+
+        url = Column_Url + post['url']
+        template = post['author']['avatar']['template']
+        photo_id = post['author']['avatar']['id']
+        photo_url = template.format(id=photo_id, size='r')
+        author = Author(post['author']['profileUrl'],
+                        post['author']['name'], post['author']['bio'],
+                        photo_url=photo_url, session=self._session)
+        title = post['title']
+        upvote_num = post['likesCount']
+        comment_num = post['commentsCount']
+        print(url)
+        return Post(url, self, author, title, upvote_num, comment_num,
+                    session=self._session)
