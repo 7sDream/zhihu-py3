@@ -31,7 +31,8 @@ class AnswerTest(unittest.TestCase):
                         'html': soup.prettify(), 'author_id': 'tian-ge-xia',
                         'author_name': '甜阁下', 'question_id': 24825703,
                         'question_title': '关系亲密的人之间要说「谢谢」吗？',
-                        'upvote_num': 1164}
+                        'upvote_num': 1164, 'upvoter_name': 'Mikuroneko',
+                        'upvoter_id': 'guo-yi-hui-23'}
 
     def test_id(self):
         self.assertEqual(self.expected['id'], self.answer.id)
@@ -72,3 +73,14 @@ class AnswerTest(unittest.TestCase):
             answer_saved = f.read()
         os.remove(answer_saved_path)
         self.assertEqual(self.answer_saved, answer_saved)
+
+    def test_parse_author_soup(self):
+        fpath = os.path.join(TEST_DATA_PATH, 'answer_upvoter.html')
+        with open(fpath, 'rb') as f:
+            html = f.read().decode('utf-8')
+
+        soup = BeautifulSoup(html)
+        upvoter = self.answer._parse_author_soup(soup)
+
+        self.assertEqual(self.expected['upvoter_name'], upvoter.name)
+        self.assertEqual(self.expected['upvoter_id'], upvoter.id)
