@@ -144,12 +144,12 @@ class Author:
         """
         if self.url is not None:
             if self.soup is not None:
-                img = self.soup.find(
+                img = 'http:' + self.soup.find(
                     'img', class_='avatar avatar-l')['src']
                 return img.replace('_l', '_r')
             else:
                 assert(self.card is not None)
-                return self.card.img['src'].replace('_xs', '_r')
+                return 'http:' + self.card.img['src'].replace('_xs', '_r')
         else:
             return 'http://pic1.zhimg.com/da8e974dc_r.jpg'
 
@@ -372,7 +372,7 @@ class Author:
                 author_name = h2.a.text
                 author_url = h2.a['href']
                 author_motto = soup.find('div', class_='zg-big-gray').text
-                author_photo = soup.a.img['src'].replace('_m', '_r')
+                author_photo = PROTOCOL + soup.a.img['src'].replace('_m', '_r')
                 numbers = [int(re_get_number.match(x.text).group(1))
                            for x in soup.find_all('a', target='_blank')]
                 yield Author(author_url, author_name, author_motto, *numbers,
@@ -483,16 +483,12 @@ class Author:
                         author_name = author_info[0]
                         author_motto = author_info[1] \
                             if len(author_info) > 1 else ''
-                        photo_tag = act.div.a.img
-                        photo_url = photo_tag['src'].replace('_s', '_r') \
-                            if photo_tag is not None else None
                     except TypeError:
                         author_url = None
                         author_name = '匿名用户'
                         author_motto = ''
-                        photo_url = None
                     author = Author(author_url, author_name, author_motto,
-                                    photo_url=photo_url, session=self._session)
+                                    session=self._session)
                     post_url = act.find('a', class_='post-link')['href']
                     post_title = act.find('a', class_='post-link').text
                     post_comment_num, post_upvote_num = self._parse_un_cn(act)
@@ -542,8 +538,8 @@ class Author:
                             author_motto = ''
                         else:
                             author_motto = try_find_motto['title']
-                        photo_url = try_find_author.parent.a.img['src']\
-                            .replace('_s', '_r')
+                        photo_url = PROTOCOL + try_find_author.parent.a.img[
+                            'src'].replace('_s', '_r')
                     author = Author(author_url, author_name, author_motto,
                                     photo_url=photo_url, session=self._session)
 

@@ -186,7 +186,7 @@ class Answer:
             author_name = author_tag.div.a['title']
             author_url = author_tag.div.a['href']
             author_motto = author_tag.div.span.text
-            photo_url = soup.a.img['src'].replace('_m', '_r')
+            photo_url = PROTOCOL + soup.a.img['src'].replace('_m', '_r')
             numbers_tag = soup.find_all('li')
             numbers = [int(re_get_number.match(x.get_text()).group(1))
                        for x in numbers_tag]

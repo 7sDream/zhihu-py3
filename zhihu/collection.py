@@ -82,7 +82,7 @@ class Collection:
         url = Zhihu_URL + a['href']
         motto = self.soup.find(
             'div', id='zh-single-answer-author-info').div.text
-        photo_url = self.soup.find(
+        photo_url = PROTOCOL + self.soup.find(
             'img', class_='zm-list-avatar-medium')['src'].replace('_m', '_r')
         return Author(url, name, motto, photo_url=photo_url,
                       session=self._session)

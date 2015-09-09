@@ -30,6 +30,7 @@ Get_Profile_Card_URL = Zhihu_URL + '/node/MemberProfileCardV2'
 Question_Get_More_Answer_URL = Zhihu_URL + '/node/QuestionAnswerListV2'
 Author_Get_More_Followers_URL = Zhihu_URL + '/node/ProfileFollowersListV2'
 Author_Get_More_Followees_URL = Zhihu_URL + '/node/ProfileFolloweesListV2'
+PROTOCOL = 'http:'
 
 Column_Url = 'http://zhuanlan.zhihu.com'
 Column_API = Column_Url + '/api/columns'
@@ -130,7 +131,7 @@ def parser_author_from_tag(author):
         author_motto = author.strong['title'] \
             if author.strong is not None else ''
         author_url = Zhihu_URL + author.contents[3]['href']
-        photo_url = author.a.img['src'].replace('_s', '_r')
+        photo_url = PROTOCOL + author.a.img['src'].replace('_s', '_r')
         return author_url, author_name, author_motto, photo_url
 
 
@@ -193,7 +194,7 @@ def common_follower(url, xsrf, session):
                     author_name = div.a['title']
                     author_url = Zhihu_URL + div.a['href']
                     author_motto = div.find('div', class_='zg-big-gray').text
-                    author_photo = div.img['src'].replace('_m', '_r')
+                    author_photo = PROTOCOL + div.img['src'].replace('_m', '_r')
                     numbers = [re_get_number.match(a.text).group(1)
                                for a in div.find_all('a', target='_blank')]
                 else:
