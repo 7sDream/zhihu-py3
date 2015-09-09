@@ -130,8 +130,6 @@ class Answer:
         :return: 点赞用户
         :rtype: Author.Iterable
         """
-        from .author import Author
-
         self._make_soup()
         next_req = '/answer/' + str(self.aid) + '/voters_profile'
         while next_req != '':
@@ -139,25 +137,7 @@ class Answer:
             next_req = data['paging']['next']
             for html in data['payload']:
                 soup = BeautifulSoup(html)
-                author_tag = soup.find('div', class_='body')
-                if author_tag.string is None:
-                    author_name = author_tag.div.a['title']
-                    author_url = author_tag.div.a['href']
-                    author_motto = author_tag.div.span.text
-                    photo_url = soup.a.img['src'].replace('_m', '_r')
-                    numbers_tag = soup.find_all('li')
-                    numbers = [int(re_get_number.match(
-                        x.get_text()).group(1)) for x in numbers_tag]
-                else:
-                    author_url = None
-                    author_name = '匿名用户'
-                    author_motto = ''
-                    numbers = [None] * 4
-                    photo_url = None
-                # noinspection PyTypeChecker
-                yield Author(author_url, author_name, author_motto, None,
-                             numbers[2], numbers[3], numbers[0], numbers[1],
-                             photo_url, session=self._session)
+                yield self._parse_author_soup(soup)
 
     @property
     @check_soup('_content')
@@ -185,7 +165,8 @@ class Answer:
         :rtype: None
         """
         if mode not in ["html", "md", "markdown"]:
-            return
+            raise ValueError("`mode` must be 'html', 'markdown' or 'md',"
+                             " got {0}".format(mode))
         file = get_path(filepath, filename, mode, self.question.title,
                         self.question.title + '-' + self.author.name)
         with open(file, 'wb') as f:
@@ -196,3 +177,26 @@ class Answer:
                 h2t = html2text.HTML2Text()
                 h2t.body_width = 0
                 f.write(h2t.handle(self.content).encode('utf-8'))
+
+    def _parse_author_soup(self, soup):
+        from .author import Author
+
+        author_tag = soup.find('div', class_='body')
+        if author_tag.string is None:
+            author_name = author_tag.div.a['title']
+            author_url = author_tag.div.a['href']
+            author_motto = author_tag.div.span.text
+            photo_url = soup.a.img['src'].replace('_m', '_r')
+            numbers_tag = soup.find_all('li')
+            numbers = [int(re_get_number.match(x.get_text()).group(1))
+                       for x in numbers_tag]
+        else:
+            author_url = None
+            author_name = '匿名用户'
+            author_motto = ''
+            numbers = [None] * 4
+            photo_url = None
+        # noinspection PyTypeChecker
+        return Author(author_url, author_name, author_motto, None,
+                      numbers[2], numbers[3], numbers[0], numbers[1],
+                      photo_url, session=self._session)

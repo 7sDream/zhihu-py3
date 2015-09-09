@@ -207,25 +207,7 @@ class Question:
                                        headers=new_header)
                 answer_list = r.json()['msg']
                 for answer_html in answer_list:
-                    soup = BeautifulSoup(answer_html)
-                    # 修正各种建议修改的回答……
-                    error_answers = soup.find_all('div', id='answer-status')
-                    for each in error_answers:
-                        each['class'] = ' zm-editable-content clearfix'
-                    answer_url = \
-                        self.url + 'answer/' + soup.div['data-atoken']
-                    author = soup.find(
-                        'h3', class_='zm-item-answer-author-wrap')
-                    upvote_num = int(soup.find(
-                        'div', class_='zm-item-vote-info')['data-votecount'])
-                    content = soup.find(
-                        'div', class_='zm-editable-content')
-                    content = answer_content_process(content)
-                    a_url, name, motto, photo = parser_author_from_tag(author)
-                    author_obj = Author(a_url, name, motto, photo_url=photo,
-                                        session=self._session)
-                    yield Answer(answer_url, self, author_obj,
-                                 upvote_num, content, session=self._session)
+                    yield self._parse_answer_html(answer_html, Author, Answer)
 
     @property
     def top_answer(self):
@@ -260,3 +242,24 @@ class Question:
                 yield a
             else:
                 return
+
+    def _parse_answer_html(self, answer_html, Author, Answer):
+        soup = BeautifulSoup(answer_html)
+        # 修正各种建议修改的回答……
+        error_answers = soup.find_all('div', id='answer-status')
+        for each in error_answers:
+            each['class'] = ' zm-editable-content clearfix'
+        answer_url = \
+            self.url + 'answer/' + soup.div['data-atoken']
+        author = soup.find(
+            'h3', class_='zm-item-answer-author-wrap')
+        upvote_num = int(soup.find(
+            'div', class_='zm-item-vote-info')['data-votecount'])
+        content = soup.find(
+            'div', class_='zm-editable-content')
+        content = answer_content_process(content)
+        a_url, name, motto, photo = parser_author_from_tag(author)
+        author_obj = Author(a_url, name, motto, photo_url=photo,
+                            session=self._session)
+        return Answer(answer_url, self, author_obj,
+                      upvote_num, content, session=self._session)
