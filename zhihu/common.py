@@ -9,6 +9,7 @@ import os
 
 from requests import Session
 from bs4 import BeautifulSoup as _Bs
+from bs4 import Tag, NavigableString
 
 try:
     __import__('lxml')
@@ -134,6 +135,7 @@ def parser_author_from_tag(author):
 
 
 def answer_content_process(content):
+    content = clone_bs4_elem(content)
     del content['class']
     soup = BeautifulSoup(
         '<html><head><meta charset="utf-8"></head><body></body></html>')
@@ -202,3 +204,23 @@ def common_follower(url, xsrf, session):
                     numbers = [None] * 4
                 yield Author(author_url, author_name, author_motto, *numbers,
                              photo_url=author_photo, session=session)
+
+
+def clone_bs4_elem(el):
+    """Clone a bs4 tag before modifying it.
+
+    Code from `http://stackoverflow.com/questions/23057631/clone-element-with
+    -beautifulsoup`
+    """
+    if isinstance(el, NavigableString):
+        return type(el)(el)
+
+    copy = Tag(None, el.builder, el.name, el.namespace, el.nsprefix)
+    # work around bug where there is no builder set
+    # https://bugs.launchpad.net/beautifulsoup/+bug/1307471
+    copy.attrs = dict(el.attrs)
+    for attr in ('can_be_empty_element', 'hidden'):
+        setattr(copy, attr, getattr(el, attr))
+    for child in el.contents:
+        copy.append(clone_bs4_elem(child))
+    return copy
