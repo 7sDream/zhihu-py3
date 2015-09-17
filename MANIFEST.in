@@ -1,1 +1,4 @@
 include *.rst LICENSE
+include test/test*.py
+include test/zhihu-test.py
+include docs/*
