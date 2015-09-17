@@ -3,9 +3,7 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 |Documentation Status|
 
-Dev 分支 coding 内容：
-
-暂无。
+最近一次更新内容： 跟进知乎的图片链接格式。
 
 
 具体请看\ `ChangeLog <https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.rst>`__\ 。

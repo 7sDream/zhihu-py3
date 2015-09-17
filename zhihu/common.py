@@ -147,7 +147,7 @@ def answer_content_process(content):
     img_list = soup.find_all(
         "img", class_="origin_image zh-lightbox-thumb lazy")
     for img in img_list:
-        new_img = soup.new_tag('img', src=img['data-original'])
+        new_img = soup.new_tag('img', src=PROTOCOL + img['data-original'])
         img.replace_with(new_img)
         new_img.insert_after(soup.new_tag('br'))
         if img.previous_sibling is None or img.previous_sibling.name != 'br':
