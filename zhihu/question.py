@@ -181,7 +181,7 @@ class Question:
                 # 修正各种建议修改的回答……
                 error_answers = self.soup.find_all('div', id='answer-status')
                 for each in error_answers:
-                    each['class'] = ' zm-editable-content clearfix'
+                    each['class'] = 'zm-editable-content'
                 # 正式处理
                 authors = self.soup.find_all(
                     'h3', class_='zm-item-answer-author-wrap')
@@ -189,7 +189,7 @@ class Question:
                 upvote_nums = self.soup.find_all('div',
                                                  class_='zm-item-vote-info')
                 contents = self.soup.find_all(
-                    'div', class_=' zm-editable-content clearfix')
+                    'div', class_='zm-editable-content')
                 for author, url, upvote_num, content in \
                         zip(authors, urls, upvote_nums, contents):
                     a_url, name, motto, photo = parser_author_from_tag(author)
@@ -248,7 +248,7 @@ class Question:
         # 修正各种建议修改的回答……
         error_answers = soup.find_all('div', id='answer-status')
         for each in error_answers:
-            each['class'] = ' zm-editable-content clearfix'
+            each['class'] = 'zm-editable-content'
         answer_url = \
             self.url + 'answer/' + soup.div['data-atoken']
         author = soup.find(
