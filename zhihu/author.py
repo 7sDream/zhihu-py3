@@ -66,7 +66,8 @@ class Author:
         :return: 用户id
         :rtype: str
         """
-        return re.match(r'^.*/([^/]+)/$', self.url).group(1)
+        return re.match(r'^.*/([^/]+)/$', self.url).group(1) if self.url is not None else ''
+
 
     @property
     @check_soup('_xsrf')
