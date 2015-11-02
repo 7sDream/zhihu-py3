@@ -1,7 +1,7 @@
 zhihu-py3 : 知乎非官方API库 with Python3
 ========================================
 
-|Documentation Status|
+|Author| |DocumentationStatus| |PypiVersion| |License| |PypiDownloadStatus|
 
 Dev 分支coding内容：
 
@@ -174,5 +174,13 @@ Github：\ `@7sDream <https://github.com/7sDream>`__
 
 编程交流群：478786205
 
-.. |Documentation Status| image:: https://readthedocs.org/projects/zhihu-py3/badge/?version=latest
+.. |Author| image:: https://img.shields.io/badge/Author-7sDream-blue.svg
+   :target: https://github.com/7sDream
+.. |DocumentationStatus| image:: https://readthedocs.org/projects/zhihu-py3/badge/?version=latest
    :target: https://readthedocs.org/projects/zhihu-py3/?badge=latest
+.. |PypiVersion| image:: https://img.shields.io/pypi/v/zhihu-py3.svg
+   :target: https://pypi.python.org/pypi/zhihu-py3
+.. |PypiDownloadStatus| image:: https://img.shields.io/pypi/dd/zhihu-py3.svg
+   :target: https://pypi.python.org/pypi/zhihu-py3
+.. |License| image:: https://img.shields.io/pypi/l/zhihu-py3.svg
+   :target: https://github.com/7sDream/zhihu-py3/blob/master/LICENSE
