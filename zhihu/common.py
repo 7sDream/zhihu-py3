@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = '7sDream'
-
 import functools
 import re
 import os
@@ -87,7 +85,9 @@ def check_soup(attr, soup_type='_make_soup'):
                 value = func(self)
                 setattr(self, attr, value)
             return value
+
         return wrapper
+
     return real
 
 
@@ -106,7 +106,9 @@ def class_common_init(url_re, allowed_none=False):
                 kwargs['session'] = Session()
             self.soup = None
             return func(self, url, *args, **kwargs)
+
         return wrapper
+
     return real
 
 
@@ -177,36 +179,36 @@ def get_path(path, filename, mode, default_path, default_name):
 
 
 def common_follower(url, xsrf, session):
-        from .author import Author
-        headers = dict(Default_Header)
-        headers['Referer'] = url
-        data = {'offset': 0, '_xsrf': xsrf}
-        gotten_data_num = 20
-        offset = 0
-        while gotten_data_num == 20:
-            data['offset'] = offset
-            res = session.post(url, data=data, headers=headers)
-            json_data = res.json()['msg']
-            gotten_data_num = json_data[0]
-            offset += gotten_data_num
-            soup = BeautifulSoup(json_data[1])
-            follower_divs = soup.find_all('div', class_='zm-profile-card')
-            for div in follower_divs:
-                if div.a is not None:
-                    author_name = div.a['title']
-                    author_url = Zhihu_URL + div.a['href']
-                    author_motto = div.find('div', class_='zg-big-gray').text
-                    author_photo = PROTOCOL + div.img['src'].replace('_m', '_r')
-                    numbers = [re_get_number.match(a.text).group(1)
-                               for a in div.find_all('a', target='_blank')]
-                else:
-                    author_name = '匿名用户'
-                    author_url = None
-                    author_motto = ''
-                    author_photo = None
-                    numbers = [None] * 4
-                yield Author(author_url, author_name, author_motto, *numbers,
-                             photo_url=author_photo, session=session)
+    from .author import Author
+    headers = dict(Default_Header)
+    headers['Referer'] = url
+    data = {'offset': 0, '_xsrf': xsrf}
+    gotten_data_num = 20
+    offset = 0
+    while gotten_data_num == 20:
+        data['offset'] = offset
+        res = session.post(url, data=data, headers=headers)
+        json_data = res.json()['msg']
+        gotten_data_num = json_data[0]
+        offset += gotten_data_num
+        soup = BeautifulSoup(json_data[1])
+        follower_divs = soup.find_all('div', class_='zm-profile-card')
+        for div in follower_divs:
+            if div.a is not None:
+                author_name = div.a['title']
+                author_url = Zhihu_URL + div.a['href']
+                author_motto = div.find('div', class_='zg-big-gray').text
+                author_photo = PROTOCOL + div.img['src'].replace('_m', '_r')
+                numbers = [re_get_number.match(a.text).group(1)
+                           for a in div.find_all('a', target='_blank')]
+            else:
+                author_name = '匿名用户'
+                author_url = None
+                author_motto = ''
+                author_photo = None
+                numbers = [None] * 4
+            yield Author(author_url, author_name, author_motto, *numbers,
+                         photo_url=author_photo, session=session)
 
 
 def clone_bs4_elem(el):
