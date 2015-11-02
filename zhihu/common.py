@@ -30,6 +30,8 @@ Get_Profile_Card_URL = Zhihu_URL + '/node/MemberProfileCardV2'
 Question_Get_More_Answer_URL = Zhihu_URL + '/node/QuestionAnswerListV2'
 Author_Get_More_Followers_URL = Zhihu_URL + '/node/ProfileFollowersListV2'
 Author_Get_More_Followees_URL = Zhihu_URL + '/node/ProfileFolloweesListV2'
+Author_Get_More_Follow_Column_URL = Zhihu_URL + '/node/ProfileFollowedColumnsListV2'
+
 PROTOCOL = ''
 
 Column_Url = 'http://zhuanlan.zhihu.com'

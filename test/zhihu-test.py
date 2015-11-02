@@ -198,6 +198,14 @@ def test_author():
     # 一句。
     # Read it later
 
+    # 获取用户关注专栏数
+    print(author.followed_column_num)
+    # 9
+
+    # 获取用户关注的专栏
+    for column in author.followed_columns:
+        print(column.name, column.url, column.follower_num)
+
     # 获取用户动态
     for _, act in zip(range(0, 10), author.activities):
         print(act.content.url)

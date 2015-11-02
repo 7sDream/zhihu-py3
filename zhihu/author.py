@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = '7sDream'
-
 import json
 import datetime
 
@@ -67,7 +65,6 @@ class Author:
         :rtype: str
         """
         return re.match(r'^.*/([^/]+)/$', self.url).group(1) if self.url is not None else ''
-
 
     @property
     @check_soup('_xsrf')
@@ -268,6 +265,20 @@ class Author:
             return int(self._nav_list[4].span.text)
 
     @property
+    @check_soup('_followed_column_num')
+    def followed_column_num(self):
+        """获取用户关注的专栏数
+
+        :return: 关注的专栏数
+        :rtype: int
+        """
+        if self.url is not None:
+            tag = self.soup.find('div', class_='zm-profile-side-columns')
+            if tag is not None:
+                return int(re_get_number.match(tag.parent.strong.text).group(1))
+        return 0
+
+    @property
     def questions(self):
         """获取用户的所有问题.
 
@@ -435,7 +446,7 @@ class Author:
                          session=self._session)
 
     @property
-    def columns_followed(self):
+    def followed_columns(self):
         """获取用户关注的专栏.
 
         :return: 用户关注的专栏，返回生成器
@@ -444,14 +455,25 @@ class Author:
         from .column import Column
         if self.url is None:
             return
-        soup = BeautifulSoup(self._session.get(self.url + 'columns/followed').text)
-        column_tags = soup.find_all('div', class_='zm-profile-section-item zg-clear')
-        if column_tags is None:
-            return
-        for column_tag in column_tags:
-            name = column_tag.div.a.strong.text
-            url = column_tag.div.a['href']
-            yield Column(url, name, session=self._session)
+        if self.followed_column_num > 0:
+            tag = self.soup.find('div', class_='zm-profile-side-columns')
+            if tag is not None:
+                for a in tag.find_all('a'):
+                    yield Column(a['href'], a.img['alt'])
+            if self.followed_column_num > 7:
+                offset = 7
+                gotten_data_num = 20
+                while gotten_data_num == 20:
+                    params = {'hash_id': self.hash_id, 'limit': 20, 'offset': offset}
+                    data = {'method': 'next', '_xsrf': self.xsrf, 'params': json.dumps(params)}
+                    j = self._session.post(Author_Get_More_Follow_Column_URL, data=data).json()
+                    gotten_data_num = len(j['msg'])
+                    offset += gotten_data_num
+                    for msg in map(BeautifulSoup, j['msg']):
+                        name = msg.strong.text
+                        url = msg.a['href']
+                        post_num = int(re_get_number.match(msg.span.text).group(1))
+                        yield Column(url, name, post_num)
 
     @property
     def activities(self):

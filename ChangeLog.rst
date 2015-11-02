@@ -5,6 +5,8 @@
 -----
 
 - [fix] 获取匿名用户的ID出错的问题，暂定为返回空字符串
+- [add] 增加获取用户关注专栏数的功能 (Thanks\ `@cssmlulu <https://github.com/cssmlulu>`__\ 的PR)
+- [add] 增加获取用户关注专栏的功能 (Thanks\ `@cssmlulu <https://github.com/cssmlulu>`__\ 的PR)
 
 0.2.5
 -----
