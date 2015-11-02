@@ -435,6 +435,25 @@ class Author:
                          session=self._session)
 
     @property
+    def columns_followed(self):
+        """获取用户关注的专栏.
+
+        :return: 用户关注的专栏，返回生成器
+        :rtype: Column.Iterable
+        """
+        from .column import Column
+        if self.url is None:
+            return
+        soup = BeautifulSoup(self._session.get(self.url + 'columns/followed').text)
+        column_tags = soup.find_all('div', class_='zm-profile-section-item zg-clear')
+        if column_tags is None:
+            return
+        for column_tag in column_tags:
+            name = column_tag.div.a.strong.text
+            url = column_tag.div.a['href']
+            yield Column(url, name, session=self._session)
+
+    @property
     def activities(self):
         """获取用户的最近动态.
 
