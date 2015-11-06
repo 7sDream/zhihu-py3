@@ -182,7 +182,7 @@ class Question:
                     each['class'] = 'zm-editable-content'
                 # 正式处理
                 authors = self.soup.find_all(
-                    'h3', class_='zm-item-answer-author-wrap')
+                    'div', class_='zm-item-answer-author-info')
                 urls = self.soup.find_all('a', class_='answer-date-link')
                 upvote_nums = self.soup.find_all('div',
                                                  class_='zm-item-vote-info')

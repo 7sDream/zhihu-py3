@@ -46,7 +46,7 @@ def test_question():
 
     # 获取排名前十的十个回答的点赞数
     for answer in question.top_i_answers(10):
-        print(answer.author.name, answer.upvote_num)
+        print(answer.author.name, answer.upvote_num, answer.author.motto)
     # 49
     # 89
     # 425

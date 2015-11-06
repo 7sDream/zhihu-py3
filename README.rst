@@ -8,6 +8,7 @@ Dev 分支coding内容：
  - unittest
  - 获取用户关注的话题
  - 评论相关
+ - 忙着跟上知乎的节奏（dog fuck‘s zhihu）
 
 
 具体请看\ `ChangeLog <https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.rst>`__\ 。

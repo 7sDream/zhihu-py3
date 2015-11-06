@@ -1,6 +1,11 @@
 更新日志
 ========
 
+0.2.7
+-----
+
+- [fix] 修复由于把用户tag从h3改成了div造成的一系列 bug (Thanks \ `@lishubing <https://github.com/lishubing>`__\ 的PR)
+
 0.2.6
 -----
 

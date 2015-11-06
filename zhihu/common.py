@@ -132,8 +132,9 @@ def parser_author_from_tag(author):
         return None, '匿名用户', '', ''
     else:
         author_name = author.contents[3].text
-        author_motto = author.strong['title'] \
-            if author.strong is not None else ''
+        motto_span = author.find('span', class_='bio')
+        author_motto = motto_span['title'] \
+            if motto_span is not None else ''
         author_url = Zhihu_URL + author.contents[3]['href']
         photo_url = PROTOCOL + author.a.img['src'].replace('_s', '_r')
         return author_url, author_name, author_motto, photo_url
