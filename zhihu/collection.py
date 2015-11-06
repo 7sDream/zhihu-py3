@@ -192,11 +192,11 @@ class Collection:
                     question = Question(question_url, question_title,
                                         session=self._session)
                 answer_url = Zhihu_URL + url_tag['href']
-                span = tag.find('span',class_='user-block')
-                if span.text != '匿名用户':
-                    author_url = span.a['href']
-                    author_name = span.a.text
-                    if span.strong is not None:
+                div = tag.find('div', class_='zm-item-answer-author-info')
+                if div.text != '匿名用户':
+                    author_url = Zhihu_URL + div.a['href']
+                    author_name = div.a.text
+                    if div.strong is not None:
                         author_motto = tag.find('h3').strong['title']
                 print(author_url)
                 author = Author(author_url, author_name, author_motto,
