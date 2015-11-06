@@ -180,14 +180,16 @@ class Question:
                 error_answers = self.soup.find_all('div', id='answer-status')
                 for each in error_answers:
                     each['class'] = 'zm-editable-content'
+                answers_wrap = self.soup.find('div', id='zh-question-answer-wrap')
                 # 正式处理
-                authors = self.soup.find_all(
+                authors = answers_wrap.find_all(
                     'div', class_='zm-item-answer-author-info')
-                urls = self.soup.find_all('a', class_='answer-date-link')
-                upvote_nums = self.soup.find_all('div',
+                urls = answers_wrap.find_all('a', class_='answer-date-link')
+                upvote_nums = answers_wrap.find_all('div',
                                                  class_='zm-item-vote-info')
-                contents = self.soup.find_all(
+                contents = answers_wrap.find_all(
                     'div', class_='zm-editable-content')
+                assert len(authors) == len(urls) == len(upvote_nums) == len(contents)
                 for author, url, upvote_num, content in \
                         zip(authors, urls, upvote_nums, contents):
                     a_url, name, motto, photo = parser_author_from_tag(author)
