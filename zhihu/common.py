@@ -128,15 +128,17 @@ def remove_invalid_char(text):
 
 
 def parser_author_from_tag(author):
-    if author.text == '匿名用户':
+    author_link = author.find('a', class_='author-link')
+    if author_link is None:
         return None, '匿名用户', '', ''
     else:
-        author_name = author.contents[3].text
+        author_name = author_link.text
         motto_span = author.find('span', class_='bio')
         author_motto = motto_span['title'] \
             if motto_span is not None else ''
-        author_url = Zhihu_URL + author.contents[3]['href']
-        photo_url = PROTOCOL + author.a.img['src'].replace('_s', '_r')
+        author_url = Zhihu_URL + author_link['href']
+        avatar_link = author_link = author.find('a', class_='avatar-link')
+        photo_url = PROTOCOL + avatar_link.img['src'].replace('_s', '_r')
         return author_url, author_name, author_motto, photo_url
 
 

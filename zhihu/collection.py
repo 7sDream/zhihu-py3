@@ -193,12 +193,13 @@ class Collection:
                                         session=self._session)
                 answer_url = Zhihu_URL + url_tag['href']
                 div = tag.find('div', class_='zm-item-answer-author-info')
-                if div.text != '匿名用户':
-                    author_url = Zhihu_URL + div.a['href']
-                    author_name = div.a.text
-                    if div.strong is not None:
-                        author_motto = tag.find('h3').strong['title']
-                print(author_url)
+                author_link = div.find('a', class_='author-link')
+                if author_link is not None:
+                    author_url = Zhihu_URL + author_link['href']
+                    author_name = author_link.text
+                    motto_span = div.find('span', class_='bio')
+                    if motto_span is not None:
+                        author_motto = motto_span['title']
                 author = Author(author_url, author_name, author_motto,
                                 session=self._session)
                 upvote = int(tag.find(
