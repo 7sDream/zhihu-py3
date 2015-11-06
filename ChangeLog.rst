@@ -4,7 +4,7 @@
 0.2.7
 -----
 
-- [fix] 修复由于把用户tag从h3改成了div造成的一系列 bug (Thanks \ `@lishubing <https://github.com/lishubing>`__\ 的PR)
+- [fix] 修复由于把用户 tag 从 h3 改成了 div 造成的一系列 bug (Thanks \ `@lishubing <https://github.com/lishubing>`__\ 的PR)
 
 0.2.6
 -----
