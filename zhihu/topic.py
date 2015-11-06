@@ -317,7 +317,7 @@ class Topic:
                 up = div.find('a', class_='zm-item-vote-count')
                 upvote = int(up['data-votecount'])
 
-                au = div.find('h3', class_='zm-item-answer-author-wrap')
+                au = div.find('div', class_='zm-item-answer-author-info')
                 if au.a is None:
                     author_url = None
                     author_name = '匿名用户'

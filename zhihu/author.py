@@ -564,7 +564,7 @@ class Author:
                     question = Question(question_url, question_title,
                                         session=self._session)
 
-                    try_find_author = act.find('h3').find_all(
+                    try_find_author = act.find('div').find_all(
                         'a', href=re.compile('^/people/[^/]*$'))
                     if len(try_find_author) == 0:
                         author_url = None

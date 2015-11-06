@@ -250,7 +250,7 @@ class Question:
         answer_url = \
             self.url + 'answer/' + soup.div['data-atoken']
         author = soup.find(
-            'h3', class_='zm-item-answer-author-wrap')
+            'div', class_='zm-item-answer-author-info')
         upvote_num = int(soup.find(
             'div', class_='zm-item-vote-info')['data-votecount'])
         content = soup.find(

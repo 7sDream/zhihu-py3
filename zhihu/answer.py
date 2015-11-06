@@ -85,7 +85,7 @@ class Answer:
         """
         from .author import Author
 
-        author = self.soup.find('h3', class_='zm-item-answer-author-wrap')
+        author = self.soup.find('div', class_='zm-item-answer-author-info')
         url, name, motto, photo = parser_author_from_tag(author)
         return Author(url, name, motto, photo_url=photo, session=self._session)
 
