@@ -279,6 +279,20 @@ class Author:
         return 0
 
     @property
+    @check_soup('_followed_topic_num')
+    def followed_topic_num(self):
+        """获取用户关注的话题数
+
+        :return: 关注的话题数
+        :rtype: int
+        """
+        if self.url is not None:
+            tag = self.soup.find('div', class_='zm-profile-side-topics')
+            if tag is not None:
+                return int(re_get_number.match(tag.parent.strong.text).group(1))
+        return 0
+
+    @property
     def questions(self):
         """获取用户的所有问题.
 
@@ -459,7 +473,7 @@ class Author:
             tag = self.soup.find('div', class_='zm-profile-side-columns')
             if tag is not None:
                 for a in tag.find_all('a'):
-                    yield Column(a['href'], a.img['alt'])
+                    yield Column(a['href'], a.img['alt'], session=self._session)
             if self.followed_column_num > 7:
                 offset = 7
                 gotten_data_num = 20
@@ -473,7 +487,35 @@ class Author:
                         name = msg.strong.text
                         url = msg.a['href']
                         post_num = int(re_get_number.match(msg.span.text).group(1))
-                        yield Column(url, name, post_num)
+                        yield Column(url, name, post_num=post_num, session=self._session)
+
+    @property
+    def followed_topics(self):
+        """获取用户关注的话题.
+
+        :return: 用户关注的话题，返回生成器
+        :rtype: Topic.Iterable
+        """
+        from .topic import Topic
+        if self.url is None:
+            return
+        if self.followed_topic_num > 0:
+            tag = self.soup.find('div', class_='zm-profile-side-topics')
+            if tag is not None:
+                for a in tag.find_all('a'):
+                    yield Topic(Zhihu_URL + a['href'], a.img['title'], session=self._session)
+            if self.followed_topic_num > 7:
+                offset = 7
+                gotten_data_num = 20
+                while gotten_data_num == 20:
+                    data = {'start': 0, 'offset': offset, '_xsrf': self.xsrf}
+                    j = self._session.post(Author_Get_More_Follow_Topic_URL.format(self.id), data=data).json()
+                    gotten_data_num = j['msg'][0]
+                    offset += gotten_data_num
+                    for div in BeautifulSoup(j['msg'][1]).find_all('div', class_='zm-profile-section-item'):
+                        name = div.strong.text
+                        url = Zhihu_URL + div.a['href']
+                        yield Topic(url, name, session=self._session)
 
     @property
     def activities(self):

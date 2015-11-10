@@ -1,6 +1,14 @@
 更新日志
 ========
 
+0.3.0
+-----
+
+- [fix] 修复 Author 类的 get_followed_columns 接口获取到的 Column 对象调用 followed_num 函数可能获取不到正确数量的 bug
+- [fix] 修复 Author 类的 get_followed_columns 接口获取到的 Column 对象处于未登录状态的 bug
+- [add] Author 类增加获取用户关注的话题数的接口（followed_topic_num）
+- [add] Author 类增加获取用户关注的话题的接口 （followed_topics）
+
 0.2.9
 -----
 

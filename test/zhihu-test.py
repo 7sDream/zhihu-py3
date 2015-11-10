@@ -205,6 +205,21 @@ def test_author():
     # 获取用户关注的专栏
     for column in author.followed_columns:
         print(column.name, column.url, column.follower_num)
+    # 黑客与画家 http://zhuanlan.zhihu.com/hacker-and-painter/ 9743
+    # piapia安全 http://zhuanlan.zhihu.com/ppsec/ 566
+    # Android 科学院 http://zhuanlan.zhihu.com/andlib/ 4347
+    # ...
+
+    # 获取用户关注的话题数
+    print(author.followed_topic_num)
+    # 30
+
+    # 获取用户关注的话题
+    for topic in author.followed_topics:
+        print(topic.name, topic.url)
+    # Python http://www.zhihu.com/topic/19552832/
+    # 计算机 http://www.zhihu.com/topic/19555547/
+    # 生活 http://www.zhihu.com/topic/19551147/
 
     # 获取用户动态
     for _, act in zip(range(0, 10), author.activities):
