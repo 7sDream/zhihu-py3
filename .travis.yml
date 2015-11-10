@@ -1,0 +1,16 @@
+language: python
+
+python:
+  - "3.4"
+  - "3.5"
+
+before_install:
+  - "pip install --upgrade pip"
+
+install:
+  - "pip install .[lxml]"
+
+script: 
+  - "cd test"
+  - "./zhihu-test.py"
+

@@ -519,7 +519,7 @@ def test():
 
 
 if __name__ == '__main__':
-    Cookies_File = 'cookies.json'
+    Cookies_File = 'test.json'
     BASE_DIR = os.path.dirname(os.path.realpath(__file__))
     TEST_DIR = os.path.join(BASE_DIR, 'test')
 
