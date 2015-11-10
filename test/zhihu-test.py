@@ -29,7 +29,7 @@ def test_question():
     # 4326
 
     # 获取关注问题的用户
-    for _, follower in zip(range(0, 10), question.followers):
+    for _, follower in zip(range(10), question.followers):
         print(follower.name)
     # J Drop
     # 熊猫
@@ -73,7 +73,7 @@ def test_answer():
     # 1155
 
     # 获取答案点赞人昵称和感谢赞同提问回答数
-    for _, upvoter in zip(range(1, 10), answer.upvoters):
+    for _, upvoter in zip(range(10), answer.upvoters):
         print(upvoter.name, upvoter.upvote_num, upvoter.thank_num,
               upvoter.question_num, upvoter.answer_num, upvoter.is_zero_user())
     # ...
@@ -127,7 +127,7 @@ def test_author():
     # 82
 
     # 获取用户关注人
-    for _, followee in zip(range(0, 10), author.followees):
+    for _, followee in zip(range(10), author.followees):
         print(followee.name)
     # yuwei
     # falling
@@ -142,7 +142,7 @@ def test_author():
     # 303
 
     # 获得用户粉丝
-    for _, follower in zip(range(0, 10), author.followers):
+    for _, follower in zip(range(10), author.followers):
         print(follower.name)
     # yuwei
     # falling
@@ -156,7 +156,7 @@ def test_author():
     # 16
 
     # 获取用户所有提问的标题
-    for _, question in zip(range(0, 10), author.questions):
+    for _, question in zip(range(10), author.questions):
         print(question.title)
     # 用户「松阳先生」的主页出了什么问题？
     # C++运算符重载在头文件中应该如何定义？
@@ -168,7 +168,7 @@ def test_author():
     # 247
 
     # 获取用户所有回答的点赞数
-    for _, answer in zip(range(0, 10), author.answers):
+    for _, answer in zip(range(10), author.answers):
         print(answer.upvote_num)
     # 0
     # 5
@@ -222,7 +222,7 @@ def test_author():
     # 生活 http://www.zhihu.com/topic/19551147/
 
     # 获取用户动态
-    for _, act in zip(range(0, 10), author.activities):
+    for _, act in zip(range(10), author.activities):
         print(act.content.url)
         if act.type == ActType.FOLLOW_COLUMN:
             print('%s 在 %s 关注了专栏 %s' %
@@ -273,7 +273,7 @@ def test_collection():
     # 6343
 
     # 获取收藏夹关注用户
-    for _, follower in zip(range(0, 10), collection.followers):
+    for _, follower in zip(range(10), collection.followers):
         print(follower.name)
     # 花椰菜
     # 邱火羽白
@@ -285,7 +285,7 @@ def test_collection():
     # 7sDream
 
     # 获取收藏夹内所有答案的点赞数
-    for _, answer in zip(range(0, 10), collection.answers):
+    for _, answer in zip(range(10), collection.answers):
         print(answer.upvote_num)
     # 2561
     # 535
@@ -293,7 +293,7 @@ def test_collection():
     # ...
 
     # 获取收藏夹内所有问题标题
-    for _, question in zip(range(0, 10), collection.questions):
+    for _, question in zip(range(10), collection.questions):
         print(question.title)
     # 如何完成标准的平板支撑？
     # 有没有适合 Android 开发初学者的 App 源码推荐？
@@ -319,7 +319,7 @@ def test_column():
     # 68
 
     # 获取所有文章标题
-    for _, post in zip(range(0, 10), column.posts):
+    for _, post in zip(range(10), column.posts):
         print(post.title)
     # 伦敦，再见。London, Pride.
     # 为什么你来到伦敦?——没有抽到h1b
@@ -385,7 +385,7 @@ def test_topic():
     # 3309
 
     # 获取关注者
-    for _, follower in zip(range(0, 10), topic.followers):
+    for _, follower in zip(range(10), topic.followers):
         print(follower.name, follower.motto)
     # 韦小宝 韦小宝
     # 吉陆遥 吉陆遥
@@ -393,17 +393,17 @@ def test_topic():
     # ...
 
     # 获取父话题
-    for _, parent in zip(range(0, 10), topic.parents):
+    for _, parent in zip(range(10), topic.parents):
         print(parent.name)
     # 互联网
 
     # 获取子话题
-    for _, child in zip(range(0, 10), topic.children):
+    for _, child in zip(range(10), topic.children):
         print(child.name)
     # Tor
 
     # 获取优秀答主
-    for _, author in zip(range(0, 10), topic.top_authors):
+    for _, author in zip(range(10), topic.top_authors):
         print(author.name, author.motto)
     # Ben Chen
     # acel rovsion 我只不过规范基点上的建构论者
@@ -411,7 +411,7 @@ def test_topic():
     # ...
 
     # 获取话题下的精华回答
-    for _, ans in zip(range(0, 10), topic.top_answers):
+    for _, ans in zip(range(10), topic.top_answers):
         print(ans.question.title, ans.author.name, ans.upvote_num)
     # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ Ben Chen 2956
     # 黑客逃避追踪，为什么要用虚拟机 + TOR + VPN 呢？ Ario 526
@@ -419,7 +419,7 @@ def test_topic():
     # ...
 
     # 按时间由近到远获取所有问题
-    for _, question in zip(range(0, 10), topic.questions):
+    for _, question in zip(range(10), topic.questions):
         print(question.title)
     # 马里亚纳网络存在吗？
     # 玛丽亚纳网络存在吗？
@@ -427,7 +427,7 @@ def test_topic():
     # ...
 
     # 按时间由近到远获取所有回答
-    for _, ans in zip(range(0, 10), topic.answers):
+    for _, ans in zip(range(10), topic.answers):
         print(ans.question.title, ans.author.name, ans.upvote_num)
     # 如何用tor登陆qq? 匿名用户 0
     # 想看一下暗网（deep web），但是怕中病毒，所以有谁能发发截图？？ tor 0
@@ -435,7 +435,7 @@ def test_topic():
     # ...
 
     # 获取话题下的热门问题，按热门度由高到低返回
-    for _, q in zip(range(0, 10), topic.hot_questions):
+    for _, q in zip(range(10), topic.hot_questions):
         print(q.title)
     # 《纸牌屋》中提到的深网 (Deep Web) 是什么？
     # 黑客逃避追踪，为什么要用虚拟机 + TOR + VPN 呢？
@@ -443,7 +443,7 @@ def test_topic():
     # ...
 
     # 获取话题下的热门回答，按热门度由高到低返回
-    for _, ans in zip(range(0, 10), topic.hot_answers):
+    for _, ans in zip(range(10), topic.hot_answers):
         print(ans.question.title, ans.author.name, ans.upvote_num)
     # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ Ben Chen 3006
     # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ 提刀夜行 123
