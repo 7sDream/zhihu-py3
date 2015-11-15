@@ -1,6 +1,11 @@
 更新日志
 ========
 
+0.3.1
+-----
+
+- [fix] 修复因为知乎 Answer 的 css class 更改导致的 Answer 类 content 属性获取不正确的 bug
+
 0.3.0
 -----
 
