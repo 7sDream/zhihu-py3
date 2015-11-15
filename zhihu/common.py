@@ -153,13 +153,14 @@ def answer_content_process(content):
     for no_script in no_script_list:
         no_script.extract()
     img_list = soup.find_all(
-        "img", class_="origin_image zh-lightbox-thumb lazy")
+        "img", class_=["origin_image", "content_image"])
     for img in img_list:
+        if "content_image" in img['class']:
+            img['data-original'] = img['data-actualsrc']
         new_img = soup.new_tag('img', src=PROTOCOL + img['data-original'])
         img.replace_with(new_img)
-        new_img.insert_after(soup.new_tag('br'))
-        if img.previous_sibling is None or img.previous_sibling.name != 'br':
-            new_img.insert_before(soup.new_tag('br'))
+        if img.next_sibling is None:
+            new_img.insert_after(soup.new_tag('br'))
     useless_list = soup.find_all("i", class_="icon-external")
     for useless in useless_list:
         useless.extract()

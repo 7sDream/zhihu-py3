@@ -1,7 +1,6 @@
 # project
 test/cookies.json
-test/test/
-zhihu-mytest.py
+test/zhihu-mytest.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

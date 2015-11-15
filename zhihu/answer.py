@@ -145,7 +145,8 @@ class Answer:
         :return: 答案内容
         :rtype: str
         """
-        content = self.soup.find('div', class_='zm-editable-content')
+        answer_wrap = self.soup.find('div', id='zh-question-answer-wrap')
+        content = answer_wrap.find('div', class_='zm-editable-content')
         content = answer_content_process(content)
         return content
 
