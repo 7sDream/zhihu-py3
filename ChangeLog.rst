@@ -4,7 +4,8 @@
 0.3.1
 -----
 
-- [fix] 修复因为知乎 Answer 的 css class 更改导致的 Answer 类 content 属性获取不正确的 bug
+- [fix] 修复因为知乎 Answer 的 css class 更改导致的 Answer 类 content 属性获取不正确的 bug。
+- [fix] 修复历史遗留代码的 bug（使用 profile card获取头像时，网址不正确）。（Thanks  \ `@bdqy <https://github.com/bdqy`)）
 
 0.3.0
 -----

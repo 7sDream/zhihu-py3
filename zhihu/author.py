@@ -147,7 +147,7 @@ class Author:
                 return img.replace('_l', '_r')
             else:
                 assert(self.card is not None)
-                return 'http:' + self.card.img['src'].replace('_xs', '_r')
+                return PROTOCOL + self.card.img['src'].replace('_xs', '_r')
         else:
             return 'http://pic1.zhimg.com/da8e974dc_r.jpg'
 
