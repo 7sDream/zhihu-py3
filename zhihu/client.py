@@ -106,6 +106,7 @@ class ZhihuClient:
         captcha_data = self.get_captcha()
         with open('captcha.gif', 'wb') as f:
             f.write(captcha_data)
+            f.close()
 
         print('please check captcha.gif for captcha')
         captcha = input('captcha: ')

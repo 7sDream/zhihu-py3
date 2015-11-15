@@ -107,7 +107,10 @@ class Author:
             return self.soup.find('div', class_='title-section').span.text
         else:
             assert self.card is not None
-            return self.card.find('span', class_='name').text
+            if self.card.find('span', class_='name') is None:
+                return 'Users are empty'
+            else:
+                return self.card.find('span', class_='name').text
 
     @property
     @check_soup('_motto', '_make_card')
@@ -147,7 +150,7 @@ class Author:
                 return img.replace('_l', '_r')
             else:
                 assert(self.card is not None)
-                return 'http:' + self.card.img['src'].replace('_xs', '_r')
+                return self.card.img['src'].replace('_xs', '_r')
         else:
             return 'http://pic1.zhimg.com/da8e974dc_r.jpg'
 
