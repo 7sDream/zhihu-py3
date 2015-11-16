@@ -29,7 +29,7 @@ def run():
 
 
 def get_user(i, j=0):
-    f = open('name.txt', 'wb')
+    f = open(user_name+'.txt', 'wb')
     url = 'http://www.zhihu.com/people/' + user_name + '-' + str(i)
     if j != 0:
         url = 'http://www.zhihu.com/people/' + user_name + '-' + str(i) + '-' + str(j)
@@ -49,11 +49,11 @@ def get_user(i, j=0):
 def save_pic(url, pic_num):
     content = requests.get(url).content
     if def_pic != content:
-        file = open(pic_dir + '/' + user_name + '-' + pic_num + '.jpg', 'wb')
-        file.write(content)
-        file.close()
+        with open(pic_dir + '/' + user_name + '-' + pic_num + '.jpg', 'wb') as f:
+            f.write(content)
 
 
 if __name__ == '__main__':
+    assert os.path.exists(pic_dir) == False, '%s already exists' % pic_dir
     os.mkdir(pic_dir)
     run()
