@@ -153,3 +153,25 @@ class Me(Author):
             raise ValueError('argument something need to be '
                              'zhihu.Author, zhihu.Question'
                              ', Zhihu.Topic or Zhihu.Collection object.')
+            
+    def message(self, author, content=''):
+        """发送私信给一个用户
+
+        :param Author author: 要感谢或取消感谢的回答
+        :param string message: 发送给用户的私信内容
+        :return: 成功返回True，失败返回False
+        :rtype: bool
+        """
+        if isinstance(author, Author) is False:
+            raise ValueError('argument answer need to be Zhihu.Author object.')
+        if author.url == self.url:
+                return False
+        data = {
+            'member_id': author.hash_id,
+            'content': content,
+            'token': '',
+            '_xsrf': author.xsrf
+        }
+        res = self._session.post(Send_Message_Url,
+                                 data=data)
+        return res.json()['r'] == 0

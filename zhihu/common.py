@@ -31,6 +31,7 @@ Author_Get_More_Followees_URL = Zhihu_URL + '/node/ProfileFolloweesListV2'
 Author_Get_More_Follow_Column_URL = Zhihu_URL + '/node/ProfileFollowedColumnsListV2'
 Author_Get_More_Follow_Topic_URL = Zhihu_URL + '/people/{0}/topics'
 
+
 PROTOCOL = ''
 
 Column_Url = 'http://zhuanlan.zhihu.com'
@@ -57,6 +58,7 @@ Follow_Collection_Url = Zhihu_URL + '/collection/follow'
 Unfollow_Collection_Url = Zhihu_URL + '/collection/unfollow'
 Thanks_Url = Zhihu_URL + '/answer/thanks'
 Cancel_Thanks_Url = Zhihu_URL + '/answer/cancel_thanks'
+Send_Message_Url = Zhihu_URL + '/inbox/post'
 
 re_question_url = re.compile(r'^http://www\.zhihu\.com/question/\d+/?$')
 re_ans_url = re.compile(
