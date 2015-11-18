@@ -154,16 +154,45 @@ class Me(Author):
                              'zhihu.Author, zhihu.Question'
                              ', Zhihu.Topic or Zhihu.Collection object.')
             
+    def add_comment(self, answer, content=''):
+        """给指定答案添加评论
+
+        :param Answer answer: 答案对象 
+        :param string message: 评论内容
+        :return: 成功返回True，失败返回False
+        :rtype: bool
+        """
+        
+        from .answer import Answer
+        if isinstance(answer, Answer) is False:
+            raise ValueError('argument answer need to be Zhihu.Answer object.')
+        if not content :
+            raise ValueError('answer content cannot be empty')
+        data = {
+            'method': 'add_comment',
+            'params': json.dumps({'answer_id': answer.aid, 'content': content}),
+            '_xsrf': answer.xsrf
+            }
+        #headers = dict(Default_Header)
+        #headers['Referer'] = answer.url[:-1]
+        #res = self._session.post(Answer_Add_Comment_URL,
+        #                         headers=headers, data=data)
+        res = self._session.post(Answer_Add_Comment_URL,
+                                 data=data)
+        return res.json()['r'] == 0
+
     def message(self, author, content=''):
         """发送私信给一个用户
 
-        :param Author author: 要感谢或取消感谢的回答
+        :param Author author: 接收私信用户对象 
         :param string message: 发送给用户的私信内容
         :return: 成功返回True，失败返回False
         :rtype: bool
         """
         if isinstance(author, Author) is False:
             raise ValueError('argument answer need to be Zhihu.Author object.')
+        if not content :
+            raise ValueError('answer content cannot be empty')
         if author.url == self.url:
                 return False
         data = {

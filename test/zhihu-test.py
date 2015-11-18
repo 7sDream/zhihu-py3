@@ -506,9 +506,6 @@ def test_me():
     assert me.follow(collection, False)  # 取消关注
     print('通过')
 
-    print('发送私信...', end='')
-    assert me.message(author, '你好，世界！')   # 发送私信 
-    print('通过')
 
 def test():
     test_question()

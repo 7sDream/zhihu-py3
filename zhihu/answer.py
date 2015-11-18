@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import json
+
 from .common import *
 
 
@@ -199,3 +201,25 @@ class Answer:
         return Author(author_url, author_name, author_motto, None,
                       numbers[2], numbers[3], numbers[0], numbers[1],
                       photo_url, session=self._session)
+
+    @property
+    def comments(self):
+        """获取答案下的所有评论.
+
+        :return: 答案下的所有评论，返回生成器
+        :rtype: Comments.Iterable
+        """
+        from .author import Author
+        from .comment import Comment
+        r = self._session.get(Answer_Comment_Box_URL, params='params='+json.dumps({'answer_id': self.aid, 'load_all': True}))
+        soup = BeautifulSoup(r.content)
+        comment_items = soup.find_all('div', class_='zm-item-comment')
+        for comment_item in comment_items:
+            comment_id = int(comment_item['data-id'])
+            content = comment_item.find(
+                'div', class_='zm-comment-content').text.replace('\n','')
+            upvote_num = int(comment_item.find('span', class_='like-num').em.text)
+            a_url, a_name, a_photo_url = parser_author_from_comment(comment_item)
+            author_obj = Author(a_url, a_name, photo_url=a_photo_url,
+                                session=self._session)
+            yield Comment(comment_id, self, author_obj, upvote_num, content)
