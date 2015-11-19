@@ -506,6 +506,15 @@ def test_me():
     assert me.follow(collection, False)  # 取消关注
     print('通过')
 
+    print('屏蔽用户...', end='')
+    assert me.block(author, True)        # 屏蔽
+    assert me.block(author, False)       # 取消屏蔽
+    print('通过')
+
+    print('屏蔽话题...', end='')
+    assert me.block(topic, True)         # 屏蔽
+    assert me.block(topic, False)        # 取消屏蔽
+    print('通过')
 
 def test():
     test_question()

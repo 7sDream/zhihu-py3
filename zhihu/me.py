@@ -153,3 +153,38 @@ class Me(Author):
             raise ValueError('argument something need to be '
                              'zhihu.Author, zhihu.Question'
                              ', Zhihu.Topic or Zhihu.Collection object.')
+
+    def block(self, something, block=True):
+        """屏蔽某个用户、话题
+
+        :param Author/Topic something:
+        :param block: True-->屏蔽，False-->取消屏蔽
+        :return: 成功返回True，失败返回False
+        :rtype: bool
+        """
+        from .topic import Topic
+
+        if isinstance(something, Author):
+
+            if something.url == self.url:
+                return False
+            data = {
+                '_xsrf': something.xsrf,
+                'action': 'add' if block else 'cancel',
+            }
+            block_author_url = something.url + 'block'
+            res = self._session.post(block_author_url, data=data)
+            return res.json()['r'] == 0
+        elif isinstance(something, Topic):
+            tid = something.tid
+            data = {
+                '_xsrf': something.xsrf,
+                'method': 'add' if block else 'del',
+                'tid': tid,
+            }
+            block_topic_url = 'http://www.zhihu.com/topic/ignore'
+            res = self._session.post(block_topic_url, data=data)
+            return res.status_code == 200
+        else:
+            raise ValueError('argument something need to be '
+                             'Zhihu.Author or Zhihu.Topic object.')
