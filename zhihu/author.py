@@ -213,6 +213,22 @@ class Author:
             return number
 
     @property
+    @check_soup('_weibo_url')
+    def weibo_url(self):
+        """获取用户微博链接.
+
+        :return: 微博链接地址
+        :rtype: str
+        """
+        self._make_soup()
+        if self.url is None:
+            return None
+        else:
+            tmp = self.soup.find(
+                'a', class_='zm-profile-header-user-weibo')
+            return tmp['href'] if tmp is not None else None
+
+    @property
     def business(self):
         """用户的行业.
 
