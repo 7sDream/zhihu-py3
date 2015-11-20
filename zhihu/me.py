@@ -188,3 +188,24 @@ class Me(Author):
         else:
             raise ValueError('argument something need to be '
                              'Zhihu.Author or Zhihu.Topic object.')
+
+    def unhelpful(self, answer, unhelpful=True):
+        """没有帮助或取消没有帮助回答
+
+        :param Answer answer: 要没有帮助或取消没有帮助回答
+        :param unhelpful: True-->没有帮助，False-->取消没有帮助
+        :return: 成功返回True，失败返回False
+        :rtype: bool
+        """
+        from .answer import Answer
+        if isinstance(answer, Answer) is False:
+            raise ValueError('argument answer need to be Zhihu.Answer object.')
+        if answer.author.url == self.url:
+                return False
+        data = {
+            '_xsrf': answer.xsrf,
+            'aid': answer.aid
+        }
+        res = self._session.post(Unhelpful_Url if unhelpful else Cancel_Unhelpful_Url,
+                                 data=data)
+        return res.json()['r'] == 0

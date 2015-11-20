@@ -57,6 +57,8 @@ Follow_Collection_Url = Zhihu_URL + '/collection/follow'
 Unfollow_Collection_Url = Zhihu_URL + '/collection/unfollow'
 Thanks_Url = Zhihu_URL + '/answer/thanks'
 Cancel_Thanks_Url = Zhihu_URL + '/answer/cancel_thanks'
+Unhelpful_Url = Zhihu_URL + '/answer/not_helpful'
+Cancel_Unhelpful_Url = Zhihu_URL + '/answer/helpful'
 
 re_question_url = re.compile(r'^http://www\.zhihu\.com/question/\d+/?$')
 re_ans_url = re.compile(
