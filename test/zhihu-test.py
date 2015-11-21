@@ -83,6 +83,10 @@ def test_answer():
     #
     # 三零用户比例 36.364%
 
+    # 获取答案下的评论
+    for _, comment in zip(range(10), answer.comments):
+        print(comment.author.name, comment.content)
+
     # 获取答案内容的HTML
     print(answer.content)
     # <html>
@@ -167,7 +171,7 @@ def test_author():
     print(author.answer_num)
     # 247
 
-    # 获取用户所有回答的点赞数
+    # 获取用户所有回答
     for _, answer in zip(range(10), author.answers):
         print(answer.upvote_num)
     # 0
@@ -175,6 +179,24 @@ def test_author():
     # 12
     # 0
     # ...
+
+    # 获取用户微博
+    print(author.weibo_url)
+
+    # 获取用户行业
+    print(author.business)
+
+    # 获取用户所在地
+    print(author.location)
+
+    # 获取用户教育情况
+    print(author.education)
+
+    # 获取用户性别
+    print(author.gender)
+
+    # 获取用户最后一次活跃时间
+    print(author.last_activity_time)
 
     # 获取用户文章数
     print(author.post_num)
@@ -460,9 +482,9 @@ def test_me():
 
     如果确认有能力，请填写代码中的空白，并将test函数中相关行注释取消
     """
-    answer = client.answer('')          # 填写答案Url，不可填写自己的答案
-    post = client.post('')              # 填写文章Url，不可填写自己的文章
-    author = client.author('')          # 填写用户Url，不可填写自己
+    answer = client.answer('')          # 填写答案Url
+    post = client.post('')              # 填写文章Url
+    author = client.author('')          # 填写用户Url
     question = client.question('')      # 填写问题Url
     topic = client.topic('')            # 填写话题Url
     collection = client.collection('')  # 填写收藏夹Url
@@ -504,6 +526,14 @@ def test_me():
     print('关注收藏夹...', end='')
     assert me.follow(collection)         # 关注
     assert me.follow(collection, False)  # 取消关注
+    print('通过')
+
+    print('发送评论...', end='')
+    assert me.add_comment(answer, 'test')
+    print('通过')
+
+    print('发送私信...', end='')
+    assert me.send_message(author, 'test')
     print('通过')
 
 
