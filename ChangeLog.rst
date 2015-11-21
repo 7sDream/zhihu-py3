@@ -4,8 +4,14 @@
 0.3.1
 -----
 
-- [fix] 修复因为知乎 Answer 的 css class 更改导致的 Answer 类 content 属性获取不正确的 bug。
-- [fix] 修复历史遗留代码的 bug（使用 profile card获取头像时，网址不正确）。（Thanks \ `@bdqy <https://github.com/bdqy>`__\ 的PR）
+- [fix] 修复因为知乎 Answer 的 css class 更改导致的 Answer 类 content 属性获取不正确的 bug
+- [fix] 修复历史遗留代码造成使用 profile card 获取头像时，网址不正确的 bug（Thanks`@bdqy <https://github.com/bdqy>`__）
+- [fix] 修复因答案被和谐造成的 bug（Thanks`@littlezz <https://github.com/littlezz>`__）
+- [add] 获取用户的一些详细信息，包括微博，所在地，教育情况，所在行业等等(Thanks`@zeroxfio <https://github.com/zeroxfio>`__）
+- [add] Answer 类增加了获取答案的评论的功能(Thanks`@zeroxfio <https://github.com/zeroxfio>`__）
+- [add] Me 类增加了发送私信和评论的功能(Thanks`@zeroxfio <https://github.com/zeroxfio>`__）
+- [add] Me 类增加了给答案点没有帮助的功能(Thanks`@lishubing <https://github.com/lishubing>`__)
+- [add] Me 类增加了屏蔽用户，屏蔽话题的功能(Thanks`@lishubing <https://github.com/lishubing>`__)
 
 0.3.0
 -----
@@ -29,14 +35,14 @@
 0.2.7
 -----
 
-- [fix] 修复由于把用户 tag 从 h3 改成了 div 造成的一系列 bug (Thanks \ `@lishubing <https://github.com/lishubing>`__\ 的PR)
+- [fix] 修复由于把用户 tag 从 h3 改成了 div 造成的一系列 bug (Thanks`@lishubing <https://github.com/lishubing>`__)
 
 0.2.6
 -----
 
 - [fix] 获取匿名用户的ID出错的问题，暂定为返回空字符串
-- [add] 增加获取用户关注专栏数的功能 (Thanks\ `@cssmlulu <https://github.com/cssmlulu>`__\ 的PR)
-- [add] 增加获取用户关注专栏的功能 (Thanks\ `@cssmlulu <https://github.com/cssmlulu>`__\ 的PR)
+- [add] 增加获取用户关注专栏数的功能 (Thanks`@cssmlulu <https://github.com/cssmlulu>`__)
+- [add] 增加获取用户关注专栏的功能 (Thanks`@cssmlulu <https://github.com/cssmlulu>`__)
 
 0.2.5
 -----
@@ -116,26 +122,26 @@
 ----------
 
 -  重构项目结构
--  增加zhihu.Client类，改善原先模块需要使用当前目录下cookies的弊端，现在的使用方法请看Readme中的示例。
--  去掉了\ ``_text2int``\ 方法，因为发现知乎以K结尾的赞同数也有办法获取到准确点赞数。
+-  增加 zhihu.Client 类，改善原先模块需要使用当前目录下 cookies 的弊端，现在的使用方法请看 Readme 中的示例。
+-  去掉了 _text2int 方法，因为发现知乎以K结尾的赞同数也有办法获取到准确点赞数。
 
 2015.07.26
 ----------
 
-重构项目结构，转变为标准Python模块结构。
+重构项目结构，转变为标准 Python 模块结构。
 
 2015.07.26
 ----------
 
-添加\ ``Author.photo_url``\ 借口，用于获取用户头像。
+添加 Author.photo_url 接口，用于获取用户头像。
 
 本属性的实现较为分散，在不同的地方使用了不同的方法：
 
--  ``Author.follower(e)s``\ 、\ ``Answer.upvoters``\ 等属性返回的\ ``Author``\ 自带\ ``photo_url``
+-  Author.follower(e)s, Answer.upvoters 等属性返回的 Author 自带 photo_url
 
--  用户自定义的\ ``Author``\ 在访问过主页的情况下通过解析主页得到
+-  用户自定义的 Author 在访问过主页的情况下通过解析主页得到
 
--  用户自定义的\ ``Author``\ 在未访问主页的情况下为了性能使用了知乎的CardProfile
+-  用户自定义的 Author 在未访问主页的情况下为了性能使用了知乎的 CardProfile
    API
 
 因为实现混乱所以容易有Bug，欢迎反馈。
@@ -146,24 +152,22 @@
 增加了获取用户关注者和粉丝的功能
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``Author.followers``\ 、\ ``Author.folowees``\ ，返回Author迭代器，自带url,
-name ,motto question\_num, answer\_num, upvote\_num, follower\_num属性。
+Author.followers, Author.folowees 返回Author迭代器，自带url, name, motto, question\_num, answer\_num, upvote\_num, follower\_num属性。
 
 html解析器优选
 ~~~~~~~~~~~~~~
 
-在安装了lxml的情况下默认使用lxml作为解析器，否则使用html.parser。
+在安装了 lxml 的情况下默认使用 lxml 作为解析器，否则使用 html.parser。
 
 增加答案获取点赞用户功能
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-``Author.upvoters``\ ，返回Author迭代器，自带url, name ,motto
-question\_num, answer\_num, upvote\_num, thank\_num属性
+Author.upvoters 返回 Author 迭代器，自带url, name, motto, question\_num, answer\_num, upvote\_num, thank\_num属性
 
 增加简易判断是否为「三零用户」功能
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``Author.is_zero_user()``\ ，判断标准为，赞同，感谢，提问数，回答数均为0。
+Author.is_zero_user() ，判断标准为，赞同，感谢，提问数，回答数均为 0。
 
 2015.07.23
 ----------
@@ -171,27 +175,26 @@ question\_num, answer\_num, upvote\_num, thank\_num属性
 各个类url属性更改为公开
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-暂时这样吧，有点懒了，因为这样会让使用者有机会非法修改url，可能导致Bug，以后勤快的话会改成read-only。
+暂时这样吧，有点懒了，因为这样会让使用者有机会非法修改 url，可能导致 Bug，以后勤快的话会改成 read-only。
 
 类名变更
 ~~~~~~~~
 
-专栏类从\ ``Book``\ 更名为\ ``Cloumn``
+专栏类从 Book 更名为 Cloumn
 
-文章类从\ ``Article``\ 更名为\ ``Post``
+文章类从 Article 更名为 Post
 
-以上两个更名同时影响了其他类的属性名，如\ ``Author.books``\ 变更为\ ``Author.columns``\ ，其他类同理。
+以上两个更名同时影响了其他类的属性名，如 Author.books 变更为 Author.columns，其他类同理。
 
 接口名变更
 ~~~~~~~~~~
 
-1. 统一了一下复数的使用。比如\ ``Author.answers_num``\ 变为\ ``Author.answer_num``,
-   ``Author.collections_num``\ 变为\ ``Author.collection_num``\ 。也就是说某某数量的接口名为\ ``Class.foo_num``\ ，foo使用单数形式。
+1. 统一了一下复数的使用。比如 Author.answers_num 变为 Author.answer_num, Author.collections\_num 变为 Author.collection\_num。
+也就是说某某数量的接口名为 Class.foo_num，foo使用单数形式。
 
-2. 知乎的赞同使用单词upvote，以前叫\ ``agree``\ 的地方现在都叫\ ``upvote``\ 。比如\ ``Author.agree_num``\ 变为\ ``Author.upvote_num``,
-   ``Post.agree_num``\ 变为\ ``Post.upvote_num``\ 。
+2. 知乎的赞同使用单词 upvote，以前叫 agree 的地方现在都叫 upvote。比如 Author.agree_num 变为 Author.upvote_num，Post.agree_num 变为 Post.upvote_num。
 
-3. ``Answer``\ 类的\ ``upvote``\ 属性更名为\ ``upvote_num``\ 。
+3. Answer 类的 upvote 属性更名为 upvote_num。
 
 提供\ ``Topic``\ 类
 ~~~~~~~~~~~~~~~~~~~
@@ -201,9 +204,9 @@ question\_num, answer\_num, upvote\_num, thank\_num属性
 提供\ ``Author.activities``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-属性获取用户动态，返回\ ``Activity``\ 类生成器。
+属性获取用户动态，返回 Activity 类生成器。
 
-``Activity``\ 类提供\ ``type``\ 属性用于判断动态类型，\ ``type``\ 为\ ``ActType``\ 类定义的常量，根据\ ``type``\ 的不同提供不同的属性，如下表：
+Activity 类提供 type 属性用于判断动态类型，type 为 ActType 类定义的常量，根据 type 的不同提供不同的属性，如下表：
 
 +----------------+--------------------+--------------+
 | 类型           | 常量               | 提供的成员   |
@@ -225,23 +228,23 @@ question\_num, answer\_num, upvote\_num, thank\_num属性
 | 提了一个问题   | ASK\_QUESTION      | question     |
 +----------------+--------------------+--------------+
 
-由于每种类型都只提供了一种属性，所以所有Activity对象都有\ ``content``\ 属性，用于直接获取唯一的属性。
+由于每种类型都只提供了一种属性，所以所有Activity对象都有 content 属性，用于直接获取唯一的属性。
 
-示例代码见[zhihu-test.py][zhihu-test-py-url]的\ ``test_author``\ 函数最后。
+示例代码见 zhihu-test.py 的 test_author 函数。
 
-``activities``\ 属性可以在未登录（未生成cookies）的情况下使用，但是根据知乎的隐私保护政策，开启了隐私保护的用户的回答和文章，此时作者信息会是匿名用户，所以还是建议登录后使用。
+activities 属性可以在未登录（未生成cookies）的情况下使用，但是根据知乎的隐私保护政策，开启了隐私保护的用户的回答和文章，此时作者信息会是匿名用户，所以还是建议登录后使用。
 
 2015.07.22
 ----------
 
 尝试修复了最新版bs4导致的问题，虽然我没明白问题在哪QuQ，求测试。
 
--   Windows 已测试 (`@7sDream <https://github.com/7sDream>`__\ )
+-   Windows 已测试 (`@7sDream <https://github.com/7sDream>`__)
 -   Linux
 
-    -   Ubuntu 已测试(\ `@7sDream <https://github.com/7sDream>`__\ )
+    -   Ubuntu 已测试(`@7sDream <https://github.com/7sDream>`__)
 
--   Mac 已测试(\ `@SimplyY <https://github.com/SimplyY>`__\ )
+-   Mac 已测试(`@SimplyY <https://github.com/SimplyY>`__)
 
 2015.07.16
 ----------
@@ -256,10 +259,10 @@ Hotfix， 知乎更换了登录网址，做了简单的跟进，过了Test，等
 2015.06.04：
 ------------
 
-由\ `Gracker <https://github.com/Gracker>`__\ 补充了在 Ubuntu 14.04
+由`@Gracker <https://github.com/Gracker>`__补充了在 Ubuntu 14.04
 下的测试结果，并添加了补充说明。
 
 2015.05.29：
 ------------
 
-修复了当问题关注人数为0时、问题答案数为0时的崩溃问题。（感谢：\ `段晓晨 <http://www.zhihu.com/people/loveQt>`__\ ）
+修复了当问题关注人数为0时、问题答案数为0时的崩溃问题。（感谢：`@段晓晨 <http://www.zhihu.com/people/loveQt>`__）
