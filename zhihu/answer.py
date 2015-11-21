@@ -146,7 +146,8 @@ class Answer:
         :rtype: str
         """
         error_answer = self.soup.find('div', id='answer-status')
-        error_answer['class'] = 'zm-editable-content'
+        if error_answer:
+            error_answer['class'] = 'zm-editable-content'
 
         answer_wrap = self.soup.find('div', id='zh-question-answer-wrap')
         content = answer_wrap.find('div', class_='zm-editable-content')
