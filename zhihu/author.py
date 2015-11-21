@@ -213,6 +213,73 @@ class Author:
             return number
 
     @property
+    @check_soup('_weibo_url')
+    def weibo_url(self):
+        """获取用户微博链接.
+
+        :return: 微博链接地址，如没有则返回 ‘unknown’
+        :rtype: str
+        """
+        if self.url is None:
+            return None
+        else:
+            tmp = self.soup.find(
+                'a', class_='zm-profile-header-user-weibo')
+            return tmp['href'] if tmp is not None else 'unknown'
+
+    @property
+    def business(self):
+        """用户的行业.
+
+        :return: 用户的行业，如没有则返回 ‘unknown’
+        :rtype: str
+        """
+        return self._find_user_profile('business')
+
+    @property
+    def location(self):
+        """用户的所在地.
+
+        :return: 用户的所在地，如没有则返回 ‘unknown’
+        :rtype: str
+        """
+        return self._find_user_profile('location')
+
+    @property
+    def education(self):
+        """用户的教育状况.
+
+        :return: 用户的教育状况，如没有则返回 ‘unknown’
+        :rtype: str
+        """
+        return self._find_user_profile('education')
+
+    def _find_user_profile(self, t):
+        self._make_soup()
+        if self.url is None:
+            return 'unknown'
+        else:
+            res = self.soup.find(
+                'span', class_=t)
+            if res:
+                return res['title']
+            else:
+                return 'unknown'
+
+    @property
+    @check_soup('_gender')
+    def gender(self):
+        """用户的性别.
+
+        :return: 用户的性别（male/female/unknown)
+        :rtype: str
+        """
+        if self.url is None:
+            return 'unknown'
+        else:
+            return 'female' if self.soup.find('i', class_='icon-profile-female') else 'male'
+
+    @property
     @check_soup('_question_num')
     def question_num(self):
         """获取提问数量.
@@ -656,6 +723,18 @@ class Author:
                     topic_name = act.div.a['title']
                     topic = Topic(topic_url, topic_name, session=self._session)
                     yield Activity(act_type, act_time, topic=topic)
+
+    @property
+    def last_activity_time(self):
+        """获取用户最后一次活动的时间
+
+        :return: 用户最后一次活动的时间，返回值为 unix 时间戳
+        :rtype: int
+        """
+        self._make_soup()
+        act = self.soup.find(
+            'div', class_='zm-profile-section-item zm-item clearfix')
+        return int(act['data-time']) if act is not None else -1
 
     def is_zero_user(self):
         """返回当前用户是否为三零用户，其实是四零： 赞同0，感谢0，提问0，回答0.
