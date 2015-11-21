@@ -516,6 +516,11 @@ def test_me():
     assert me.block(topic, False)        # 取消屏蔽
     print('通过')
 
+    print('对问题点没有帮助...', end='')
+    assert me.unhelpful(answer, True)         # 没有帮助
+    assert me.unhelpful(answer, False)        # 取消没有帮助
+    print('通过')
+
 def test():
     test_question()
     test_answer()
