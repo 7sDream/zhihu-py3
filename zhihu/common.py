@@ -33,7 +33,6 @@ Author_Get_More_Followees_URL = Zhihu_URL + '/node/ProfileFolloweesListV2'
 Author_Get_More_Follow_Column_URL = Zhihu_URL + '/node/ProfileFollowedColumnsListV2'
 Author_Get_More_Follow_Topic_URL = Zhihu_URL + '/people/{0}/topics'
 
-
 PROTOCOL = ''
 
 Column_Url = 'http://zhuanlan.zhihu.com'
@@ -142,7 +141,7 @@ def parser_author_from_tag(author):
         author_motto = motto_span['title'] \
             if motto_span is not None else ''
         author_url = Zhihu_URL + author_link['href']
-        avatar_link = author_link = author.find('a', class_='avatar-link')
+        avatar_link = author.find('a', class_='avatar-link')
         photo_url = PROTOCOL + avatar_link.img['src'].replace('_s', '_r')
         return author_url, author_name, author_motto, photo_url
 
@@ -153,10 +152,10 @@ def parser_author_from_comment(author):
         return None, '匿名用户', ''
     else:
         author_link = author.find('a', class_='zg-link')
-        author_name = author_link.txt
+        author_name = author_link.text
         author_url = author_link['href']
         avatar_link = author.find('img', class_='zm-item-img-avatar')
-        photo_url = avatar_link['src'].replace('_s', '_r')
+        photo_url = PROTOCOL + avatar_link['src'].replace('_s', '_r')
         return author_url, author_name,  photo_url
 
 

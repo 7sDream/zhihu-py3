@@ -217,7 +217,7 @@ class Answer:
         for comment_item in comment_items:
             comment_id = int(comment_item['data-id'])
             content = comment_item.find(
-                'div', class_='zm-comment-content').text.replace('\n','')
+                'div', class_='zm-comment-content').text.replace('\n', '')
             upvote_num = int(comment_item.find('span', class_='like-num').em.text)
             a_url, a_name, a_photo_url = parser_author_from_comment(comment_item)
             author_obj = Author(a_url, a_name, photo_url=a_photo_url,

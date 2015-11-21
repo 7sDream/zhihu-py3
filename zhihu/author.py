@@ -217,22 +217,21 @@ class Author:
     def weibo_url(self):
         """获取用户微博链接.
 
-        :return: 微博链接地址
+        :return: 微博链接地址，如没有则返回 ‘unknown’
         :rtype: str
         """
-        self._make_soup()
         if self.url is None:
             return None
         else:
             tmp = self.soup.find(
                 'a', class_='zm-profile-header-user-weibo')
-            return tmp['href'] if tmp is not None else None
+            return tmp['href'] if tmp is not None else 'unknown'
 
     @property
     def business(self):
         """用户的行业.
 
-        :return: 用户的行业
+        :return: 用户的行业，如没有则返回 ‘unknown’
         :rtype: str
         """
         return self._find_user_profile('business')
@@ -241,16 +240,16 @@ class Author:
     def location(self):
         """用户的所在地.
 
-        :return: 用户的所在地
+        :return: 用户的所在地，如没有则返回 ‘unknown’
         :rtype: str
         """
-        return self._find_user_profile('loaction')
+        return self._find_user_profile('location')
 
     @property
     def education(self):
         """用户的教育状况.
 
-        :return: 用户的教育状况
+        :return: 用户的教育状况，如没有则返回 ‘unknown’
         :rtype: str
         """
         return self._find_user_profile('education')
@@ -265,7 +264,7 @@ class Author:
             if res:
                 return res['title']
             else:
-                return 'unknow'
+                return 'unknown'
 
     @property
     @check_soup('_gender')
@@ -727,6 +726,12 @@ class Author:
 
     @property
     def last_activity_time(self):
+        """获取用户最后一次活动的时间
+
+        :return: 用户最后一次活动的时间，返回值为 unix 时间戳
+        :rtype: int
+        """
+        self._make_soup()
         act = self.soup.find(
             'div', class_='zm-profile-section-item zm-item clearfix')
         return int(act['data-time']) if act is not None else -1
