@@ -385,7 +385,7 @@ def test_post():
 def test_topic():
     url = 'http://www.zhihu.com/topic/19947695/'
     topic = client.topic(url)
-    
+
     # 获取话题地址
     print(topic.url)
     # http://www.zhihu.com/topic/19947695/
@@ -529,13 +529,27 @@ def test_me():
     print('通过')
 
     print('发送评论...', end='')
-    assert me.add_comment(answer, 'test')
+    assert me.add_comment(answer, 'test') # 评论
     print('通过')
 
     print('发送私信...', end='')
-    assert me.send_message(author, 'test')
+    assert me.send_message(author, 'test') # 私信
     print('通过')
 
+    print('屏蔽用户...', end='')
+    assert me.block(author, True)        # 屏蔽
+    assert me.block(author, False)       # 取消屏蔽
+    print('通过')
+
+    print('屏蔽话题...', end='')
+    assert me.block(topic, True)         # 屏蔽
+    assert me.block(topic, False)        # 取消屏蔽
+    print('通过')
+
+    print('对问题点没有帮助...', end='')
+    assert me.unhelpful(answer, True)         # 没有帮助
+    assert me.unhelpful(answer, False)        # 取消没有帮助
+    print('通过')
 
 def test():
     test_question()

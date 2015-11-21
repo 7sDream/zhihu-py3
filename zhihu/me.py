@@ -153,16 +153,16 @@ class Me(Author):
             raise ValueError('argument something need to be '
                              'zhihu.Author, zhihu.Question'
                              ', Zhihu.Topic or Zhihu.Collection object.')
-            
+
     def add_comment(self, answer, content):
         """给指定答案添加评论
 
-        :param Answer answer: 答案对象 
+        :param Answer answer: 答案对象
         :param string content: 评论内容
         :return: 成功返回 True，失败返回 False
         :rtype: bool
         """
-        
+
         from .answer import Answer
         if isinstance(answer, Answer) is False:
             raise ValueError('argument answer need to be Zhihu.Answer object.')
@@ -180,7 +180,7 @@ class Me(Author):
     def send_message(self, author, content):
         """发送私信给一个用户
 
-        :param Author author: 接收私信用户对象 
+        :param Author author: 接收私信用户对象
         :param string content: 发送给用户的私信内容
         :return: 成功返回 True，失败返回 False
         :rtype: bool
@@ -198,5 +198,61 @@ class Me(Author):
             '_xsrf': author.xsrf
         }
         res = self._session.post(Send_Message_Url,
+                                 data=data)
+        return res.json()['r'] == 0
+
+    def block(self, something, block=True):
+        """屏蔽某个用户、话题
+
+        :param Author/Topic something:
+        :param block: True-->屏蔽，False-->取消屏蔽
+        :return: 成功返回 True，失败返回 False
+        :rtype: bool
+        """
+        from .topic import Topic
+
+        if isinstance(something, Author):
+
+            if something.url == self.url:
+                return False
+            data = {
+                '_xsrf': something.xsrf,
+                'action': 'add' if block else 'cancel',
+            }
+            block_author_url = something.url + 'block'
+            res = self._session.post(block_author_url, data=data)
+            return res.json()['r'] == 0
+        elif isinstance(something, Topic):
+            tid = something.tid
+            data = {
+                '_xsrf': something.xsrf,
+                'method': 'add' if block else 'del',
+                'tid': tid,
+            }
+            block_topic_url = 'http://www.zhihu.com/topic/ignore'
+            res = self._session.post(block_topic_url, data=data)
+            return res.status_code == 200
+        else:
+            raise ValueError('argument something need to be '
+                             'Zhihu.Author or Zhihu.Topic object.')
+
+    def unhelpful(self, answer, unhelpful=True):
+        """没有帮助或取消没有帮助回答
+
+        :param Answer answer: 要没有帮助或取消没有帮助回答
+        :param unhelpful: True-->没有帮助，False-->取消没有帮助
+        :return: 成功返回 True，失败返回 False
+        :rtype: bool
+        """
+        from .answer import Answer
+        if isinstance(answer, Answer) is False:
+            raise ValueError('argument answer need to be Zhihu.Answer object.')
+        if answer.author.url == self.url:
+                return False
+        data = {
+            '_xsrf': answer.xsrf,
+            'aid': answer.aid
+        }
+        res = self._session.post(Unhelpful_Url if unhelpful else Cancel_Unhelpful_Url,
                                  data=data)
         return res.json()['r'] == 0
