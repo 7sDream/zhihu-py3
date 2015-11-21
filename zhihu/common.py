@@ -26,10 +26,13 @@ Login_URL = Zhihu_URL + '/login/email'
 Captcha_URL_Prefix = Zhihu_URL + '/captcha.gif?r='
 Get_Profile_Card_URL = Zhihu_URL + '/node/MemberProfileCardV2'
 Question_Get_More_Answer_URL = Zhihu_URL + '/node/QuestionAnswerListV2'
+Answer_Add_Comment_URL = Zhihu_URL + '/node/AnswerCommentAddV2'
+Answer_Comment_Box_URL = Zhihu_URL + '/node/AnswerCommentBoxV2'
 Author_Get_More_Followers_URL = Zhihu_URL + '/node/ProfileFollowersListV2'
 Author_Get_More_Followees_URL = Zhihu_URL + '/node/ProfileFolloweesListV2'
 Author_Get_More_Follow_Column_URL = Zhihu_URL + '/node/ProfileFollowedColumnsListV2'
 Author_Get_More_Follow_Topic_URL = Zhihu_URL + '/people/{0}/topics'
+
 
 PROTOCOL = ''
 
@@ -57,6 +60,7 @@ Follow_Collection_Url = Zhihu_URL + '/collection/follow'
 Unfollow_Collection_Url = Zhihu_URL + '/collection/unfollow'
 Thanks_Url = Zhihu_URL + '/answer/thanks'
 Cancel_Thanks_Url = Zhihu_URL + '/answer/cancel_thanks'
+Send_Message_Url = Zhihu_URL + '/inbox/post'
 
 re_question_url = re.compile(r'^http://www\.zhihu\.com/question/\d+/?$')
 re_ans_url = re.compile(
@@ -141,6 +145,19 @@ def parser_author_from_tag(author):
         avatar_link = author_link = author.find('a', class_='avatar-link')
         photo_url = PROTOCOL + avatar_link.img['src'].replace('_s', '_r')
         return author_url, author_name, author_motto, photo_url
+
+
+def parser_author_from_comment(author):
+    author_avatar = author.find('a', class_='zm-item-link-avatar')
+    if author_avatar is None:
+        return None, '匿名用户', ''
+    else:
+        author_link = author.find('a', class_='zg-link')
+        author_name = author_link.txt
+        author_url = author_link['href']
+        avatar_link = author.find('img', class_='zm-item-img-avatar')
+        photo_url = avatar_link['src'].replace('_s', '_r')
+        return author_url, author_name,  photo_url
 
 
 def answer_content_process(content):
