@@ -97,7 +97,7 @@ def check_soup(attr, soup_type='_make_soup'):
     return real
 
 
-def class_common_init(url_re, allowed_none=False):
+def class_common_init(url_re, allowed_none=True):
     def real(func):
         @functools.wraps(func)
         def wrapper(self, url, *args, **kwargs):
