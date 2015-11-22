@@ -4,9 +4,10 @@
 import json
 
 from .common import *
+from .base import BaseZhihu
 
 
-class Question:
+class Question(BaseZhihu):
 
     """问题类，请使用``ZhihuClient.question``方法构造对象."""
 
@@ -29,10 +30,10 @@ class Question:
         self._followers_num = followers_num
         self._id = int(re.match(r'.*/(\d+)', self.url).group(1))
 
-    def _make_soup(self):
-        if self.soup is None:
-            r = self._session.get(self.url)
-            self.soup = BeautifulSoup(r.content)
+    # def _make_soup(self):
+    #     if self.soup is None:
+    #         r = self._session.get(self.url)
+    #         self.soup = BeautifulSoup(r.content)
 
     @property
     def id(self):

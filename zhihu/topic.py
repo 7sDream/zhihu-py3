@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from .common import *
+from .base import BaseZhihu
 import time
 
 
-class Topic:
+class Topic(BaseZhihu):
 
     """答案类，请使用``ZhihuClient.topic``方法构造对象."""
 
@@ -22,9 +23,9 @@ class Topic:
         self._name = name
         self._id = int(re_topic_url.match(self.url).group(1))
 
-    def _make_soup(self):
-        if self.soup is None:
-            self.soup = BeautifulSoup(self._session.get(self.url).content)
+    # def _make_soup(self):
+    #     if self.soup is None:
+    #         self.soup = BeautifulSoup(self._session.get(self.url).content)
 
     @property
     def id(self):
