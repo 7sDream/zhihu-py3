@@ -22,7 +22,7 @@ class Topic(BaseZhihu):
         self._session = session
         self._name = name
         self._id = int(re_topic_url.match(self.url).group(1))
-i
+
     @property
     def id(self):
         """获取话题Id（网址最后那串数字）
