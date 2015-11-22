@@ -30,11 +30,6 @@ class Question(BaseZhihu):
         self._followers_num = followers_num
         self._id = int(re.match(r'.*/(\d+)', self.url).group(1))
 
-    # def _make_soup(self):
-    #     if self.soup is None:
-    #         r = self._session.get(self.url)
-    #         self.soup = BeautifulSoup(r.content)
-
     @property
     def id(self):
         """获取问题id（网址最后的部分）.

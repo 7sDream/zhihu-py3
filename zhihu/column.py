@@ -31,11 +31,6 @@ class Column(JsonAsSoupMixin, BaseZhihu):
 
     def _make_soup(self):
         if self.soup is None:
-            # origin_host = self._session.headers.get('Host')
-            # self._session.headers.update(Host='zhuanlan.zhihu.com')
-            # res = self._session.get(Column_Data.format(self._in_name))
-            # self._session.headers.update(Host=origin_host)
-            # self.soup = res.json()
             json = self._get_content()
             self._gen_soup(json)
 
