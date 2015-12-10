@@ -102,10 +102,10 @@ def class_common_init(url_re, allowed_none=False):
         @functools.wraps(func)
         def wrapper(self, url, *args, **kwargs):
             if url is None and not allowed_none:
-                raise ValueError('Invalid Url')
+                raise ValueError('Invalid Url: ' + url)
             if url is not None:
                 if url_re.match(url) is None:
-                    raise ValueError('Invalid URL')
+                    raise ValueError('Invalid URL: ' + url)
                 if url.endswith('/') is False:
                     url += '/'
             if 'session' not in kwargs.keys() or kwargs['session'] is None:

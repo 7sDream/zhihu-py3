@@ -211,7 +211,8 @@ class Answer:
         """
         from .author import Author
         from .comment import Comment
-        r = self._session.get(Answer_Comment_Box_URL, params='params='+json.dumps({'answer_id': self.aid, 'load_all': True}))
+        r = self._session.get(Answer_Comment_Box_URL,
+                              params='params='+json.dumps({'answer_id': self.aid, 'load_all': True}))
         soup = BeautifulSoup(r.content)
         comment_items = soup.find_all('div', class_='zm-item-comment')
         for comment_item in comment_items:
