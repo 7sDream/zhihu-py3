@@ -608,7 +608,6 @@ class Author:
             start = acts[-1]['data-time'] if len(acts) > 0 else 0
             for act in acts:
                 yield Activity(act, self._session)
-                continue
 
     @property
     def last_activity_time(self):
