@@ -14,6 +14,8 @@ match = {
     'PUBLISH_POST': 'member_create_article'
 }
 
+reverse_match = {v: k for k, v in match.items()}
+
 
 class ActType(enum.Enum):
 
@@ -43,6 +45,10 @@ class ActType(enum.Enum):
     FOLLOW_COLUMN = 32
     FOLLOW_TOPIC = 64
     PUBLISH_POST = 128
+
+    @classmethod
+    def from_str(cls, div_class):
+        return cls.__getattr__(reverse_match[div_class])
 
     def __str__(self):
         return match[self.name]
