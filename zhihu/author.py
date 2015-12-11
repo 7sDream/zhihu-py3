@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import json
-import datetime
 
 from .common import *
 
@@ -592,12 +591,6 @@ class Author:
         :rtype: Activity.Iterable
         """
         from .activity import Activity
-        from .acttype import ActType
-        from .question import Question
-        from .answer import Answer
-        from .column import Column
-        from .post import Post
-        from .topic import Topic
 
         if self.url is None:
             return
@@ -611,118 +604,10 @@ class Author:
             soup = BeautifulSoup(res.json()['msg'][1])
             acts = soup.find_all(
                 'div', class_='zm-profile-section-item zm-item clearfix')
+
             start = acts[-1]['data-time'] if len(acts) > 0 else 0
             for act in acts:
-                act_time = datetime.datetime.fromtimestamp(
-                    int(act['data-time']))
-                useless_tag = act.div.find('a', class_='zg-link')
-                if useless_tag is not None:
-                    useless_tag.extract()
-                type_string = next(act.div.stripped_strings)
-                if type_string in ['赞同了', '在']:    # 赞同文章 or 发表文章
-                    act_type = ActType.UPVOTE_POST \
-                        if type_string == '赞同了' else ActType.PUBLISH_POST
-
-                    column_url = act.find('a', class_='column_link')['href']
-                    column_name = act.find('a', class_='column_link').text
-                    column = Column(column_url, column_name,
-                                    session=self._session)
-                    try:
-                        author_tag = act.find('div', class_='author-info')
-                        author_url = Zhihu_URL + author_tag.a['href']
-                        author_info = list(author_tag.stripped_strings)
-                        author_name = author_info[0]
-                        author_motto = author_info[1] \
-                            if len(author_info) > 1 else ''
-                    except TypeError:
-                        author_url = None
-                        author_name = '匿名用户'
-                        author_motto = ''
-                    author = Author(author_url, author_name, author_motto,
-                                    session=self._session)
-                    post_url = act.find('a', class_='post-link')['href']
-                    post_title = act.find('a', class_='post-link').text
-                    post_comment_num, post_upvote_num = self._parse_un_cn(act)
-                    post = Post(post_url, column, author, post_title,
-                                post_upvote_num, post_comment_num,
-                                session=self._session)
-
-                    yield Activity(act_type, act_time, post=post)
-                elif type_string == '关注了专栏':
-                    act_type = ActType.FOLLOW_COLUMN
-                    column = Column(act.div.a['href'], act.div.a.text,
-                                    session=self._session)
-                    yield Activity(act_type, act_time, column=column)
-                elif type_string == '关注了问题':
-                    act_type = ActType.FOLLOW_QUESTION
-                    question = Question(Zhihu_URL + act.div.a['href'],
-                                        act.div.a.text, session=self._session)
-                    yield Activity(act_type, act_time, question=question)
-                elif type_string == '提了一个问题':
-                    act_type = ActType.ASK_QUESTION
-                    question = Question(Zhihu_URL +
-                                        act.div.contents[3]['href'],
-                                        list(act.div.children)[3].text,
-                                        session=self._session)
-                    yield Activity(act_type, act_time, question=question)
-                elif type_string == '赞同了回答':
-                    act_type = ActType.UPVOTE_ANSWER
-                    question_url = Zhihu_URL + re_a2q.match(
-                        act.div.a['href']).group(1)
-                    question_title = act.div.a.text
-                    question = Question(question_url, question_title,
-                                        session=self._session)
-
-                    try_find_author = act.find('div').find_all(
-                        'a', href=re.compile('^/people/[^/]*$'))
-                    if len(try_find_author) == 0:
-                        author_url = None
-                        author_name = '匿名用户'
-                        author_motto = ''
-                        photo_url = None
-                    else:
-                        try_find_author = try_find_author[-1]
-                        author_url = Zhihu_URL + try_find_author['href']
-                        author_name = try_find_author.text
-                        try_find_motto = try_find_author.parent.strong
-                        if try_find_motto is None:
-                            author_motto = ''
-                        else:
-                            author_motto = try_find_motto['title']
-                        photo_url = PROTOCOL + try_find_author.parent.a.img[
-                            'src'].replace('_s', '_r')
-                    author = Author(author_url, author_name, author_motto,
-                                    photo_url=photo_url, session=self._session)
-
-                    answer_url = Zhihu_URL + act.div.a['href']
-                    answer_comment_num, answer_upvote_num = \
-                        self._parse_un_cn(act)
-                    answer = Answer(answer_url, question, author,
-                                    answer_upvote_num, session=self._session)
-
-                    yield Activity(act_type, act_time, answer=answer)
-                elif type_string == '回答了问题':
-                    act_type = ActType.ANSWER_QUESTION
-                    question_url = Zhihu_URL + re_a2q.match(
-                        act.div.find_all('a')[-1]['href']).group(1)
-                    question_title = act.div.find_all('a')[-1].text
-                    question = Question(question_url, question_title,
-                                        session=self._session)
-
-                    answer_url = Zhihu_URL + \
-                        act.div.find_all('a')[-1]['href']
-                    answer_comment_num, answer_upvote_num = \
-                        self._parse_un_cn(act)
-                    answer = Answer(answer_url, question, self,
-                                    answer_upvote_num, session=self._session)
-
-                    yield Activity(act_type, act_time, answer=answer)
-                elif type_string == '关注了话题':
-                    act_type = ActType.FOLLOW_TOPIC
-                    topic_url = Zhihu_URL + act.div.a['href']
-                    topic_name = act.div.a['title']
-                    topic = Topic(topic_url, topic_name, session=self._session)
-                    yield Activity(act_type, act_time, topic=topic)
+                yield Activity(act, self._session)
 
     @property
     def last_activity_time(self):
@@ -744,14 +629,3 @@ class Author:
         """
         return self.upvote_num + self.thank_num + \
             self.question_num + self.answer_num == 0
-
-    @staticmethod
-    def _parse_un_cn(act):
-        upvote_num = int(act.find(
-            'a', class_='zm-item-vote-count')['data-votecount'])
-        comment = act.find('a', class_='toggle-comment')
-        comment_text = next(comment.stripped_strings)
-        comment_num_match = re_get_number.match(comment_text)
-        comment_num = int(comment_num_match.group(1)) \
-            if comment_num_match is not None else 0
-        return comment_num, upvote_num
