@@ -220,7 +220,8 @@ class Answer:
             content = comment_item.find(
                 'div', class_='zm-comment-content').text.replace('\n', '')
             upvote_num = int(comment_item.find('span', class_='like-num').em.text)
+            time_string = comment_item.find('span', class_='date').text
             a_url, a_name, a_photo_url = parser_author_from_comment(comment_item)
             author_obj = Author(a_url, a_name, photo_url=a_photo_url,
                                 session=self._session)
-            yield Comment(comment_id, self, author_obj, upvote_num, content)
+            yield Comment(comment_id, self, author_obj, upvote_num, content, time_string)
