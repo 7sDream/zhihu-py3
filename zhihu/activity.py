@@ -133,14 +133,14 @@ class Activity:
 
     def _get_assemble_method(self, act_type):
         assemble_methods = {
-            ActType.UPVOTE_POST: self._assemble_voteup_post,
-            ActType.FOLLOW_COLUMN: self._assemble_follow_column,
-            ActType.UPVOTE_ANSWER: self._assemble_voteup_answer,
-            ActType.ANSWER_QUESTION: self._assemble_answer_question,
-            ActType.ASK_QUESTION: self._assemble_ask_question,
-            ActType.FOLLOW_QUESTION: self._assemble_follow_question,
-            ActType.FOLLOW_TOPIC: self._assemble_follow_topic,
-            ActType.PUBLISH_POST: self._assemble_create_post,
+            str(ActType.UPVOTE_POST): self._assemble_voteup_post,
+            str(ActType.FOLLOW_COLUMN): self._assemble_follow_column,
+            str(ActType.UPVOTE_ANSWER): self._assemble_voteup_answer,
+            str(ActType.ANSWER_QUESTION): self._assemble_answer_question,
+            str(ActType.ASK_QUESTION): self._assemble_ask_question,
+            str(ActType.FOLLOW_QUESTION): self._assemble_follow_question,
+            str(ActType.FOLLOW_TOPIC): self._assemble_follow_topic,
+            str(ActType.PUBLISH_POST): self._assemble_create_post,
         }
 
         if act_type in assemble_methods:

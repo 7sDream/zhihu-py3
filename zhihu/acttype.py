@@ -1,7 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-class ActType():
+import enum
+
+match = {
+    'ANSWER_QUESTION': 'member_answer_question',
+    'UPVOTE_ANSWER': 'member_voteup_answer',
+    'ASK_QUESTION': 'member_ask_question',
+    'FOLLOW_QUESTION': 'member_follow_question',
+    'UPVOTE_POST': 'member_voteup_article',
+    'FOLLOW_COLUMN': 'member_follow_column',
+    'FOLLOW_TOPIC': 'member_follow_topic',
+    'PUBLISH_POST': 'member_create_article'
+}
+
+
+class ActType(enum.Enum):
 
     """用于表示用户动态的类型.
 
@@ -21,11 +35,14 @@ class ActType():
 
     """
 
-    ANSWER_QUESTION = 'member_answer_question'
-    UPVOTE_ANSWER = 'member_voteup_answer'
-    ASK_QUESTION = 'member_ask_question'
-    FOLLOW_QUESTION = 'member_follow_question'
-    UPVOTE_POST = 'member_voteup_article'
-    FOLLOW_COLUMN = 'member_follow_column'
-    FOLLOW_TOPIC = 'member_follow_topic'
-    PUBLISH_POST = 'member_create_article'
+    ANSWER_QUESTION = 1
+    UPVOTE_ANSWER = 2
+    ASK_QUESTION = 4
+    FOLLOW_QUESTION = 8
+    UPVOTE_POST = 16
+    FOLLOW_COLUMN = 32
+    FOLLOW_TOPIC = 64
+    PUBLISH_POST = 128
+
+    def __str__(self):
+        return match[self.name]
