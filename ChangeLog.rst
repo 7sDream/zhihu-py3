@@ -1,6 +1,12 @@
 更新日志
 ========
 
+0.3.2
+-----
+
+- [change] 改变 Author 类获取 Activities 的机制，判断类型更准确(Thanks `@laike9m <https://github.com/laike9m>`__)。
+- [change] 为方便以后写测试，类架构修改为均继承 BaseZhihu 类（Thanks`@littlezz <https://github.com/littlezz>`__)。
+
 0.3.1
 -----
 

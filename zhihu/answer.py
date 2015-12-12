@@ -4,9 +4,10 @@
 import json
 
 from .common import *
+from .base import BaseZhihu
 
 
-class Answer:
+class Answer(BaseZhihu):
     """答案类，请使用``ZhihuClient.answer``方法构造对象."""
 
     @class_common_init(re_ans_url)
@@ -29,11 +30,6 @@ class Answer:
         self._author = author
         self._upvote_num = upvote_num
         self._content = content
-
-    def _make_soup(self):
-        if self.soup is None:
-            r = self._session.get(self.url)
-            self.soup = BeautifulSoup(r.content)
 
     @property
     def id(self):
@@ -211,7 +207,8 @@ class Answer:
         """
         from .author import Author
         from .comment import Comment
-        r = self._session.get(Answer_Comment_Box_URL, params='params='+json.dumps({'answer_id': self.aid, 'load_all': True}))
+        r = self._session.get(Answer_Comment_Box_URL,
+                              params='params='+json.dumps({'answer_id': self.aid, 'load_all': True}))
         soup = BeautifulSoup(r.content)
         comment_items = soup.find_all('div', class_='zm-item-comment')
         for comment_item in comment_items:
@@ -219,7 +216,8 @@ class Answer:
             content = comment_item.find(
                 'div', class_='zm-comment-content').text.replace('\n', '')
             upvote_num = int(comment_item.find('span', class_='like-num').em.text)
+            time_string = comment_item.find('span', class_='date').text
             a_url, a_name, a_photo_url = parser_author_from_comment(comment_item)
             author_obj = Author(a_url, a_name, photo_url=a_photo_url,
                                 session=self._session)
-            yield Comment(comment_id, self, author_obj, upvote_num, content)
+            yield Comment(comment_id, self, author_obj, upvote_num, content, time_string)

@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from .common import *
+from .base import BaseZhihu
 
-
-class Collection:
+class Collection(BaseZhihu):
 
     """收藏夹，请使用``ZhihuClient.collection``方法构造对象."""
 
@@ -27,10 +27,6 @@ class Collection:
         self._name = name
         self._owner = owner
         self._follower_num = follower_num
-
-    def _make_soup(self):
-        if self.soup is None:
-            self.soup = BeautifulSoup(self._session.get(self.url).text)
 
     @property
     @check_soup('_cid')

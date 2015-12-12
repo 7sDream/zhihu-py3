@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from .common import *
+from .base import BaseZhihu, JsonAsSoupMixin
 
 
-class Post:
+class Post(JsonAsSoupMixin, BaseZhihu):
 
     """专栏文章类，请使用``ZhihuClient.post``方法构造对象."""
 
@@ -36,12 +37,17 @@ class Post:
 
     def _make_soup(self):
         if self.soup is None:
-            origin_host = self._session.headers.get('Host')
-            self._session.headers.update(Host='zhuanlan.zhihu.com')
-            self.soup = self._session.get(
-                Column_Post_Data.format(
-                    self.column_in_name, self.slug)).json()
-            self._session.headers.update(Host=origin_host)
+            json = self._get_content()
+            self._gen_soup(json)
+
+    def _get_content(self):
+        origin_host = self._session.headers.get('Host')
+        self._session.headers.update(Host='zhuanlan.zhihu.com')
+        json = self._session.get(
+            Column_Post_Data.format(
+                self.column_in_name, self.slug)).json()
+        self._session.headers.update(Host=origin_host)
+        return json
 
     @property
     def column_in_name(self):
