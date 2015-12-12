@@ -2,6 +2,7 @@ from .common import BeautifulSoup
 from requests import Response
 import json
 
+
 class BaseZhihu:
     def _gen_soup(self, content):
         self.soup = BeautifulSoup(content)
