@@ -11,7 +11,7 @@
 -----
 
 - [fix] 修复因为知乎 Answer 的 css class 更改导致的 Answer 类 content 属性获取不正确的 bug
-- [fix] 修复历史遗留代码造成使用 profile card 获取头像时，网址不正确的 bug（Thanks`@bdqy <https://github.com/bdqy>`__）
+- [fix] 修复历史遗留代码造成使用 profile card 获取头像时，网址不正确的 bug（Thanks `@bdqy <https://github.com/bdqy>`__）
 - [fix] 修复因答案被和谐造成的 bug（Thanks `@littlezz <https://github.com/littlezz>`__）
 - [add] 获取用户的一些详细信息，包括微博，所在地，教育情况，所在行业等等(Thanks `@zeroxfio <https://github.com/zeroxfio>`__）
 - [add] Answer 类增加了获取答案的评论的功能(Thanks `@zeroxfio <https://github.com/zeroxfio>`__）
@@ -265,7 +265,7 @@ Hotfix， 知乎更换了登录网址，做了简单的跟进，过了Test，等
 2015.06.04：
 ------------
 
-由 `@Gracker <https://github.com/Gracker>`__补充了在 Ubuntu 14.04
+由 `@Gracker <https://github.com/Gracker>`__ 补充了在 Ubuntu 14.04
 下的测试结果，并添加了补充说明。
 
 2015.05.29：
