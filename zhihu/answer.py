@@ -4,9 +4,10 @@
 import json
 
 from .common import *
+from .base import BaseZhihu
 
 
-class Answer:
+class Answer(BaseZhihu):
     """答案类，请使用``ZhihuClient.answer``方法构造对象."""
 
     @class_common_init(re_ans_url)
@@ -29,11 +30,6 @@ class Answer:
         self._author = author
         self._upvote_num = upvote_num
         self._content = content
-
-    def _make_soup(self):
-        if self.soup is None:
-            r = self._session.get(self.url)
-            self.soup = BeautifulSoup(r.content)
 
     @property
     def id(self):

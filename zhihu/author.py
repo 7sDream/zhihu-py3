@@ -4,9 +4,10 @@
 import json
 
 from .common import *
+from .base import BaseZhihu
 
 
-class Author:
+class Author(BaseZhihu):
 
     """用户类，请使用``ZhihuClient.answer``方法构造对象."""
 
@@ -42,12 +43,10 @@ class Author:
         self._thank_num = thank_num
         self._photo_url = photo_url
 
-    def _make_soup(self):
-        if self.soup is None and self.url is not None:
-            r = self._session.get(self.url)
-            self.soup = BeautifulSoup(r.content)
-            self._nav_list = self.soup.find(
-                'div', class_='profile-navbar').find_all('a')
+    def _gen_soup(self, content):
+        self.soup = BeautifulSoup(content)
+        self._nav_list = self.soup.find(
+            'div', class_='profile-navbar').find_all('a')
 
     def _make_card(self):
         if self.card is None and self.url is not None:
