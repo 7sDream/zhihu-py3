@@ -193,3 +193,35 @@
 
 效果见 `这里
 <http://pan.baidu.com/s/1i3nLgpB>`_。
+
+
+使用非阻塞的网络请求
+================
+内建的所有请求都是阻塞的, 如果你希望使用其他的网络请求方法, 你可以把请求到的数据传入相关类的`from_html`方法中.
+`from_html`方法用于接受数据, 返回相应的类的实例.
+
+这里以使用aiohttp为例, 使用的是python3.5 之后引入的语法. 无需置疑, 你要自己处理session
+
+比如要获取一个答案.
+
+..  code-block:: python
+
+    import aiohttp
+    import asyncio
+    import zhihu
+
+
+    async def get_answer(url, cookies):
+        async with aiohttp.get(url, cookies=cookies) as r:
+            data = await r.text()
+
+        # from_html 是 classmethod
+        answer = zhihu.Answer.from_html(data)
+
+        print(answer.content)
+
+    url = 'answer url'
+    cookies = client._session
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(get_answer(url, cookies))
