@@ -211,8 +211,8 @@
     import zhihu
 
 
-    async def get_answer(url, cookies):
-        async with aiohttp.get(url, cookies=cookies) as r:
+    async def get_answer(url, cookies, headers):
+        async with aiohttp.get(url, cookies=cookies, headers=headers) as r:
             data = await r.text()
 
         # from_html 是 classmethod
@@ -221,7 +221,8 @@
         print(answer.content)
 
     url = 'answer url'
-    cookies = client._session
+    cookies = dict(client._session.cookies)
+    headers = client._session.headers
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(get_answer(url, cookies))
+    loop.run_until_complete(get_answer(url, cookies, headers))
