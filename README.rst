@@ -3,6 +3,8 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 |Author| |Build| |DocumentationStatus| |PypiVersion| |License| |PypiDownloadStatus|
 
+**紧急：知乎改用 https 了，遇到 invalid url 的朋友们请尽快 pypi 更新到 0.3.2 版本！**
+
 Dev 分支coding内容：
 
  - unittest
