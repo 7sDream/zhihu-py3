@@ -21,7 +21,7 @@ Default_Header = {'X-Requested-With': 'XMLHttpRequest',
                                 'rv:39.0) Gecko/20100101 Firefox/39.0',
                   'Host': 'www.zhihu.com'}
 
-Zhihu_URL = 'http://www.zhihu.com'
+Zhihu_URL = 'https://www.zhihu.com'
 Login_URL = Zhihu_URL + '/login/email'
 Captcha_URL_Prefix = Zhihu_URL + '/captcha.gif?r='
 Get_Profile_Card_URL = Zhihu_URL + '/node/MemberProfileCardV2'
@@ -63,14 +63,14 @@ Send_Message_Url = Zhihu_URL + '/inbox/post'
 Unhelpful_Url = Zhihu_URL + '/answer/not_helpful'
 Cancel_Unhelpful_Url = Zhihu_URL + '/answer/helpful'
 
-re_question_url = re.compile(r'^http://www\.zhihu\.com/question/\d+/?$')
+re_question_url = re.compile(r'^https?://www\.zhihu\.com/question/\d+/?$')
 re_ans_url = re.compile(
-    r'^http://www\.zhihu\.com/question/\d+/answer/\d+/?$')
-re_author_url = re.compile(r'^http://www\.zhihu\.com/people/[^/]+/?$')
-re_collection_url = re.compile(r'^http://www\.zhihu\.com/collection/\d+/?$')
+    r'^https?://www\.zhihu\.com/question/\d+/answer/\d+/?$')
+re_author_url = re.compile(r'^https?://www\.zhihu\.com/people/[^/]+/?$')
+re_collection_url = re.compile(r'^https?://www\.zhihu\.com/collection/\d+/?$')
 re_column_url = re.compile(r'^http://zhuanlan\.zhihu\.com/([^/]+)/?$')
 re_post_url = re.compile(r'^http://zhuanlan\.zhihu\.com/([^/]+)/(\d+)/?$')
-re_topic_url = re.compile(r'^http://www\.zhihu\.com/topic/(\d+)/?$')
+re_topic_url = re.compile(r'^https?://www\.zhihu\.com/topic/(\d+)/?$')
 re_a2q = re.compile(r'(.*)/a.*')
 re_collection_url_split = re.compile(r'.*(/c.*)')
 re_get_number = re.compile(r'[^\d]*(\d+).*')

@@ -1,23 +1,28 @@
 更新日志
 ========
 
+0.3.3
+-----
+
+- [fix] 紧急更新，知乎页面上的链接大多数都变成了 https, 暂时只简单的改了一点正则表达式已作为紧急应对，有 bug 请开 issue。
+
 0.3.2
 -----
 
 - [change] 改变 Author 类获取 Activities 的机制，判断类型更准确(Thanks `@laike9m <https://github.com/laike9m>`__)。
-- [change] 为方便以后写测试，类架构修改为均继承 BaseZhihu 类（Thanks`@littlezz <https://github.com/littlezz>`__)。
+- [change] 为方便以后写测试，类架构修改为均继承 BaseZhihu 类（Thanks `@littlezz <https://github.com/littlezz>`__)。
 
 0.3.1
 -----
 
 - [fix] 修复因为知乎 Answer 的 css class 更改导致的 Answer 类 content 属性获取不正确的 bug
-- [fix] 修复历史遗留代码造成使用 profile card 获取头像时，网址不正确的 bug（Thanks`@bdqy <https://github.com/bdqy>`__）
-- [fix] 修复因答案被和谐造成的 bug（Thanks`@littlezz <https://github.com/littlezz>`__）
-- [add] 获取用户的一些详细信息，包括微博，所在地，教育情况，所在行业等等(Thanks`@zeroxfio <https://github.com/zeroxfio>`__）
-- [add] Answer 类增加了获取答案的评论的功能(Thanks`@zeroxfio <https://github.com/zeroxfio>`__）
-- [add] Me 类增加了发送私信和评论的功能(Thanks`@zeroxfio <https://github.com/zeroxfio>`__）
-- [add] Me 类增加了给答案点没有帮助的功能(Thanks`@lishubing <https://github.com/lishubing>`__)
-- [add] Me 类增加了屏蔽用户，屏蔽话题的功能(Thanks`@lishubing <https://github.com/lishubing>`__)
+- [fix] 修复历史遗留代码造成使用 profile card 获取头像时，网址不正确的 bug（Thanks `@bdqy <https://github.com/bdqy>`__）
+- [fix] 修复因答案被和谐造成的 bug（Thanks `@littlezz <https://github.com/littlezz>`__）
+- [add] 获取用户的一些详细信息，包括微博，所在地，教育情况，所在行业等等(Thanks `@zeroxfio <https://github.com/zeroxfio>`__）
+- [add] Answer 类增加了获取答案的评论的功能(Thanks `@zeroxfio <https://github.com/zeroxfio>`__）
+- [add] Me 类增加了发送私信和评论的功能(Thanks `@zeroxfio <https://github.com/zeroxfio>`__）
+- [add] Me 类增加了给答案点没有帮助的功能(Thanks `@lishubing <https://github.com/lishubing>`__)
+- [add] Me 类增加了屏蔽用户，屏蔽话题的功能(Thanks `@lishubing <https://github.com/lishubing>`__)
 
 0.3.0
 -----
@@ -41,14 +46,14 @@
 0.2.7
 -----
 
-- [fix] 修复由于把用户 tag 从 h3 改成了 div 造成的一系列 bug (Thanks`@lishubing <https://github.com/lishubing>`__)
+- [fix] 修复由于把用户 tag 从 h3 改成了 div 造成的一系列 bug (Thanks `@lishubing <https://github.com/lishubing>`__)
 
 0.2.6
 -----
 
 - [fix] 获取匿名用户的ID出错的问题，暂定为返回空字符串
-- [add] 增加获取用户关注专栏数的功能 (Thanks`@cssmlulu <https://github.com/cssmlulu>`__)
-- [add] 增加获取用户关注专栏的功能 (Thanks`@cssmlulu <https://github.com/cssmlulu>`__)
+- [add] 增加获取用户关注专栏数的功能 (Thanks `@cssmlulu <https://github.com/cssmlulu>`__)
+- [add] 增加获取用户关注专栏的功能 (Thanks `@cssmlulu <https://github.com/cssmlulu>`__)
 
 0.2.5
 -----
@@ -265,7 +270,7 @@ Hotfix， 知乎更换了登录网址，做了简单的跟进，过了Test，等
 2015.06.04：
 ------------
 
-由`@Gracker <https://github.com/Gracker>`__补充了在 Ubuntu 14.04
+由 `@Gracker <https://github.com/Gracker>`__ 补充了在 Ubuntu 14.04
 下的测试结果，并添加了补充说明。
 
 2015.05.29：
