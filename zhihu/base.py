@@ -34,6 +34,5 @@ class JsonAsSoupMixin:
             self.soup = soup
         elif isinstance(content, str):
             self.soup = json.loads(content)
-
         else:
             self.soup = content

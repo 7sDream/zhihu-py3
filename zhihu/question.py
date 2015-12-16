@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+from datetime import datetime
 
 from .common import *
 from .base import BaseZhihu
@@ -13,13 +14,14 @@ class Question(BaseZhihu):
 
     @class_common_init(re_question_url)
     def __init__(self, url, title=None, followers_num=None,
-                 answer_num=None, session=None):
+                 answer_num=None, creation_time=None, session=None):
         """创建问题类实例.
 
         :param str url: 问题url
         :param str title: 问题标题，可选,
         :param int followers_num: 问题关注人数，可选
         :param int answer_num: 问题答案数，可选
+        :param datetime.datetime creation_time: 问题创建时间，可选
         :return: 问题对象
         :rtype: Question
         """
@@ -238,6 +240,32 @@ class Question(BaseZhihu):
                 yield a
             else:
                 return
+
+    @property
+    def creation_time(self):
+        """
+        :return: 问题创建时间
+        :rtype: datetime.datetime
+        """
+        if hasattr(self, '_creation_time'):
+            return self._creation_time
+        else:
+            import time
+            gotten_feed_num = 20
+            start = '0'
+            while gotten_feed_num == 20:
+                data = {'_xsrf': self.xsrf, 'offset': '40', 'start': start}
+                res = self._session.post(self.url + 'log', data=data)
+                gotten_feed_num, content = res.json()['msg']
+                print(gotten_feed_num)
+                soup = BeautifulSoup(content)
+                acts = soup.find_all('div', class_='zm-item')
+                start = acts[-1]['id'][8:] if len(acts) > 0 else '0'
+                time.sleep(0.5)  # prevent from posting too quickly
+            time_string = soup.find_all('time')[-1]['datetime']
+            self._creation_time = datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
+            return self._creation_time
+
 
     def _parse_answer_html(self, answer_html, Author, Answer):
         soup = BeautifulSoup(answer_html)
