@@ -38,7 +38,7 @@ class Activity:
         attribute = self._get_assemble_method(self.type)(act)
         self._attr = attribute.__class__.__name__.lower()
         setattr(self, self._attr, attribute)
-        self.time = datetime.fromtimestamp(int(act['data-time']))
+        self._time = datetime.fromtimestamp(int(act['data-time']))
 
     @property
     def content(self):
@@ -48,6 +48,14 @@ class Activity:
         :rtype: Author or Question or Answer or Topic or Column or Post
         """
         return getattr(self, self._attr)
+
+    @property
+    def time(self):
+        """
+        :return: 返回用户执行 Activity 操作的时间
+        :rtype: datetime.datetime
+        """
+        return self._time
 
     def __find_post(self, act):
         column_url = act.find('a', class_='column_link')['href']
