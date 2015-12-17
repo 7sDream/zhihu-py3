@@ -257,7 +257,6 @@ class Question(BaseZhihu):
                 data = {'_xsrf': self.xsrf, 'offset': '40', 'start': start}
                 res = self._session.post(self.url + 'log', data=data)
                 gotten_feed_num, content = res.json()['msg']
-                print(gotten_feed_num)
                 soup = BeautifulSoup(content)
                 acts = soup.find_all('div', class_='zm-item')
                 start = acts[-1]['id'][8:] if len(acts) > 0 else '0'
@@ -266,6 +265,22 @@ class Question(BaseZhihu):
             self._creation_time = datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
             return self._creation_time
 
+    @property
+    def last_edit_time(self):
+        """
+        :return: 问题最后编辑时间
+        :rtype: datetime.datetime
+        """
+        if hasattr(self, '_last_edit_time'):
+            return self._last_edit_time
+        else:
+            data = {'_xsrf': self.xsrf, 'offset': '1'}
+            res = self._session.post(self.url + 'log', data=data)
+            _, content =  res.json()['msg']
+            soup = BeautifulSoup(content)
+            time_string = soup.find_all('time')[0]['datetime']
+            self._last_edit_time = datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
+            return self._last_edit_time
 
     def _parse_answer_html(self, answer_html, Author, Answer):
         soup = BeautifulSoup(answer_html)
