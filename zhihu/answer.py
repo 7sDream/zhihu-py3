@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+from datetime import datetime
 
 from .common import *
 from .base import BaseZhihu
@@ -59,7 +60,6 @@ class Answer(BaseZhihu):
         :return: 答案内部id
         :rtype: str
         """
-        self._make_soup()
         return int(self.soup.find(
             'div', class_='zm-item-answer')['data-aid'])
 
@@ -147,6 +147,17 @@ class Answer(BaseZhihu):
         content = answer_wrap.find('div', class_='zm-editable-content')
         content = answer_content_process(content)
         return content
+
+    @property
+    @check_soup('_creation_time')
+    def creation_time(self):
+        """获取答案创建时间
+
+        :return: 答案创建时间
+        :rtype: datetime.datetime
+        """
+        return datetime.fromtimestamp(int(self.soup.find(
+                'div', class_='zm-item-answer')['data-created']))
 
     def save(self, filepath=None, filename=None, mode="html"):
         """保存答案为Html文档或markdown文档.
