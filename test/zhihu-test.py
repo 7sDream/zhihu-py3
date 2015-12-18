@@ -109,6 +109,10 @@ def test_answer():
     print(answer.creation_time)
     assert answer.creation_time == datetime.fromtimestamp(1411567255)
 
+    # 获取答案收藏数量
+    print(answer.collect_num)
+    assert answer.collect_num >= 1070
+
     # 保存HTML
     answer.save(filepath='.')
     # 当前目录下生成 "亲密关系之间要说「谢谢」吗？ - 甜阁下.html"

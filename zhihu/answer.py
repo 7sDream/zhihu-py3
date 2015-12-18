@@ -159,6 +159,19 @@ class Answer(BaseZhihu):
         return datetime.fromtimestamp(int(self.soup.find(
                 'div', class_='zm-item-answer')['data-created']))
 
+    @property
+    @check_soup('_collect_num')
+    def collect_num(self):
+        """获取答案收藏数
+
+        :return:  答案收藏数量
+        :rtype: int
+        """
+        return int(self.soup.find("a", {
+            "data-za-a": "click_answer_collected_count"
+        }).get_text())
+
+
     def save(self, filepath=None, filename=None, mode="html"):
         """保存答案为Html文档或markdown文档.
 
