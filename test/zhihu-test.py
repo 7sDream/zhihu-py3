@@ -5,6 +5,8 @@ __author__ = '7sDream'
 
 import os
 import shutil
+from datetime import datetime
+
 from zhihu import ZhihuClient, ActType
 
 
@@ -52,6 +54,16 @@ def test_question():
     # 425
     # ...
 
+    # 获取提问时间
+    ctime = question.creation_time
+    print(ctime)
+    assert ctime == datetime.strptime('2014-08-12 17:58:07', "%Y-%m-%d %H:%M:%S")
+
+    # 获取最后编辑时间
+    last_edit_time = question.last_edit_time
+    print(last_edit_time)
+    assert last_edit_time >= datetime.strptime('2015-04-01 00:39:21', "%Y-%m-%d %H:%M:%S")
+
 
 def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
@@ -92,6 +104,10 @@ def test_answer():
     # <html>
     # ...
     # </html>
+
+    # 获取答案创建时间
+    print(answer.creation_time)
+    assert answer.creation_time == datetime.fromtimestamp(1411567255)
 
     # 保存HTML
     answer.save(filepath='.')
