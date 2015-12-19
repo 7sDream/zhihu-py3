@@ -113,6 +113,11 @@ def test_answer():
     print(answer.collect_num)
     assert answer.collect_num >= 1070
 
+    # 获取收藏答案的收藏夹
+    for _, collection in zip(range(10), answer.collections):
+        print(collection.url, collection.name, collection.owner,
+              collection.follower_num)
+
     # 保存HTML
     answer.save(filepath='.')
     # 当前目录下生成 "亲密关系之间要说「谢谢」吗？ - 甜阁下.html"
