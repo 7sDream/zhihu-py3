@@ -5,6 +5,9 @@
 -----
 
 - [f**K] 随便在知乎上发了个小专栏……不小心就进撕逼大战了 QAQ 我好方～
+- [add] 增加了 example 文件夹，里面放一些实例
+- [add] Add answer creation_time attribute(Thanks @laike9m)
+- [add] 添加 Question.creation_time 和 Question.last_edit_time 属性(Thanks @laike9m)
 - [fix] 修复了 UPVOTE_ANSWER 型的 Activity 的 act.answer.author 全都是匿名用户的 bug（不知道是不是前端改了）
 
 0.3.3
