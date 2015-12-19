@@ -106,7 +106,7 @@ class Activity:
         question_url = Zhihu_URL + re_a2q.match(act.div.a['href']).group(1)
         question_title = act.div.a.text
         question = Question(question_url, question_title, session=self._session)
-        try_find_author = act.find('div').find_all('a', href=re.compile('^/people/[^/]*$'))
+        try_find_author = act.find_all('a', class_='author-link', href=re.compile('^/people/[^/]*$'))
 
         if len(try_find_author) == 0:
             author_url = None
@@ -117,7 +117,7 @@ class Activity:
             try_find_author = try_find_author[-1]
             author_url = Zhihu_URL + try_find_author['href']
             author_name = try_find_author.text
-            try_find_motto = try_find_author.parent.strong
+            try_find_motto = try_find_author.parent.span
             if try_find_motto is None:
                 author_motto = ''
             else:
