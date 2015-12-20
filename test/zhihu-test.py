@@ -348,6 +348,12 @@ def test_collection():
     # 有哪些计算机的书适合推荐给大一学生？
     # ...
 
+    # 获取收藏夹日志
+    for log in collection.logs:
+        print(log.type, log.time, log.answer, log.owner)
+
+    assert log.answer is None
+    assert log.time == datetime.strptime('2013-11-08 00:55:43', "%Y-%m-%d %H:%M:%S")
 
 def test_column():
     url = 'http://zhuanlan.zhihu.com/xiepanda'

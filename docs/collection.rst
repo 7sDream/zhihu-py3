@@ -5,3 +5,9 @@ Collection 收藏夹类
     :members:
     :special-members: __init__
 
+..  autoclass:: zhihu.collection.CollectActivity
+    :members:
+    :special-members: __init__
+
+..  autoclass:: zhihu.acttype.CollectActType
+    :members:
