@@ -185,12 +185,12 @@ class Answer(BaseZhihu):
         import time
         gotten_feed_num = 20
         offset = 0
+        data = {
+            'method':'next',
+            '_xsrf': self.xsrf
+        }
         while gotten_feed_num >= 10:
-            data = {
-                'method':'next',
-                'params': "{\"answer_url\": %d,\"offset\": %d}" % (self.id, offset),
-                '_xsrf': self.xsrf
-            }
+            data['params'] = "{\"answer_url\": %d,\"offset\": %d}" % (self.id, offset)
             res = self._session.post(url=Get_Collection_Url, data=data)
             gotten_feed_num = len(res.json()['msg'])
             offset += gotten_feed_num
