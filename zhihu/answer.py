@@ -6,6 +6,8 @@ from datetime import datetime
 
 from .common import *
 from .base import BaseZhihu
+from .collection import Collection
+from .author import Author
 
 
 class Answer(BaseZhihu):
@@ -49,8 +51,7 @@ class Answer(BaseZhihu):
         :return: xsrf参数
         :rtype: str
         """
-        return self.soup.find(
-            'input', attrs={'name': '_xsrf'})['value']
+        return self.soup.find('input', attrs={'name': '_xsrf'})['value']
 
     @property
     @check_soup('_aid')
@@ -60,8 +61,7 @@ class Answer(BaseZhihu):
         :return: 答案内部id
         :rtype: str
         """
-        return int(self.soup.find(
-            'div', class_='zm-item-answer')['data-aid'])
+        return int(self.soup.find('div', class_='zm-item-answer')['data-aid'])
 
     @property
     @check_soup('_html')
@@ -158,6 +158,54 @@ class Answer(BaseZhihu):
         """
         return datetime.fromtimestamp(int(self.soup.find(
                 'div', class_='zm-item-answer')['data-created']))
+
+    @property
+    @check_soup('_collect_num')
+    def collect_num(self):
+        """获取答案收藏数
+
+        :return:  答案收藏数量
+        :rtype: int
+        """
+        return int(self.soup.find("a", {
+            "data-za-a": "click_answer_collected_count"
+        }).get_text())
+
+    @property
+    def collections(self):
+        """获取包含该答案的收藏夹
+
+        :return: 包含该答案的收藏夹
+        :rtype: Collection.Iterable
+
+        collect_num 未必等于 len(collections)，比如:
+        https://www.zhihu.com/question/20064699/answer/13855720
+        显示被收藏 38 次，但只有 30 个收藏夹
+        """
+        import time
+        gotten_feed_num = 20
+        offset = 0
+        data = {
+            'method':'next',
+            '_xsrf': self.xsrf
+        }
+        while gotten_feed_num >= 10:
+            data['params'] = "{\"answer_url\": %d,\"offset\": %d}" % (self.id, offset)
+            res = self._session.post(url=Get_Collection_Url, data=data)
+            gotten_feed_num = len(res.json()['msg'])
+            offset += gotten_feed_num
+            soup = BeautifulSoup(''.join(res.json()['msg']))
+            for zm_item in soup.find_all('div', class_='zm-item'):
+                url = Zhihu_URL + zm_item.h2.a['href']
+                name = zm_item.h2.a.text
+                links = zm_item.div.find_all('a')
+                owner = Author(links[0]['href'], session=self._session)
+                follower_num = int(links[1].text.split()[0])
+                yield Collection(url, owner=owner, name=name,
+                                 follower_num=follower_num,
+                                 session=self._session)
+
+            time.sleep(0.5)  # prevent from posting too quickly
 
     def save(self, filepath=None, filename=None, mode="html"):
         """保存答案为Html文档或markdown文档.

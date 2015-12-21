@@ -109,6 +109,15 @@ def test_answer():
     print(answer.creation_time)
     assert answer.creation_time == datetime.fromtimestamp(1411567255)
 
+    # 获取答案收藏数量
+    print(answer.collect_num)
+    assert answer.collect_num >= 1070
+
+    # 获取收藏答案的收藏夹
+    for _, collection in zip(range(10), answer.collections):
+        print(collection.url, collection.name, collection.owner,
+              collection.follower_num)
+
     # 保存HTML
     answer.save(filepath='.')
     # 当前目录下生成 "亲密关系之间要说「谢谢」吗？ - 甜阁下.html"
@@ -339,6 +348,12 @@ def test_collection():
     # 有哪些计算机的书适合推荐给大一学生？
     # ...
 
+    # 获取收藏夹日志
+    for log in collection.logs:
+        print(log.type, log.time, log.answer, log.owner)
+
+    assert log.answer is None
+    assert log.time == datetime.strptime('2013-11-08 00:55:43', "%Y-%m-%d %H:%M:%S")
 
 def test_column():
     url = 'http://zhuanlan.zhihu.com/xiepanda'

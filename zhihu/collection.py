@@ -146,6 +146,57 @@ class Collection(BaseZhihu):
                 yield answer
             i += 1
 
+    @property
+    def logs(self):
+        """获取收藏夹日志
+
+        :return: 收藏夹日志中的操作，返回生成器
+        :rtype: CollectActivity.Iterable
+        """
+        import time
+        from datetime import datetime
+        from .answer import Answer
+        from .acttype import CollectActType
+
+        self._make_soup()
+        gotten_feed_num = 20
+        offset = 0
+        data = {
+            'start': 0,
+            '_xsrf': self.xsrf
+        }
+        api_url = self.url + 'log'
+        while gotten_feed_num == 20:
+            data['offset'] = offset
+            res = self._session.post(url=api_url, data=data)
+            gotten_feed_num = res.json()['msg'][0]
+            soup = BeautifulSoup(res.json()['msg'][1])
+            offset += gotten_feed_num
+            zm_items = soup.find_all('div', class_='zm-item')
+
+            for zm_item in zm_items:
+                act_time = datetime.strptime(zm_item.find('time').text, "%Y-%m-%d %H:%M:%S")
+
+                if zm_item.find('ins'):
+                    try:
+                        answer = Answer(Zhihu_URL + zm_item.find('ins').a['href'],
+                                        session=self._session)
+                        type = CollectActType.INSERT_ANSWER
+                        yield CollectActivity(type, act_time, self.owner, self, answer)
+                    except ValueError:
+                        type = CollectActType.CREATE_COLLECTION
+                        yield CollectActivity(type, act_time, self.owner, self)
+                elif zm_item.find('del'):
+                    type = CollectActType.DELETE_ANSWER
+                    answer = Answer(Zhihu_URL + zm_item.find('del').a['href'],
+                                    session=self._session)
+                    yield CollectActivity(type, act_time, self.owner, self, answer)
+                else:
+                    continue
+
+            data['start'] = zm_items[-1]['id'][8:]
+            time.sleep(0.5)
+
     def _page_get_questions(self, soup):
         from .question import Question
 
@@ -203,3 +254,63 @@ class Collection(BaseZhihu):
                 answer = Answer(answer_url, question, author,
                                 upvote, session=self._session)
                 yield answer
+
+
+class CollectActivity:
+    """收藏夹操作, 请使用``Collection.logs``方法构造对象."""
+
+    def __init__(self, type, time, owner, collection, answer=None):
+        """创建收藏夹操作类实例
+
+        :param acttype.CollectActType type: 操作类型
+        :param datetime.datetime time: 进行操作的时间
+        :param Author owner: 收藏夹的拥有者
+        :param Collection collection: 所属收藏夹
+        :param Answer answer: 收藏的答案，可选
+        :return: CollectActivity
+        """
+        self._type = type
+        self._time = time
+        self._owner = owner
+        self._collection = collection
+        self._answer = answer
+
+    @property
+    def type(self):
+        """
+        :return: 收藏夹操作类型, 可能值为"insert", "delete"，代表在收藏夹中添加/删除回答
+        :rtype: str
+        """
+        return self._type
+
+    @property
+    def answer(self):
+        """
+        :return: 添加或删除收藏的答案, 若是创建收藏夹操作返回 None
+        :rtype: Answer or None
+        """
+        return self._answer
+
+    @property
+    def time(self):
+        """
+        :return: 进行操作的时间
+        :rtype: datetime.datetime
+        """
+        return self._time
+
+    @property
+    def owner(self):
+        """
+        :return: 收藏夹的拥有者
+        :rtype: Author
+        """
+        return self._owner
+
+    @property
+    def collection(self):
+        """
+        :return: 所属收藏夹
+        :rtype: Collection
+        """
+        return self._collection

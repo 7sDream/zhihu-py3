@@ -253,9 +253,10 @@ class Question(BaseZhihu):
             import time
             gotten_feed_num = 20
             start = '0'
+            api_url = self.url + 'log'
             while gotten_feed_num == 20:
                 data = {'_xsrf': self.xsrf, 'offset': '40', 'start': start}
-                res = self._session.post(self.url + 'log', data=data)
+                res = self._session.post(api_url, data=data)
                 gotten_feed_num, content = res.json()['msg']
                 soup = BeautifulSoup(content)
                 acts = soup.find_all('div', class_='zm-item')
