@@ -15,7 +15,7 @@ class Question(BaseZhihu):
 
     @class_common_init(re_question_url)
     def __init__(self, url, title=None, followers_num=None,
-                 answer_num=None, creation_time=None, session=None):
+                 answer_num=None, creation_time=None, author=None, session=None):
         """创建问题类实例.
 
         :param str url: 问题url
@@ -23,6 +23,7 @@ class Question(BaseZhihu):
         :param int followers_num: 问题关注人数，可选
         :param int answer_num: 问题答案数，可选
         :param datetime.datetime creation_time: 问题创建时间，可选
+        :param Author author: 提问者，可选
         :return: 问题对象
         :rtype: Question
         """
@@ -32,9 +33,9 @@ class Question(BaseZhihu):
         self._answer_num = answer_num
         self._followers_num = followers_num
         self._id = int(re.match(r'.*/(\d+)', self.url).group(1))
+        self._author = author
         self._creation_time = None
         self._last_edit_time = None
-        self._author = None
         self._logs = None
 
     @property
@@ -247,6 +248,26 @@ class Question(BaseZhihu):
                 return
 
     @property
+    def author(self):
+        """
+        :return: 提问者
+        :rtype Author or None，None 代表提问者为匿名用户
+        """
+        from .author import Author
+
+        if self._author:
+            return self._author
+        else:
+            logs = self._query_logs()
+            author_a = logs[-1].find_all('div')[0].a
+            if author_a.text == '匿名用户':
+                return None
+            else:
+                url = Zhihu_URL + author_a['href']
+                self._author = Author(url, name=author_a.text, session=self._session)
+                return self._author
+
+    @property
     def creation_time(self):
         """
         :return: 问题创建时间
@@ -276,26 +297,6 @@ class Question(BaseZhihu):
             time_string = soup.find_all('time')[0]['datetime']
             self._last_edit_time = datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
             return self._last_edit_time
-
-    @property
-    def author(self):
-        """
-        :return: 提问者
-        :rtype Author or None，None 代表提问者为匿名用户
-        """
-        from .author import Author
-
-        if self._author:
-            return self._author
-        else:
-            logs = self._query_logs()
-            author_a = logs[-1].find_all('div')[0].a
-            if author_a.text == '匿名用户':
-                return None
-            else:
-                url = Zhihu_URL + author_a['href']
-                self._author = Author(url, name=author_a.text, session=self._session)
-                return self._author
 
     def _query_logs(self):
         if self._logs is None:
