@@ -64,6 +64,12 @@ def test_question():
     print(last_edit_time)
     assert last_edit_time >= datetime.strptime('2015-04-01 00:39:21', "%Y-%m-%d %H:%M:%S")
 
+    # 获取提问者
+    assert question.author is None
+    question = client.question('https://www.zhihu.com/question/38531356')
+    assert question.author.name == '杨捷'
+    assert question.author.url == 'https://www.zhihu.com/people/yangjiePro'
+
 
 def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
