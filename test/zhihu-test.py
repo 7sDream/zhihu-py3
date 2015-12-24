@@ -68,7 +68,7 @@ def test_question():
     assert question.author is None
     question = client.question('https://www.zhihu.com/question/38531356')
     assert question.author.name == '杨捷'
-    assert question.author.url == 'https://www.zhihu.com/people/yangjiePro'
+    assert question.author.url == 'https://www.zhihu.com/people/yangjiePro/'
 
 
 def test_answer():
