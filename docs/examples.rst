@@ -18,7 +18,7 @@
 
     client = ZhihuClient(Cookies_File)
 
-    url = 'http://www.zhihu.com/people/zord-vczh'
+    url = 'http://www.zhihu.com/people/excited-vczh'
     author = client.author(url)
 
     print('用户名 %s' % author.name)
@@ -91,7 +91,7 @@
 ..  code-block:: python
     :linenos:
 
-    author = zhihu.author('http://www.zhihu.com/people/zord-vczh')
+    author = zhihu.author('http://www.zhihu.com/people/excited-vczh')
     for act in author.activities:
        if act.type == zhihu.ActType.UPVOTE_ANSWER:
            print('%s 在 %s 赞同了问题 %s 中 %s(motto: %s) 的回答, '
@@ -171,7 +171,7 @@
     import os
     import imghdr
 
-    author = client.author('http://www.zhihu.com/people/zord-vczh')
+    author = client.author('http://www.zhihu.com/people/excited-vczh')
 
     os.mkdir('vczh')
     for followee in author.followees:
