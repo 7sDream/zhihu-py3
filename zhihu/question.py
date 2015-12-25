@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import time
 from datetime import datetime
 
 from .common import *
@@ -14,7 +15,7 @@ class Question(BaseZhihu):
 
     @class_common_init(re_question_url)
     def __init__(self, url, title=None, followers_num=None,
-                 answer_num=None, creation_time=None, session=None):
+                 answer_num=None, creation_time=None, author=None, session=None):
         """创建问题类实例.
 
         :param str url: 问题url
@@ -22,6 +23,7 @@ class Question(BaseZhihu):
         :param int followers_num: 问题关注人数，可选
         :param int answer_num: 问题答案数，可选
         :param datetime.datetime creation_time: 问题创建时间，可选
+        :param Author author: 提问者，可选
         :return: 问题对象
         :rtype: Question
         """
@@ -31,6 +33,10 @@ class Question(BaseZhihu):
         self._answer_num = answer_num
         self._followers_num = followers_num
         self._id = int(re.match(r'.*/(\d+)', self.url).group(1))
+        self._author = author
+        self._creation_time = None
+        self._last_edit_time = None
+        self._logs = None
 
     @property
     def id(self):
@@ -242,27 +248,36 @@ class Question(BaseZhihu):
                 return
 
     @property
+    def author(self):
+        """
+        :return: 提问者
+        :rtype Author or None，None 代表提问者为匿名用户
+        """
+        from .author import Author
+
+        if self._author:
+            return self._author
+        else:
+            logs = self._query_logs()
+            author_a = logs[-1].find_all('div')[0].a
+            if author_a.text == '匿名用户':
+                return None
+            else:
+                url = Zhihu_URL + author_a['href']
+                self._author = Author(url, name=author_a.text, session=self._session)
+                return self._author
+
+    @property
     def creation_time(self):
         """
         :return: 问题创建时间
         :rtype: datetime.datetime
         """
-        if hasattr(self, '_creation_time'):
+        if self._creation_time:
             return self._creation_time
         else:
-            import time
-            gotten_feed_num = 20
-            start = '0'
-            api_url = self.url + 'log'
-            while gotten_feed_num == 20:
-                data = {'_xsrf': self.xsrf, 'offset': '40', 'start': start}
-                res = self._session.post(api_url, data=data)
-                gotten_feed_num, content = res.json()['msg']
-                soup = BeautifulSoup(content)
-                acts = soup.find_all('div', class_='zm-item')
-                start = acts[-1]['id'][8:] if len(acts) > 0 else '0'
-                time.sleep(0.5)  # prevent from posting too quickly
-            time_string = soup.find_all('time')[-1]['datetime']
+            logs = self._query_logs()
+            time_string = logs[-1].find('div', class_='zm-item-meta').time['datetime']
             self._creation_time = datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
             return self._creation_time
 
@@ -272,16 +287,36 @@ class Question(BaseZhihu):
         :return: 问题最后编辑时间
         :rtype: datetime.datetime
         """
-        if hasattr(self, '_last_edit_time'):
+        if self._last_edit_time:
             return self._last_edit_time
         else:
             data = {'_xsrf': self.xsrf, 'offset': '1'}
             res = self._session.post(self.url + 'log', data=data)
-            _, content =  res.json()['msg']
+            _, content = res.json()['msg']
             soup = BeautifulSoup(content)
             time_string = soup.find_all('time')[0]['datetime']
             self._last_edit_time = datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
             return self._last_edit_time
+
+    def _query_logs(self):
+        if self._logs is None:
+            gotten_feed_num = 20
+            start = '0'
+            offset = 0
+            api_url = self.url + 'log'
+            while gotten_feed_num == 20:
+                data = {'_xsrf': self.xsrf, 'offset': offset, 'start': start}
+                res = self._session.post(api_url, data=data)
+                gotten_feed_num, content = res.json()['msg']
+                offset += gotten_feed_num
+                soup = BeautifulSoup(content)
+                logs = soup.find_all('div', class_='zm-item')
+                start = logs[-1]['id'][8:] if len(logs) > 0 else '0'
+                time.sleep(0.2)  # prevent from posting too quickly
+
+            self._logs = logs
+
+        return self._logs
 
     def _parse_answer_html(self, answer_html, Author, Answer):
         soup = BeautifulSoup(answer_html)
