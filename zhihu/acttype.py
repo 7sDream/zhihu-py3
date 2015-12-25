@@ -52,3 +52,20 @@ class ActType(enum.Enum):
 
     def __str__(self):
         return match[self.name]
+
+
+class CollectActType(enum.Enum):
+    """用于表示收藏夹操作的类型.
+
+    :常量说明:
+        =============== ==============
+        常量名          说明
+        =============== ==============
+        INSERT_ANSWER   在收藏夹中增加一个回答
+        DELETE_ANSWER   在收藏夹中删除一个回答
+        CREATE_COLLECTION   创建收藏夹
+        =============== ==============
+    """
+    INSERT_ANSWER = 1
+    DELETE_ANSWER = 2
+    CREATE_COLLECTION = 3

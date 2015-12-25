@@ -1,6 +1,17 @@
 更新日志
 ========
 
+0.3.5
+-----
+
+- [add] 添加 Answer.collect_num 属性, 获取答案的收藏数
+- [add] 添加 Answer.collections 接口, 获取收藏了该答案的收藏夹
+- [add] 添加 Collections.logs 接口, 获取收藏夹日志
+- [add] 添加 Question.author 属性，获取提问者
+- [fix] 修复文档代码的一些错误
+
+前四个功能Thanks `@laike9m <https://github.com/laike9m>`__
+
 0.3.4
 -----
 

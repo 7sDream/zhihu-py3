@@ -64,6 +64,12 @@ def test_question():
     print(last_edit_time)
     assert last_edit_time >= datetime.strptime('2015-04-01 00:39:21', "%Y-%m-%d %H:%M:%S")
 
+    # 获取提问者
+    assert question.author is None
+    question = client.question('https://www.zhihu.com/question/38531356')
+    assert question.author.name == '杨捷'
+    assert question.author.url == 'https://www.zhihu.com/people/yangjiePro/'
+
 
 def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
@@ -108,6 +114,15 @@ def test_answer():
     # 获取答案创建时间
     print(answer.creation_time)
     assert answer.creation_time == datetime.fromtimestamp(1411567255)
+
+    # 获取答案收藏数量
+    print(answer.collect_num)
+    assert answer.collect_num >= 1070
+
+    # 获取收藏答案的收藏夹
+    for _, collection in zip(range(10), answer.collections):
+        print(collection.url, collection.name, collection.owner,
+              collection.follower_num)
 
     # 保存HTML
     answer.save(filepath='.')
@@ -339,6 +354,12 @@ def test_collection():
     # 有哪些计算机的书适合推荐给大一学生？
     # ...
 
+    # 获取收藏夹日志
+    for log in collection.logs:
+        print(log.type, log.time, log.answer, log.owner)
+
+    assert log.answer is None
+    assert log.time == datetime.strptime('2013-11-08 00:55:43', "%Y-%m-%d %H:%M:%S")
 
 def test_column():
     url = 'http://zhuanlan.zhihu.com/xiepanda'

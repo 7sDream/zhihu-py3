@@ -19,8 +19,8 @@ class Activity:
     def __init__(self, act, session):
         """创建用户动态类实例.
 
-        :param <class 'bs4.element.Tag'> act: 表示用户动态的页面元素
-        :param Session session 使用的网络会话
+        :param bs4.element.Tag act: 表示用户动态的页面元素
+        :param Session session: 使用的网络会话
         :return: 用户动态对象
         :rtype: Activity
 

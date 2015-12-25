@@ -596,9 +596,10 @@ class Author(BaseZhihu):
         self._make_soup()
         gotten_feed_num = 20
         start = '0'
+        api_url = self.url + 'activities'
         while gotten_feed_num == 20:
             data = {'_xsrf': self.xsrf, 'start': start}
-            res = self._session.post(self.url + 'activities', data=data)
+            res = self._session.post(api_url, data=data)
             gotten_feed_num = res.json()['msg'][0]
             soup = BeautifulSoup(res.json()['msg'][1])
             acts = soup.find_all(
