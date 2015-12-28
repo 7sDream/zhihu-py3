@@ -1,6 +1,12 @@
 更新日志
 ========
 
+WIP
+---
+
+- [fix] 修试图获取登录用户自身 location, business 等属性但自己又未填写时出现的 bug。
+- [fix] 修复 topic.py 中混合使用 return sth 和 yield sth 导致的旧版本 python 报语法错误的问题。
+
 0.3.5
 -----
 
