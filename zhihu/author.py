@@ -259,7 +259,7 @@ class Author(BaseZhihu):
         else:
             res = self.soup.find(
                 'span', class_=t)
-            if res:
+            if res and 'title' in res:
                 return res['title']
             else:
                 return 'unknown'

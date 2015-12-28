@@ -75,7 +75,7 @@ class Topic(BaseZhihu):
         self._make_soup()
         parent_topic_tag = self.soup.find('div', class_='parent-topic')
         if parent_topic_tag is None:
-            return []
+            yield []
         else:
             for topic_tag in parent_topic_tag.find_all('a'):
                 yield Topic(Zhihu_URL + topic_tag['href'],
