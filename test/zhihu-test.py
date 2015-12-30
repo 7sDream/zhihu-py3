@@ -311,6 +311,9 @@ def test_author():
         elif act.type == ActType.FOLLOW_TOPIC:
             print('%s 在 %s 关注了话题 %s' %
                   (author.name, act.time, act.topic.name))
+        elif act.type == ActType.FOLLOW_COLLECTION:
+            print('%s 在 %s 关注了收藏夹 %s' %
+                  (author.name, act.time, act.collection.name))
 
 
 def test_collection():
