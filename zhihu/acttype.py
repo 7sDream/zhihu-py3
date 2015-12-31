@@ -11,7 +11,8 @@ match = {
     'UPVOTE_POST': 'member_voteup_article',
     'FOLLOW_COLUMN': 'member_follow_column',
     'FOLLOW_TOPIC': 'member_follow_topic',
-    'PUBLISH_POST': 'member_create_article'
+    'PUBLISH_POST': 'member_create_article',
+    'FOLLOW_COLLECTION': 'member_follow_favlist'
 }
 
 reverse_match = {v: k for k, v in match.items()}
@@ -33,6 +34,7 @@ class ActType(enum.Enum):
         FOLLOW_COLUMN   关注了一个专栏 column   :class:`.Column`
         FOLLOW_TOPIC    关注了一个话题 topic    :class:`.Topic`
         PUBLISH_POST    发表了一篇文章 post     :class:`.Post`
+        FOLLOW_COLLECTION 关注了一个收藏夹 collection     :class:`.Collection`
         =============== ============== ======== ==================
 
     """
@@ -45,6 +47,7 @@ class ActType(enum.Enum):
     FOLLOW_COLUMN = 32
     FOLLOW_TOPIC = 64
     PUBLISH_POST = 128
+    FOLLOW_COLLECTION = 256
 
     @classmethod
     def from_str(cls, div_class):
