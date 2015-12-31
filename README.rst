@@ -8,7 +8,7 @@ zhihu-py3 : 知乎非官方API库 with Python3
 Dev 分支coding内容：
 
  - unittest
- - 忙着跟上知乎的节奏（dog fuck‘s zhihu）
+ - 忙着跟上知乎的节奏（dog fuck's zhihu）
 
 
 具体请看\ `ChangeLog <https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.rst>`__\ 。

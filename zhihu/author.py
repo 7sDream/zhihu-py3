@@ -259,7 +259,7 @@ class Author(BaseZhihu):
         else:
             res = self.soup.find(
                 'span', class_=t)
-            if res:
+            if res and 'title' in res:
                 return res['title']
             else:
                 return 'unknown'
@@ -602,12 +602,11 @@ class Author(BaseZhihu):
             res = self._session.post(api_url, data=data)
             gotten_feed_num = res.json()['msg'][0]
             soup = BeautifulSoup(res.json()['msg'][1])
-            acts = soup.find_all(
-                'div', class_='zm-profile-section-item zm-item clearfix')
+            acts = soup.find_all('div', class_='zm-profile-section-item zm-item clearfix')
 
             start = acts[-1]['data-time'] if len(acts) > 0 else 0
             for act in acts:
-                yield Activity(act, self._session)
+                yield Activity(act, self._session, self)
 
     @property
     def last_activity_time(self):

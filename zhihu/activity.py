@@ -11,16 +11,18 @@ from .column import Column
 from .post import Post
 from .topic import Topic
 from .author import Author
+from .collection import Collection
 
 
 class Activity:
 
     """用户动态类，请使用Author.activities获取."""
-    def __init__(self, act, session):
+    def __init__(self, act, session, author):
         """创建用户动态类实例.
 
         :param bs4.element.Tag act: 表示用户动态的页面元素
         :param Session session: 使用的网络会话
+        :param Author author: Activity 所属的用户对象
         :return: 用户动态对象
         :rtype: Activity
 
@@ -29,6 +31,7 @@ class Activity:
 
         """
         self._session = session
+        self._author = author
         self.type = ActType.from_str(act.attrs['data-type-detail'])
 
         useless_tag = act.div.find('a', class_='zg-link')
@@ -100,7 +103,7 @@ class Activity:
         question = Question(question_url, question_title, session=self._session)
         answer_url = Zhihu_URL + act.div.find_all('a')[-1]['href']
         answer_comment_num, answer_upvote_num = self._parse_un_cn(act)
-        return Answer(answer_url, question, self, answer_upvote_num, session=self._session)
+        return Answer(answer_url, question, self._author, answer_upvote_num, session=self._session)
 
     def _assemble_voteup_answer(self, act):
         question_url = Zhihu_URL + re_a2q.match(act.div.a['href']).group(1)
@@ -139,6 +142,12 @@ class Activity:
     def _assemble_follow_question(self, act):
         return Question(Zhihu_URL + act.div.a['href'], act.div.a.text, session=self._session)
 
+    def _assemble_follow_collection(self, act):
+        url = act.div.a['href']
+        if not url.startswith('http'):
+            url = Zhihu_URL + url
+        return Collection(url, session=self._session)
+
     def _get_assemble_method(self, act_type):
         assemble_methods = {
             ActType.UPVOTE_POST: self._assemble_voteup_post,
@@ -149,6 +158,7 @@ class Activity:
             ActType.FOLLOW_QUESTION: self._assemble_follow_question,
             ActType.FOLLOW_TOPIC: self._assemble_follow_topic,
             ActType.PUBLISH_POST: self._assemble_create_post,
+            ActType.FOLLOW_COLLECTION: self._assemble_follow_collection
         }
 
         if act_type in assemble_methods:

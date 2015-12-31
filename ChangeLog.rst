@@ -1,6 +1,14 @@
 更新日志
 ========
 
+WIP
+---
+
+- [fix] 修试图获取登录用户自身 location, business 等属性但自己又未填写时出现的 bug
+- [fix] 修复 topic.py 中混合使用 return sth 和 yield sth 导致的旧版本 python 报语法错误的问题
+- [add/fix] ActType 中添加了关注收藏夹 (Thanks `@cssmlulu <https://github.com/cssmlulu>`__)
+- [fix] 修复了 Author.activities 项 answer 的 author 属性不正确的 bug (Thanks `@cssmlulu <https://github.com/cssmlulu>`__)
+
 0.3.5
 -----
 
