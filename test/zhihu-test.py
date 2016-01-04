@@ -144,6 +144,14 @@ def test_answer():
     answer.save(filepath='.', mode="md")
     # 当前目录下生成 "亲密关系之间要说「谢谢」吗？ - 甜阁下.md"
 
+    answer.refresh()
+
+    # test again
+    print(answer.upvote_num)
+    print(answer.content)
+    print(answer.collect_num)
+
+
 
 def test_author():
     url = 'http://www.zhihu.com/people/7sdream'
