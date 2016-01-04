@@ -113,6 +113,9 @@ def test_answer():
     #
     # 三零用户比例 36.364%
 
+    print(answer.comment_num)
+    assert answer.comment_num >= 161
+
     # 获取答案下的评论
     for _, comment in zip(range(10), answer.comments):
         print(comment.author.name, comment.content)
@@ -150,7 +153,7 @@ def test_answer():
     print(answer.upvote_num)
     print(answer.content)
     print(answer.collect_num)
-
+    print(answer.comment_num)
 
 
 def test_author():
