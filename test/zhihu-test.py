@@ -416,6 +416,14 @@ def test_post():
     print(post.comment_num)
     # 1748
 
+    # 获取点赞者
+    for _, upvoter in zip(range(10), post.upvoters):
+        print(upvoter.name)
+    # 喵喵呜
+    # haku asaya
+    # 会飞的驴
+    # ...
+
     # 保存为 markdown
     post.save(filepath='.')
     # 当前目录下生成
@@ -423,7 +431,7 @@ def test_post():
 
 
 def test_topic():
-    url = 'http://www.zhihu.com/topic/19947695/'
+    url = 'https://www.zhihu.com/topic/19552330'
     topic = client.topic(url)
 
     # 获取话题地址
@@ -590,6 +598,7 @@ def test_me():
     assert me.unhelpful(answer, True)         # 没有帮助
     assert me.unhelpful(answer, False)        # 取消没有帮助
     print('通过')
+
 
 def test():
     test_question()
