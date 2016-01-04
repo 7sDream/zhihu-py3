@@ -278,6 +278,21 @@ class Answer(BaseZhihu):
                       photo_url, session=self._session)
 
     @property
+    @check_soup('_comment_num')
+    def comment_num(self):
+        """
+        :return: 答案下评论的数量
+        :rtype: int
+        """
+        comment_num_string = self.soup.find('a', class_=' meta-item toggle-comment').text
+        number = comment_num_string.split()[0]
+        return int(number) if number.isdigit() else 0
+
+    @comment_num.deleter
+    def comment_num(self):
+        del self._comment_num
+
+    @property
     def comments(self):
         """获取答案下的所有评论.
 
@@ -307,3 +322,4 @@ class Answer(BaseZhihu):
         del self.upvote_num
         del self.content
         del self.collect_num
+        del self.comment_num
