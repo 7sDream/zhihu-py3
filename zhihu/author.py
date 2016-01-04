@@ -606,6 +606,10 @@ class Author(BaseZhihu):
 
             start = acts[-1]['data-time'] if len(acts) > 0 else 0
             for act in acts:
+                # --- ignore Round Table temporarily ---
+                if act.attrs['data-type-detail'] == "member_follow_roundtable":
+                    continue
+                # --- --- --- --- -- --- --- --- --- ---
                 yield Activity(act, self._session, self)
 
     @property

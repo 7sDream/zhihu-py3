@@ -40,6 +40,7 @@ Column_API = Column_Url + '/api/columns'
 Column_Data = Column_API + '/{0}'
 Column_Posts_Data = Column_API + '/{0}/posts?limit=10&offset={1}'
 Column_Post_Data = Column_API + '/{0}/posts/{1}'
+Post_Get_Upvoter = Column_API + '/{0}/posts/{1}/likers'
 
 Topic_Url = Zhihu_URL + '/topic'
 Topic_Get_Children_Url = Topic_Url + '/{0}/organize/entire'
