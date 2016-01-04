@@ -70,6 +70,18 @@ def test_question():
     assert question.author.name == '杨捷'
     assert question.author.url == 'https://www.zhihu.com/people/yangjiePro/'
 
+    question.refresh()
+
+    # test again
+    print(question.title)
+    print(question.details)
+    print(question.answer_num)
+    print(question.follower_num)
+    for _, follower in zip(range(10), question.followers):
+        print(follower.name)
+    print(question.topics)
+    print(question.last_edit_time)
+
 
 def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'

@@ -34,8 +34,7 @@ class Question(BaseZhihu):
         self._followers_num = followers_num
         self._id = int(re.match(r'.*/(\d+)', self.url).group(1))
         self._author = author
-        self._creation_time = None
-        self._last_edit_time = None
+        self._creation_time = creation_time
         self._logs = None
 
     @property
@@ -66,8 +65,7 @@ class Question(BaseZhihu):
         :return: xsrf参数
         :rtype: str
         """
-        return self.soup.find(
-            'input', attrs={'name': '_xsrf'})['value']
+        return self.soup.find('input', attrs={'name': '_xsrf'})['value']
 
     @property
     @check_soup('_html')
@@ -78,6 +76,11 @@ class Question(BaseZhihu):
         :rtype: str
         """
         return self.soup.prettify()
+
+    @html.deleter
+    def html(self):
+        if hasattr(self, '_html'):
+            del self._html
 
     @property
     @check_soup('_title')
@@ -90,6 +93,11 @@ class Question(BaseZhihu):
         return self.soup.find('h2', class_='zm-item-title') \
             .text.replace('\n', '')
 
+    @title.deleter
+    def title(self):
+        if hasattr(self, '_title'):
+            del self._title
+
     @property
     @check_soup('_details')
     def details(self):
@@ -99,6 +107,11 @@ class Question(BaseZhihu):
         :rtype: str
         """
         return self.soup.find("div", id="zh-question-detail").div.text
+
+    @details.deleter
+    def details(self):
+        if hasattr(self, '_details'):
+            del self._details
 
     @property
     @check_soup('_answers_num')
@@ -119,6 +132,11 @@ class Question(BaseZhihu):
                 return 0
         return int(answer_num_block['data-num'])
 
+    @answer_num.deleter
+    def answer_num(self):
+        if hasattr(self, '_answer_num'):
+            del self._answer_num
+
     @property
     @check_soup('_follower_num')
     def follower_num(self):
@@ -133,6 +151,11 @@ class Question(BaseZhihu):
             return 0
         return int(follower_num_block.strong.text)
 
+    @follower_num.deleter
+    def follower_num(self):
+        if hasattr(self, '_follower_num'):
+            del self._follower_num
+
     @property
     @check_soup('_topics')
     def topics(self):
@@ -145,6 +168,11 @@ class Question(BaseZhihu):
         for topic in self.soup.find_all('a', class_='zm-item-tag'):
             topics_list.append(topic.text.replace('\n', ''))
         return topics_list
+
+    @topics.deleter
+    def topics(self):
+        if hasattr(self, '_topics'):
+            del self._topics
 
     @property
     def followers(self):
@@ -248,6 +276,7 @@ class Question(BaseZhihu):
                 return
 
     @property
+    @check_soup('_author')
     def author(self):
         """
         :return: 提问者
@@ -255,48 +284,43 @@ class Question(BaseZhihu):
         """
         from .author import Author
 
-        if self._author:
-            return self._author
+        logs = self._query_logs()
+        author_a = logs[-1].find_all('div')[0].a
+        if author_a.text == '匿名用户':
+            return None
         else:
-            logs = self._query_logs()
-            author_a = logs[-1].find_all('div')[0].a
-            if author_a.text == '匿名用户':
-                return None
-            else:
-                url = Zhihu_URL + author_a['href']
-                self._author = Author(url, name=author_a.text, session=self._session)
-                return self._author
+            url = Zhihu_URL + author_a['href']
+            return Author(url, name=author_a.text, session=self._session)
 
     @property
+    @check_soup('_creation_time')
     def creation_time(self):
         """
         :return: 问题创建时间
         :rtype: datetime.datetime
         """
-        if self._creation_time:
-            return self._creation_time
-        else:
-            logs = self._query_logs()
-            time_string = logs[-1].find('div', class_='zm-item-meta').time['datetime']
-            self._creation_time = datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
-            return self._creation_time
+        logs = self._query_logs()
+        time_string = logs[-1].find('div', class_='zm-item-meta').time['datetime']
+        return datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
 
     @property
+    @check_soup('_last_edit_time')
     def last_edit_time(self):
         """
         :return: 问题最后编辑时间
         :rtype: datetime.datetime
         """
-        if self._last_edit_time:
-            return self._last_edit_time
-        else:
-            data = {'_xsrf': self.xsrf, 'offset': '1'}
-            res = self._session.post(self.url + 'log', data=data)
-            _, content = res.json()['msg']
-            soup = BeautifulSoup(content)
-            time_string = soup.find_all('time')[0]['datetime']
-            self._last_edit_time = datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
-            return self._last_edit_time
+        data = {'_xsrf': self.xsrf, 'offset': '1'}
+        res = self._session.post(self.url + 'log', data=data)
+        _, content = res.json()['msg']
+        soup = BeautifulSoup(content)
+        time_string = soup.find_all('time')[0]['datetime']
+        return datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
+
+    @last_edit_time.deleter
+    def last_edit_time(self):
+        if hasattr(self, '_last_edit_time'):
+            del self._last_edit_time
 
     def _query_logs(self):
         if self._logs is None:
@@ -317,6 +341,17 @@ class Question(BaseZhihu):
             self._logs = logs
 
         return self._logs
+
+    def refresh(self):
+        super().refresh()
+        del self.html
+        del self.title
+        del self.details
+        del self.answer_num
+        del self.follower_num
+        del self.topics
+        del self.last_edit_time
+        self._logs = None
 
     def _parse_answer_html(self, answer_html, Author, Answer):
         soup = BeautifulSoup(answer_html)
