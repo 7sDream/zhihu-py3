@@ -13,7 +13,7 @@ class Question(BaseZhihu):
 
     """问题类，请使用``ZhihuClient.question``方法构造对象."""
 
-    @class_common_init(re_question_url)
+    @class_common_init(re_question_url, trailing_slash=False)
     def __init__(self, url, title=None, followers_num=None,
                  answer_num=None, creation_time=None, author=None, session=None):
         """创建问题类实例.
@@ -28,7 +28,7 @@ class Question(BaseZhihu):
         :rtype: Question
         """
         self._session = session
-        self.url = url
+        self._url = url
         self._title = title
         self._answer_num = answer_num
         self._followers_num = followers_num
@@ -36,6 +36,12 @@ class Question(BaseZhihu):
         self._author = author
         self._creation_time = creation_time
         self._logs = None
+
+    @property
+    def url(self):
+        # always return url like https://www.zhihu.com/question/1234/
+        url = re.match(re_question_url_std, self._url).group()
+        return url if url.endswith('/') else url + '/'
 
     @property
     def id(self):
