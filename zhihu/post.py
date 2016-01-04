@@ -138,7 +138,7 @@ class Post(JsonAsSoupMixin, BaseZhihu):
         :param str filename: 要保存的文件名，不填则默认为 文章标题 - 作者名.md
             如果文件已存在，自动在后面加上数字区分。
             自定义参数时请不要输入扩展名 .md
-        :return:
+        :return: None
         """
         self._make_soup()
         file = get_path(filepath, filename, 'md',
@@ -149,3 +149,29 @@ class Post(JsonAsSoupMixin, BaseZhihu):
             h2t = html2text.HTML2Text()
             h2t.body_width = 0
             f.write(h2t.handle(self.soup['content']).encode('utf-8'))
+
+    @property
+    def upvoters(self):
+        """获取文章的点赞用户
+
+        :return: 文章的点赞用户，返回生成器。
+        """
+        from .author import Author
+        self._make_soup()
+        headers = dict(Default_Header)
+        headers['Host'] = 'zhuanlan.zhihu.com'
+        json = self._session.get(
+                Post_Get_Upvoter.format(
+                        self.column_in_name,
+                        self.slug
+                ),
+                headers=headers
+        ).json()
+        for au in json:
+            yield Author(
+                    au['profileUrl'],
+                    au['name'],
+                    au['bio'],
+                    photo_url=au['avatar']['template'].format(id=au['avatar']['id'], size='r'),
+                    session=self._session
+            )
