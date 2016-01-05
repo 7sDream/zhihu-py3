@@ -1,6 +1,14 @@
 更新日志
 ========
 
+0.3.8
+-----
+- [add] Answer 和 Question 增加 refresh() 方法, 刷新问题答案 object 的属性
+- [add] Question 初始化的 url 现在支持 ?sort=created
+- [add] 使用带 ?sort=created 的 url 初始化问题时, question.answers 按照时间顺序返回答案
+- [add] 添加了 Answer.comment_num 属性, 获取评论数量
+
+
 0.3.7
 -----
 

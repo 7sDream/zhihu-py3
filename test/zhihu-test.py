@@ -70,6 +70,62 @@ def test_question():
     assert question.author.name == '杨捷'
     assert question.author.url == 'https://www.zhihu.com/people/yangjiePro/'
 
+    question.refresh()
+
+    # test again
+    print(question.title)
+    print(question.details)
+    print(question.answer_num)
+    print(question.follower_num)
+    for _, follower in zip(range(10), question.followers):
+        print(follower.name)
+    print(question.topics)
+    print(question.last_edit_time)
+
+    # with sort parameter, repeat above tests
+
+    url = 'https://www.zhihu.com/question/24825703?sort=created'
+    question = client.question(url)
+    print(question.title)
+    print(question.details)
+    print(question.answer_num)
+    print(question.follower_num)
+    for _, follower in zip(range(10), question.followers):
+        print(follower.name)
+    print(question.topics)
+    print(question.top_answer.upvote_num)
+    for answer in question.top_i_answers(10):
+        print(answer.author.name, answer.upvote_num, answer.author.motto)
+    ctime = question.creation_time
+    print(ctime)
+    assert ctime == datetime.strptime('2014-08-12 17:58:07', "%Y-%m-%d %H:%M:%S")
+    last_edit_time = question.last_edit_time
+    print(last_edit_time)
+    assert last_edit_time >= datetime.strptime('2015-04-01 00:39:21', "%Y-%m-%d %H:%M:%S")
+    assert question.author is None
+    question = client.question('https://www.zhihu.com/question/38531356')
+    assert question.author.name == '杨捷'
+    assert question.author.url == 'https://www.zhihu.com/people/yangjiePro/'
+
+    question.refresh()
+
+    # test again
+    print(question.title)
+    print(question.details)
+    print(question.answer_num)
+    print(question.follower_num)
+    for _, follower in zip(range(10), question.followers):
+        print(follower.name)
+    print(question.topics)
+    print(question.last_edit_time)
+
+    # test fetching all sorted answers
+    question = client.question('https://www.zhihu.com/question/27459050?sort=created')
+    count = 0
+    for answer in question.answers:
+        count += 1
+        print(answer.author.name, answer.upvote_num, answer.author.motto)
+    assert count >= 84
 
 def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
@@ -101,6 +157,9 @@ def test_answer():
     #
     # 三零用户比例 36.364%
 
+    print(answer.comment_num)
+    assert answer.comment_num >= 161
+
     # 获取答案下的评论
     for _, comment in zip(range(10), answer.comments):
         print(comment.author.name, comment.content)
@@ -131,6 +190,14 @@ def test_answer():
     # 保存markdown
     answer.save(filepath='.', mode="md")
     # 当前目录下生成 "亲密关系之间要说「谢谢」吗？ - 甜阁下.md"
+
+    answer.refresh()
+
+    # test again
+    print(answer.upvote_num)
+    print(answer.content)
+    print(answer.collect_num)
+    print(answer.comment_num)
 
 
 def test_author():
