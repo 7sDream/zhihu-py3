@@ -317,6 +317,12 @@ class Answer(BaseZhihu):
             yield Comment(comment_id, self, author_obj, upvote_num, content, time_string)
 
     def refresh(self):
+        """刷新 Answer object 的属性. 
+        例如赞同数增加了, 先调用 ``refresh()`` 
+        再访问 upvote_num属性, 可获得更新后的赞同数.
+        
+        :return: None
+        """
         super().refresh()
         del self.html
         del self.upvote_num

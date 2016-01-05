@@ -20,11 +20,12 @@ class Question(BaseZhihu):
 
         :param str url: 问题url. 现在支持两种 url
 
-        1. https://www.zhihu.com/question/qid
-        2. https://www.zhihu.com/question/qid?sort=created
+            1. https://www.zhihu.com/question/qid
+            2. https://www.zhihu.com/question/qid?sort=created
 
-        区别在于,使用第一种,调用 ``question.answers`` 的时候会按投票排序返回答案;
-        使用第二种, 会按时间排序返回答案, 后提交的答案先返回
+            区别在于,使用第一种,调用 ``question.answers`` 的时候会按投票排序返回答案;
+            使用第二种, 会按时间排序返回答案, 后提交的答案先返回
+        
         :param str title: 问题标题，可选,
         :param int followers_num: 问题关注人数，可选
         :param int answer_num: 问题答案数，可选
@@ -325,9 +326,10 @@ class Question(BaseZhihu):
     @property
     @check_soup('_author')
     def author(self):
-        """
+        """获取问题的提问者.
+        
         :return: 提问者
-        :rtype Author or None，None 代表提问者为匿名用户
+        :rtype: Author or None，None 代表提问者为匿名用户
         """
         from .author import Author
 
@@ -390,6 +392,12 @@ class Question(BaseZhihu):
         return self._logs
 
     def refresh(self):
+        """刷新 Question object 的属性. 
+        例如回答数增加了, 先调用 ``refresh()`` 
+        再访问 answer_num 属性, 可获得更新后的答案数量.
+        
+        :return: None
+        """
         super().refresh()
         del self.html
         del self.title
