@@ -18,7 +18,13 @@ class Question(BaseZhihu):
                  answer_num=None, creation_time=None, author=None, session=None):
         """创建问题类实例.
 
-        :param str url: 问题url
+        :param str url: 问题url. 现在支持两种 url
+
+        1. https://www.zhihu.com/question/qid
+        2. https://www.zhihu.com/question/qid?sort=created
+
+        区别在于,使用第一种,调用 ``question.answers`` 的时候会按投票排序返回答案;
+        使用第二种, 会按时间排序返回答案, 后提交的答案先返回
         :param str title: 问题标题，可选,
         :param int followers_num: 问题关注人数，可选
         :param int answer_num: 问题答案数，可选
