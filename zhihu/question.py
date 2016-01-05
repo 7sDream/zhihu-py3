@@ -204,29 +204,29 @@ class Question(BaseZhihu):
         from .answer import Answer
 
         self._make_soup()
-        new_header = dict(Default_Header)
-        new_header['Referer'] = self.url
-        params = {"url_token": self.id,
-                  'pagesize': '50',
-                  'offset': 0}
-        data = {'_xsrf': self.xsrf,
-                'method': 'next',
-                'params': ''}
-        for i in range(0, (self.answer_num - 1) // 50 + 1):
-            if i == 0:
-                # 修正各种建议修改的回答……
-                error_answers = self.soup.find_all('div', id='answer-status')
+
+        # TODO: 统一逻辑. 完全可以都用 _parse_answer_html 的逻辑替换
+        if self._url.endswith('sort=created'):
+            pager = self.soup.find('div', class_='zm-invite-pager')
+            max_page = int(pager.find_all('span')[-2].a.text)
+            for page in range(1, max_page + 1):
+                if page == 1:
+                    soup = self.soup
+                else:
+                    url = self._url + '&page=%d' % page
+                    soup = BeautifulSoup(self._session.get(url).content)
+                error_answers = soup.find_all('div', id='answer-status')
                 for each in error_answers:
                     each['class'] = 'zm-editable-content'
-                answers_wrap = self.soup.find('div', id='zh-question-answer-wrap')
+                answers_wrap = soup.find('div', id='zh-question-answer-wrap')
                 # 正式处理
                 authors = answers_wrap.find_all(
-                    'div', class_='zm-item-answer-author-info')
+                        'div', class_='zm-item-answer-author-info')
                 urls = answers_wrap.find_all('a', class_='answer-date-link')
                 upvote_nums = answers_wrap.find_all('div',
-                                                 class_='zm-item-vote-info')
+                                                    class_='zm-item-vote-info')
                 contents = answers_wrap.find_all(
-                    'div', class_='zm-editable-content')
+                        'div', class_='zm-editable-content')
                 assert len(authors) == len(urls) == len(upvote_nums) == len(contents)
                 for author, url, upvote_num, content in \
                         zip(authors, urls, upvote_nums, contents):
@@ -238,14 +238,49 @@ class Question(BaseZhihu):
                     content = answer_content_process(content)
                     yield Answer(url, self, author_obj, upvote_num, content,
                                  session=self._session)
-            else:
-                params['offset'] = i * 50
-                data['params'] = json.dumps(params)
-                r = self._session.post(Question_Get_More_Answer_URL, data=data,
-                                       headers=new_header)
-                answer_list = r.json()['msg']
-                for answer_html in answer_list:
-                    yield self._parse_answer_html(answer_html, Author, Answer)
+        else:
+            new_header = dict(Default_Header)
+            new_header['Referer'] = self.url
+            params = {"url_token": self.id,
+                      'pagesize': '50',
+                      'offset': 0}
+            data = {'_xsrf': self.xsrf,
+                    'method': 'next',
+                    'params': ''}
+            for i in range(0, (self.answer_num - 1) // 50 + 1):
+                if i == 0:
+                    # 修正各种建议修改的回答……
+                    error_answers = self.soup.find_all('div', id='answer-status')
+                    for each in error_answers:
+                        each['class'] = 'zm-editable-content'
+                    answers_wrap = self.soup.find('div', id='zh-question-answer-wrap')
+                    # 正式处理
+                    authors = answers_wrap.find_all(
+                        'div', class_='zm-item-answer-author-info')
+                    urls = answers_wrap.find_all('a', class_='answer-date-link')
+                    upvote_nums = answers_wrap.find_all('div',
+                                                     class_='zm-item-vote-info')
+                    contents = answers_wrap.find_all(
+                        'div', class_='zm-editable-content')
+                    assert len(authors) == len(urls) == len(upvote_nums) == len(contents)
+                    for author, url, upvote_num, content in \
+                            zip(authors, urls, upvote_nums, contents):
+                        a_url, name, motto, photo = parser_author_from_tag(author)
+                        author_obj = Author(a_url, name, motto, photo_url=photo,
+                                            session=self._session)
+                        url = Zhihu_URL + url['href']
+                        upvote_num = int(upvote_num['data-votecount'])
+                        content = answer_content_process(content)
+                        yield Answer(url, self, author_obj, upvote_num, content,
+                                     session=self._session)
+                else:
+                    params['offset'] = i * 50
+                    data['params'] = json.dumps(params)
+                    r = self._session.post(Question_Get_More_Answer_URL, data=data,
+                                           headers=new_header)
+                    answer_list = r.json()['msg']
+                    for answer_html in answer_list:
+                        yield self._parse_answer_html(answer_html, Author, Answer)
 
     @property
     def top_answer(self):
@@ -363,19 +398,22 @@ class Question(BaseZhihu):
         soup = BeautifulSoup(answer_html)
         # 修正各种建议修改的回答……
         error_answers = soup.find_all('div', id='answer-status')
+
         for each in error_answers:
             each['class'] = 'zm-editable-content'
-        answer_url = \
-            self.url + 'answer/' + soup.div['data-atoken']
-        author = soup.find(
-            'div', class_='zm-item-answer-author-info')
+
+        answer_url = self.url + 'answer/' + soup.div['data-atoken']
+        author = soup.find('div', class_='zm-item-answer-author-info')
         upvote_num = int(soup.find(
             'div', class_='zm-item-vote-info')['data-votecount'])
-        content = soup.find(
-            'div', class_='zm-editable-content')
+        content = soup.find('div', class_='zm-editable-content')
         content = answer_content_process(content)
         a_url, name, motto, photo = parser_author_from_tag(author)
-        author_obj = Author(a_url, name, motto, photo_url=photo,
-                            session=self._session)
-        return Answer(answer_url, self, author_obj,
-                      upvote_num, content, session=self._session)
+        author = Author(a_url, name, motto, photo_url=photo,
+                        session=self._session)
+        return Answer(answer_url, self, author, upvote_num, content,
+                      session=self._session)
+
+    def _get_content(self):
+        # override base class's method cause we need self._url not self.url
+        return self._session.get(self._url).content

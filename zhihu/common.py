@@ -66,7 +66,7 @@ Cancel_Unhelpful_Url = Zhihu_URL + '/answer/helpful'
 Get_Collection_Url = Zhihu_URL + '/node/AnswerFavlists'
 
 re_question_url = re.compile(r'^https?://www\.zhihu\.com/question/\d+(\?sort=created|/?)$')
-re_question_url_std = re.compile(r'^https?://www\.zhihu\.com/question/\d+/?$')
+re_question_url_std = re.compile(r'^https?://www\.zhihu\.com/question/\d+/?')
 re_ans_url = re.compile(
     r'^https?://www\.zhihu\.com/question/\d+/answer/\d+/?$')
 re_author_url = re.compile(r'^https?://www\.zhihu\.com/people/[^/]+/?$')
