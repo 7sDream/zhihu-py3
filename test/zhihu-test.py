@@ -387,6 +387,9 @@ def test_collection():
     url = 'http://www.zhihu.com/collection/28698204'
     collection = client.collection(url)
 
+    # 获取收藏夹id
+    print(collection.id)
+
     # 获取收藏夹名字
     print(collection.name)
     # 可以用来背的答案
