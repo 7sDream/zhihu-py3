@@ -27,6 +27,16 @@ class Collection(BaseZhihu):
         self._name = name
         self._owner = owner
         self._follower_num = follower_num
+        self._id = int(re.match(r'.*/(\d+)', self.url).group(1))
+
+    @property
+    def id(self):
+        """获取收藏夹id（网址最后的部分）.
+
+        :return: 收藏夹id
+        :rtype: int
+        """
+        return self._id
 
     @property
     @check_soup('_cid')
@@ -257,7 +267,7 @@ class Collection(BaseZhihu):
 
 
 class CollectActivity:
-    """收藏夹操作, 请使用``Collection.logs``方法构造对象."""
+    """收藏夹操作, 请使用``Collection.logs``构造对象."""
 
     def __init__(self, type, time, owner, collection, answer=None):
         """创建收藏夹操作类实例
@@ -278,8 +288,8 @@ class CollectActivity:
     @property
     def type(self):
         """
-        :return: 收藏夹操作类型, 可能值为"insert", "delete"，代表在收藏夹中添加/删除回答
-        :rtype: str
+        :return: 收藏夹操作类型, 具体参见 :class:`.CollectActType`
+        :rtype: :class:`.CollectActType`
         """
         return self._type
 
