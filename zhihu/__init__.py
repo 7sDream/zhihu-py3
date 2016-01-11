@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = '7sDream'
-__version__ = '0.3.7'
+__version__ = '0.3.8'
 
 from .client import ZhihuClient
 from .question import Question
