@@ -27,12 +27,12 @@ class Activity:
         :rtype: Activity
 
         :说明:
-            根据Activity.type的不同可以获取的属性，具体请看 :class:`.ActType`
+            根据Activity.type不同可以获取不同属性，具体请看 :class:`.ActType`
 
         """
         self._session = session
         self._author = author
-        self.type = ActType.from_str(act.attrs['data-type-detail'])
+        self._type = ActType.from_str(act.attrs['data-type-detail'])
 
         useless_tag = act.div.find('a', class_='zg-link')
         if useless_tag is not None:
@@ -44,8 +44,16 @@ class Activity:
         self._time = datetime.fromtimestamp(int(act['data-time']))
 
     @property
+    def type(self):
+        """
+        :return: 用户动态类型, 具体参见 :class:`.ActType`
+        :rtype: class:`.ActType`
+        """
+        return self._type
+
+    @property
     def content(self):
-        """获取此对象中能提供的那个属性，对应表请查看ActType类.
+        """获取此对象中能提供的那个属性，对应表请查看 :class:`.ActType` 类.
 
         :return: 对象提供的对象
         :rtype: Author or Question or Answer or Topic or Column or Post

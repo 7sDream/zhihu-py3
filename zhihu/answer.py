@@ -73,6 +73,11 @@ class Answer(BaseZhihu):
         """
         return self.soup.prettify()
 
+    @html.deleter
+    def html(self):
+        if hasattr(self, '_html'):
+            del self._html
+
     @property
     @check_soup('_author')
     def author(self):
@@ -119,6 +124,11 @@ class Answer(BaseZhihu):
         return int(self.soup.find(
             'div', class_='zm-item-vote-info')['data-votecount'])
 
+    @upvote_num.deleter
+    def upvote_num(self):
+        if hasattr(self, '_upvote_num'):
+            del self._upvote_num
+
     @property
     def upvoters(self):
         """获取答案点赞用户，返回生成器.
@@ -148,6 +158,11 @@ class Answer(BaseZhihu):
         content = answer_content_process(content)
         return content
 
+    @content.deleter
+    def content(self):
+        if hasattr(self, '_content'):
+            del self._content
+
     @property
     @check_soup('_creation_time')
     def creation_time(self):
@@ -170,6 +185,11 @@ class Answer(BaseZhihu):
         return int(self.soup.find("a", {
             "data-za-a": "click_answer_collected_count"
         }).get_text())
+
+    @collect_num.deleter
+    def collect_num(self):
+        if hasattr(self, '_collect_num'):
+            del self._collect_num
 
     @property
     def collections(self):
@@ -205,7 +225,7 @@ class Answer(BaseZhihu):
                                  follower_num=follower_num,
                                  session=self._session)
 
-            time.sleep(0.5)  # prevent from posting too quickly
+            time.sleep(0.2)  # prevent from posting too quickly
 
     def save(self, filepath=None, filename=None, mode="html"):
         """保存答案为Html文档或markdown文档.
@@ -258,6 +278,21 @@ class Answer(BaseZhihu):
                       photo_url, session=self._session)
 
     @property
+    @check_soup('_comment_num')
+    def comment_num(self):
+        """
+        :return: 答案下评论的数量
+        :rtype: int
+        """
+        comment_num_string = self.soup.find('a', class_=' meta-item toggle-comment').text
+        number = comment_num_string.split()[0]
+        return int(number) if number.isdigit() else 0
+
+    @comment_num.deleter
+    def comment_num(self):
+        del self._comment_num
+
+    @property
     def comments(self):
         """获取答案下的所有评论.
 
@@ -280,3 +315,17 @@ class Answer(BaseZhihu):
             author_obj = Author(a_url, a_name, photo_url=a_photo_url,
                                 session=self._session)
             yield Comment(comment_id, self, author_obj, upvote_num, content, time_string)
+
+    def refresh(self):
+        """刷新 Answer object 的属性. 
+        例如赞同数增加了, 先调用 ``refresh()`` 
+        再访问 upvote_num属性, 可获得更新后的赞同数.
+        
+        :return: None
+        """
+        super().refresh()
+        del self.html
+        del self.upvote_num
+        del self.content
+        del self.collect_num
+        del self.comment_num

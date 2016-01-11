@@ -13,12 +13,19 @@ class Question(BaseZhihu):
 
     """问题类，请使用``ZhihuClient.question``方法构造对象."""
 
-    @class_common_init(re_question_url)
+    @class_common_init(re_question_url, trailing_slash=False)
     def __init__(self, url, title=None, followers_num=None,
                  answer_num=None, creation_time=None, author=None, session=None):
         """创建问题类实例.
 
-        :param str url: 问题url
+        :param str url: 问题url. 现在支持两种 url
+
+            1. https://www.zhihu.com/question/qid
+            2. https://www.zhihu.com/question/qid?sort=created
+
+            区别在于,使用第一种,调用 ``question.answers`` 的时候会按投票排序返回答案;
+            使用第二种, 会按时间排序返回答案, 后提交的答案先返回
+        
         :param str title: 问题标题，可选,
         :param int followers_num: 问题关注人数，可选
         :param int answer_num: 问题答案数，可选
@@ -28,15 +35,20 @@ class Question(BaseZhihu):
         :rtype: Question
         """
         self._session = session
-        self.url = url
+        self._url = url
         self._title = title
         self._answer_num = answer_num
         self._followers_num = followers_num
         self._id = int(re.match(r'.*/(\d+)', self.url).group(1))
         self._author = author
-        self._creation_time = None
-        self._last_edit_time = None
+        self._creation_time = creation_time
         self._logs = None
+
+    @property
+    def url(self):
+        # always return url like https://www.zhihu.com/question/1234/
+        url = re.match(re_question_url_std, self._url).group()
+        return url if url.endswith('/') else url + '/'
 
     @property
     def id(self):
@@ -66,8 +78,7 @@ class Question(BaseZhihu):
         :return: xsrf参数
         :rtype: str
         """
-        return self.soup.find(
-            'input', attrs={'name': '_xsrf'})['value']
+        return self.soup.find('input', attrs={'name': '_xsrf'})['value']
 
     @property
     @check_soup('_html')
@@ -78,6 +89,11 @@ class Question(BaseZhihu):
         :rtype: str
         """
         return self.soup.prettify()
+
+    @html.deleter
+    def html(self):
+        if hasattr(self, '_html'):
+            del self._html
 
     @property
     @check_soup('_title')
@@ -90,6 +106,11 @@ class Question(BaseZhihu):
         return self.soup.find('h2', class_='zm-item-title') \
             .text.replace('\n', '')
 
+    @title.deleter
+    def title(self):
+        if hasattr(self, '_title'):
+            del self._title
+
     @property
     @check_soup('_details')
     def details(self):
@@ -99,6 +120,11 @@ class Question(BaseZhihu):
         :rtype: str
         """
         return self.soup.find("div", id="zh-question-detail").div.text
+
+    @details.deleter
+    def details(self):
+        if hasattr(self, '_details'):
+            del self._details
 
     @property
     @check_soup('_answers_num')
@@ -119,6 +145,11 @@ class Question(BaseZhihu):
                 return 0
         return int(answer_num_block['data-num'])
 
+    @answer_num.deleter
+    def answer_num(self):
+        if hasattr(self, '_answer_num'):
+            del self._answer_num
+
     @property
     @check_soup('_follower_num')
     def follower_num(self):
@@ -133,6 +164,11 @@ class Question(BaseZhihu):
             return 0
         return int(follower_num_block.strong.text)
 
+    @follower_num.deleter
+    def follower_num(self):
+        if hasattr(self, '_follower_num'):
+            del self._follower_num
+
     @property
     @check_soup('_topics')
     def topics(self):
@@ -145,6 +181,11 @@ class Question(BaseZhihu):
         for topic in self.soup.find_all('a', class_='zm-item-tag'):
             topics_list.append(topic.text.replace('\n', ''))
         return topics_list
+
+    @topics.deleter
+    def topics(self):
+        if hasattr(self, '_topics'):
+            del self._topics
 
     @property
     def followers(self):
@@ -170,29 +211,29 @@ class Question(BaseZhihu):
         from .answer import Answer
 
         self._make_soup()
-        new_header = dict(Default_Header)
-        new_header['Referer'] = self.url
-        params = {"url_token": self.id,
-                  'pagesize': '50',
-                  'offset': 0}
-        data = {'_xsrf': self.xsrf,
-                'method': 'next',
-                'params': ''}
-        for i in range(0, (self.answer_num - 1) // 50 + 1):
-            if i == 0:
-                # 修正各种建议修改的回答……
-                error_answers = self.soup.find_all('div', id='answer-status')
+
+        # TODO: 统一逻辑. 完全可以都用 _parse_answer_html 的逻辑替换
+        if self._url.endswith('sort=created'):
+            pager = self.soup.find('div', class_='zm-invite-pager')
+            max_page = int(pager.find_all('span')[-2].a.text)
+            for page in range(1, max_page + 1):
+                if page == 1:
+                    soup = self.soup
+                else:
+                    url = self._url + '&page=%d' % page
+                    soup = BeautifulSoup(self._session.get(url).content)
+                error_answers = soup.find_all('div', id='answer-status')
                 for each in error_answers:
                     each['class'] = 'zm-editable-content'
-                answers_wrap = self.soup.find('div', id='zh-question-answer-wrap')
+                answers_wrap = soup.find('div', id='zh-question-answer-wrap')
                 # 正式处理
                 authors = answers_wrap.find_all(
-                    'div', class_='zm-item-answer-author-info')
+                        'div', class_='zm-item-answer-author-info')
                 urls = answers_wrap.find_all('a', class_='answer-date-link')
                 upvote_nums = answers_wrap.find_all('div',
-                                                 class_='zm-item-vote-info')
+                                                    class_='zm-item-vote-info')
                 contents = answers_wrap.find_all(
-                    'div', class_='zm-editable-content')
+                        'div', class_='zm-editable-content')
                 assert len(authors) == len(urls) == len(upvote_nums) == len(contents)
                 for author, url, upvote_num, content in \
                         zip(authors, urls, upvote_nums, contents):
@@ -204,14 +245,49 @@ class Question(BaseZhihu):
                     content = answer_content_process(content)
                     yield Answer(url, self, author_obj, upvote_num, content,
                                  session=self._session)
-            else:
-                params['offset'] = i * 50
-                data['params'] = json.dumps(params)
-                r = self._session.post(Question_Get_More_Answer_URL, data=data,
-                                       headers=new_header)
-                answer_list = r.json()['msg']
-                for answer_html in answer_list:
-                    yield self._parse_answer_html(answer_html, Author, Answer)
+        else:
+            new_header = dict(Default_Header)
+            new_header['Referer'] = self.url
+            params = {"url_token": self.id,
+                      'pagesize': '50',
+                      'offset': 0}
+            data = {'_xsrf': self.xsrf,
+                    'method': 'next',
+                    'params': ''}
+            for i in range(0, (self.answer_num - 1) // 50 + 1):
+                if i == 0:
+                    # 修正各种建议修改的回答……
+                    error_answers = self.soup.find_all('div', id='answer-status')
+                    for each in error_answers:
+                        each['class'] = 'zm-editable-content'
+                    answers_wrap = self.soup.find('div', id='zh-question-answer-wrap')
+                    # 正式处理
+                    authors = answers_wrap.find_all(
+                        'div', class_='zm-item-answer-author-info')
+                    urls = answers_wrap.find_all('a', class_='answer-date-link')
+                    upvote_nums = answers_wrap.find_all('div',
+                                                     class_='zm-item-vote-info')
+                    contents = answers_wrap.find_all(
+                        'div', class_='zm-editable-content')
+                    assert len(authors) == len(urls) == len(upvote_nums) == len(contents)
+                    for author, url, upvote_num, content in \
+                            zip(authors, urls, upvote_nums, contents):
+                        a_url, name, motto, photo = parser_author_from_tag(author)
+                        author_obj = Author(a_url, name, motto, photo_url=photo,
+                                            session=self._session)
+                        url = Zhihu_URL + url['href']
+                        upvote_num = int(upvote_num['data-votecount'])
+                        content = answer_content_process(content)
+                        yield Answer(url, self, author_obj, upvote_num, content,
+                                     session=self._session)
+                else:
+                    params['offset'] = i * 50
+                    data['params'] = json.dumps(params)
+                    r = self._session.post(Question_Get_More_Answer_URL, data=data,
+                                           headers=new_header)
+                    answer_list = r.json()['msg']
+                    for answer_html in answer_list:
+                        yield self._parse_answer_html(answer_html, Author, Answer)
 
     @property
     def top_answer(self):
@@ -248,55 +324,52 @@ class Question(BaseZhihu):
                 return
 
     @property
+    @check_soup('_author')
     def author(self):
-        """
+        """获取问题的提问者.
+        
         :return: 提问者
-        :rtype Author or None，None 代表提问者为匿名用户
+        :rtype: Author or None，None 代表提问者为匿名用户
         """
         from .author import Author
 
-        if self._author:
-            return self._author
+        logs = self._query_logs()
+        author_a = logs[-1].find_all('div')[0].a
+        if author_a.text == '匿名用户':
+            return None
         else:
-            logs = self._query_logs()
-            author_a = logs[-1].find_all('div')[0].a
-            if author_a.text == '匿名用户':
-                return None
-            else:
-                url = Zhihu_URL + author_a['href']
-                self._author = Author(url, name=author_a.text, session=self._session)
-                return self._author
+            url = Zhihu_URL + author_a['href']
+            return Author(url, name=author_a.text, session=self._session)
 
     @property
+    @check_soup('_creation_time')
     def creation_time(self):
         """
         :return: 问题创建时间
         :rtype: datetime.datetime
         """
-        if self._creation_time:
-            return self._creation_time
-        else:
-            logs = self._query_logs()
-            time_string = logs[-1].find('div', class_='zm-item-meta').time['datetime']
-            self._creation_time = datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
-            return self._creation_time
+        logs = self._query_logs()
+        time_string = logs[-1].find('div', class_='zm-item-meta').time['datetime']
+        return datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
 
     @property
+    @check_soup('_last_edit_time')
     def last_edit_time(self):
         """
         :return: 问题最后编辑时间
         :rtype: datetime.datetime
         """
-        if self._last_edit_time:
-            return self._last_edit_time
-        else:
-            data = {'_xsrf': self.xsrf, 'offset': '1'}
-            res = self._session.post(self.url + 'log', data=data)
-            _, content = res.json()['msg']
-            soup = BeautifulSoup(content)
-            time_string = soup.find_all('time')[0]['datetime']
-            self._last_edit_time = datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
-            return self._last_edit_time
+        data = {'_xsrf': self.xsrf, 'offset': '1'}
+        res = self._session.post(self.url + 'log', data=data)
+        _, content = res.json()['msg']
+        soup = BeautifulSoup(content)
+        time_string = soup.find_all('time')[0]['datetime']
+        return datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
+
+    @last_edit_time.deleter
+    def last_edit_time(self):
+        if hasattr(self, '_last_edit_time'):
+            del self._last_edit_time
 
     def _query_logs(self):
         if self._logs is None:
@@ -318,23 +391,43 @@ class Question(BaseZhihu):
 
         return self._logs
 
+    def refresh(self):
+        """刷新 Question object 的属性. 
+        例如回答数增加了, 先调用 ``refresh()`` 
+        再访问 answer_num 属性, 可获得更新后的答案数量.
+        
+        :return: None
+        """
+        super().refresh()
+        del self.html
+        del self.title
+        del self.details
+        del self.answer_num
+        del self.follower_num
+        del self.topics
+        del self.last_edit_time
+        self._logs = None
+
     def _parse_answer_html(self, answer_html, Author, Answer):
         soup = BeautifulSoup(answer_html)
         # 修正各种建议修改的回答……
         error_answers = soup.find_all('div', id='answer-status')
+
         for each in error_answers:
             each['class'] = 'zm-editable-content'
-        answer_url = \
-            self.url + 'answer/' + soup.div['data-atoken']
-        author = soup.find(
-            'div', class_='zm-item-answer-author-info')
+
+        answer_url = self.url + 'answer/' + soup.div['data-atoken']
+        author = soup.find('div', class_='zm-item-answer-author-info')
         upvote_num = int(soup.find(
             'div', class_='zm-item-vote-info')['data-votecount'])
-        content = soup.find(
-            'div', class_='zm-editable-content')
+        content = soup.find('div', class_='zm-editable-content')
         content = answer_content_process(content)
         a_url, name, motto, photo = parser_author_from_tag(author)
-        author_obj = Author(a_url, name, motto, photo_url=photo,
-                            session=self._session)
-        return Answer(answer_url, self, author_obj,
-                      upvote_num, content, session=self._session)
+        author = Author(a_url, name, motto, photo_url=photo,
+                        session=self._session)
+        return Answer(answer_url, self, author, upvote_num, content,
+                      session=self._session)
+
+    def _get_content(self):
+        # override base class's method cause we need self._url not self.url
+        return self._session.get(self._url).content

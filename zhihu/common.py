@@ -65,7 +65,8 @@ Unhelpful_Url = Zhihu_URL + '/answer/not_helpful'
 Cancel_Unhelpful_Url = Zhihu_URL + '/answer/helpful'
 Get_Collection_Url = Zhihu_URL + '/node/AnswerFavlists'
 
-re_question_url = re.compile(r'^https?://www\.zhihu\.com/question/\d+/?$')
+re_question_url = re.compile(r'^https?://www\.zhihu\.com/question/\d+(\?sort=created|/?)$')
+re_question_url_std = re.compile(r'^https?://www\.zhihu\.com/question/\d+/?')
 re_ans_url = re.compile(
     r'^https?://www\.zhihu\.com/question/\d+/answer/\d+/?$')
 re_author_url = re.compile(r'^https?://www\.zhihu\.com/people/[^/]+/?$')
@@ -99,7 +100,7 @@ def check_soup(attr, soup_type='_make_soup'):
     return real
 
 
-def class_common_init(url_re, allowed_none=True):
+def class_common_init(url_re, allowed_none=True, trailing_slash=True):
     def real(func):
         @functools.wraps(func)
         def wrapper(self, url, *args, **kwargs):
@@ -108,7 +109,7 @@ def class_common_init(url_re, allowed_none=True):
             if url is not None:
                 if url_re.match(url) is None:
                     raise ValueError('Invalid URL: ' + url)
-                if url.endswith('/') is False:
+                if not url.endswith('/') and trailing_slash:
                     url += '/'
             if 'session' not in kwargs.keys() or kwargs['session'] is None:
                 kwargs['session'] = Session()
