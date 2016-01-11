@@ -10,6 +10,7 @@
 - [add] 添加了 Collection.id 属性
 - [fix] 现在 Activity.type 变成 read-only property 并加入文档了
 
+全都 Thanks `@laike9m <https://github.com/laike9m>`__
 
 0.3.7
 -----
