@@ -127,6 +127,13 @@ def test_question():
         print(answer.author.name, answer.upvote_num, answer.author.motto)
     assert count >= 84
 
+    assert question.deleted == False
+
+    # test deleted question
+    url = 'https://www.zhihu.com/question/39416522'
+    question = client.question(url)
+    assert question.deleted == True
+
 def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
     answer = client.answer(url)
@@ -198,6 +205,12 @@ def test_answer():
     print(answer.content)
     print(answer.collect_num)
     print(answer.comment_num)
+    assert answer.deleted == False
+
+    # test deleted answer
+    url = 'https://www.zhihu.com/question/39271193/answer/80747935'
+    answer = client.answer(url)
+    assert answer.deleted == True
 
 
 def test_author():

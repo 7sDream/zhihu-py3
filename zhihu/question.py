@@ -43,6 +43,7 @@ class Question(BaseZhihu):
         self._author = author
         self._creation_time = creation_time
         self._logs = None
+        self._deleted = None
 
     @property
     def url(self):
@@ -408,6 +409,14 @@ class Question(BaseZhihu):
         del self.last_edit_time
         self._logs = None
 
+    @property
+    @check_soup('_deleted')
+    def deleted(self):
+        """问题是否被删除, 被删除了返回 True, 未被删除返回 False
+        :return: True or False
+        """
+        return self._deleted
+
     def _parse_answer_html(self, answer_html, Author, Answer):
         soup = BeautifulSoup(answer_html)
         # 修正各种建议修改的回答……
@@ -430,4 +439,11 @@ class Question(BaseZhihu):
 
     def _get_content(self):
         # override base class's method cause we need self._url not self.url
-        return self._session.get(self._url).content
+        resp = self._session.get(self._url)
+
+        if resp.status_code == 404:
+            self._deleted = True
+        else:
+            self._deleted = False
+
+        return resp.content

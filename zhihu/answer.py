@@ -33,6 +33,7 @@ class Answer(BaseZhihu):
         self._author = author
         self._upvote_num = upvote_num
         self._content = content
+        self._deleted = None
 
     @property
     def id(self):
@@ -329,3 +330,11 @@ class Answer(BaseZhihu):
         del self.content
         del self.collect_num
         del self.comment_num
+
+    @property
+    @check_soup('_deleted')
+    def deleted(self):
+        """答案是否被删除, 被删除了返回 True, 为被删除返回 False
+        :return: True or False
+        """
+        return self._deleted
