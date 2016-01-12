@@ -1,6 +1,10 @@
 更新日志
 ========
 
+0.3.9
+-----
+- [add] Question 和 Answer 添加 deleted 属性
+
 0.3.8
 -----
 - [add] Answer 和 Question 增加 refresh() 方法, 刷新问题答案 object 的属性
