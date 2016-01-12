@@ -134,6 +134,11 @@ def test_question():
     question = client.question(url)
     assert question.deleted == True
 
+    # test question without answer
+    url = 'https://www.zhihu.com/question/36358828?sort=created'
+    question = client.question(url)
+    assert len(list(question.answers)) == 0
+
 def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
     answer = client.answer(url)
