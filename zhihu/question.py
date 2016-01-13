@@ -216,10 +216,11 @@ class Question(BaseZhihu):
         # TODO: 统一逻辑. 完全可以都用 _parse_answer_html 的逻辑替换
         if self._url.endswith('sort=created'):
             pager = self.soup.find('div', class_='zm-invite-pager')
-            if pager is None:  # no answer
-                return
+            if pager is None:
+                max_page = 1
+            else:
+                max_page = int(pager.find_all('span')[-2].a.text)
 
-            max_page = int(pager.find_all('span')[-2].a.text)
             for page in range(1, max_page + 1):
                 if page == 1:
                     soup = self.soup

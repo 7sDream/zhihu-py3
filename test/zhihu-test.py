@@ -139,6 +139,11 @@ def test_question():
     question = client.question(url)
     assert len(list(question.answers)) == 0
 
+    # test answer in one page(< 20)
+    url = 'https://www.zhihu.com/question/28330796?sort=created'
+    question = client.question(url)
+    assert len(list(question.answers)) >= 9
+
 def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
     answer = client.answer(url)
