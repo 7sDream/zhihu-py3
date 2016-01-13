@@ -168,9 +168,13 @@ class Answer(BaseZhihu):
         :return:  答案收藏数量
         :rtype: int
         """
-        return int(self.soup.find("a", {
+        element = self.soup.find("a", {
             "data-za-a": "click_answer_collected_count"
-        }).get_text())
+        })
+        if element is None:
+            return 0
+        else:
+            return int(element.get_text())
 
     @property
     def collections(self):

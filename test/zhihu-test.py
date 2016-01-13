@@ -222,6 +222,12 @@ def test_answer():
     answer = client.answer(url)
     assert answer.deleted == True
 
+    # test answer without collection
+    url = 'https://www.zhihu.com/question/23138285/answer/81246171'
+    answer = client.answer(url)
+    assert answer.collect_num == 0
+    assert len(list(answer.collections)) == 0
+
 
 def test_author():
     url = 'http://www.zhihu.com/people/7sdream'
