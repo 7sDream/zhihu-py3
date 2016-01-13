@@ -5,6 +5,7 @@
 -----
 - [add] Question 和 Answer 添加 deleted 属性
 - [fix] 修复了问题没有回答时 Question.answers 出错的问题
+- [fix] 修复了回答仅有一页时无法获取按时间排序的答案的问题
 
 0.3.8
 -----
