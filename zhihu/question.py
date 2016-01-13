@@ -113,7 +113,7 @@ class Question(BaseZhihu):
         return self.soup.find("div", id="zh-question-detail").div.text
 
     @property
-    @check_soup('_answers_num')
+    @check_soup('_answer_num')
     def answer_num(self):
         """获取问题答案数量.
 
