@@ -144,6 +144,7 @@ def test_question():
     question = client.question(url)
     assert len(list(question.answers)) >= 9
 
+
 def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
     answer = client.answer(url)
@@ -178,8 +179,13 @@ def test_answer():
     assert answer.comment_num >= 161
 
     # 获取答案下的评论
-    for _, comment in zip(range(10), answer.comments):
-        print(comment.author.name, comment.content)
+    for i, comment in enumerate(answer.comments, 1):
+        if i == 1:
+            assert comment.creation_time == datetime(2014, 9, 25, 9, 18, 56)
+        if i < 11:
+            print(comment.author.name, comment.content)
+
+    assert i >= 161
 
     # 获取答案内容的HTML
     print(answer.content)
@@ -472,6 +478,7 @@ def test_collection():
 
     assert log.answer is None
     assert log.time == datetime.strptime('2013-11-08 00:55:43', "%Y-%m-%d %H:%M:%S")
+
 
 def test_column():
     url = 'http://zhuanlan.zhihu.com/xiepanda'

@@ -8,6 +8,8 @@
 - [fix] 修复了回答仅有一页时无法获取按时间排序的答案的问题
 - [fix] 修复无法刷新 answer_num 的问题
 - [fix] 修复收藏为0时获取收藏数出错的问题
+- [fix] 知乎修改了评论的前端代码
+- [change] Comment 类现在也提供 datetime.datetime 类型的 creation_time 属性, 去掉 time_string
 
 0.3.8
 -----

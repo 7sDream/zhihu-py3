@@ -299,14 +299,16 @@ class Answer(BaseZhihu):
                 comment_id = comment_item['id']
                 content = comment_item['content']
                 upvote_num = comment_item['likesCount']
-                time_string = comment_item['createdTime'][:16].replace('T', ' ')
+                time_string = comment_item['createdTime'][:19]
+                time = datetime.strptime(time_string, "%Y-%m-%dT%H:%M:%S")
 
                 if comment_item['author'].get('url') != None:
                     a_url = comment_item['author']['url']
                     a_name = comment_item['author']['name']
                     photo_url_tmp = comment_item['author']['avatar']['template']
                     photo_url_id = comment_item['author']['avatar']['id']
-                    a_photo_url = photo_url_tmp.replace('{id}', photo_url_id).replace('_{size}', '')
+                    a_photo_url = photo_url_tmp.replace(
+                            '{id}', photo_url_id).replace('_{size}', '')
                 else:
                     a_name = '匿名用户'
                     a_url = None
@@ -314,7 +316,7 @@ class Answer(BaseZhihu):
                 author_obj = Author(a_url, a_name, photo_url=a_photo_url, 
                                     session=self._session)
 
-                yield Comment(comment_id, self, author_obj, upvote_num, content, time_string)
+                yield Comment(comment_id, self, author_obj, upvote_num, content, time)
 
     def refresh(self):
         """刷新 Answer object 的属性. 
