@@ -228,6 +228,20 @@ def test_answer():
     assert answer.collect_num == 0
     assert len(list(answer.collections)) == 0
 
+    # test zero comment answer
+    url = 'https://www.zhihu.com/question/39051779/answer/81575803'
+    count = 0
+    for comment in answer.comments:
+        count += 1
+    assert count == 0
+
+    # test single page comment answer
+    url = 'https://www.zhihu.com/question/28399220/answer/79799671'
+    count = 0
+    for comment in answer.comments:
+        count += 1
+    assert count <= 15
+    # 应该不会超过 15 吧 -_-
 
 def test_author():
     url = 'http://www.zhihu.com/people/7sdream'

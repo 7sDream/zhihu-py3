@@ -284,11 +284,14 @@ class Answer(BaseZhihu):
         from .author import Author
         from .comment import Comment
         api_url = Get_Answer_Comment_URL.format(self.aid)
-        page = total = 1
-        while page <= total:
+        page = pages = 1
+        while page <= pages:
             res = self._session.get(api_url + '?page=' + str(page))
             if page == 1:
-                total = math.ceil(res.json()['paging']['totalCount'] / 30)
+                total = int(res.json()['paging']['totalCount'])
+                if total == 0:
+                    return
+                pages = math.ceil(total / 30) 
             page += 1
 
             comment_items = res.json()['data']
