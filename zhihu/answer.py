@@ -297,13 +297,16 @@ class Answer(BaseZhihu):
                 content = comment_item['content']
                 upvote_num = comment_item['likesCount']
                 time_string = comment_item['createdTime'][:16].replace('T', ' ')
-
-                a_url = comment_item['author']['url']
-                a_name = comment_item['author']['name']
-                photo_url_tmp = comment_item['author']['avatar']['template']
-                photo_url_id = comment_item['author']['avatar']['id']
-                a_photo_url = photo_url_tmp.replace('{id}', photo_url_id).replace('_{size}', '')
-
+                try:
+                    a_url = comment_item['author']['url']
+                    a_name = comment_item['author']['name']
+                    photo_url_tmp = comment_item['author']['avatar']['template']
+                    photo_url_id = comment_item['author']['avatar']['id']
+                    a_photo_url = photo_url_tmp.replace('{id}', photo_url_id).replace('_{size}', '')
+                except KeyError:
+                    a_name = '匿名用户'
+                    a_url = None
+                    a_photo_url = None
                 author_obj = Author(a_url, a_name, photo_url=a_photo_url, 
                                     session=self._session)
 
