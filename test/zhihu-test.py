@@ -226,21 +226,18 @@ def test_answer():
     url = 'https://www.zhihu.com/question/23138285/answer/81246171'
     answer = client.answer(url)
     assert answer.collect_num == 0
-    assert len(list(answer.collections)) == 0
+    assert sum(1 for _ in answer.collections) == 0
 
     # test zero comment answer
     url = 'https://www.zhihu.com/question/39051779/answer/81575803'
-    count = 0
-    for comment in answer.comments:
-        count += 1
-    assert count == 0
+    answer = client.answer(url)
+    assert sum(1 for _ in answer.comments) == 0
 
     # test single page comment answer
     url = 'https://www.zhihu.com/question/28399220/answer/79799671'
-    count = 0
-    for comment in answer.comments:
-        count += 1
-    assert count <= 30
+    answer = client.answer(url)
+    assert 0 < sum(1 for _ in answer.comments) < 30
+
 
 def test_author():
     url = 'http://www.zhihu.com/people/7sdream'
