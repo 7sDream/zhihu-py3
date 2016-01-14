@@ -8,6 +8,7 @@ import os
 from requests import Session
 from bs4 import BeautifulSoup as _Bs
 from bs4 import Tag, NavigableString
+from requests.adapters import HTTPAdapter
 
 try:
     __import__('lxml')
@@ -114,6 +115,8 @@ def class_common_init(url_re, allowed_none=True, trailing_slash=True):
                     url += '/'
             if 'session' not in kwargs.keys() or kwargs['session'] is None:
                 kwargs['session'] = Session()
+                kwargs['session'].mount('https://', HTTPAdapter(max_retries=5))
+                kwargs['session'].mount('http://', HTTPAdapter(max_retries=5))
             self.soup = None
             return func(self, url, *args, **kwargs)
 
