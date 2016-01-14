@@ -729,6 +729,7 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.realpath(__file__))
     TEST_DIR = os.path.join(BASE_DIR, 'test')
 
+    print('===== Version: 16.01.14 =====')
     print("Test dir: ", TEST_DIR)
 
     if os.path.exists(TEST_DIR):
