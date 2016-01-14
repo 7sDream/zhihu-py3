@@ -280,22 +280,34 @@ class Answer(BaseZhihu):
         :return: 答案下的所有评论，返回生成器
         :rtype: Comments.Iterable
         """
+        import math
         from .author import Author
         from .comment import Comment
-        r = self._session.get(Answer_Comment_Box_URL,
-                              params='params='+json.dumps({'answer_id': self.aid, 'load_all': True}))
-        soup = BeautifulSoup(r.content)
-        comment_items = soup.find_all('div', class_='zm-item-comment')
-        for comment_item in comment_items:
-            comment_id = int(comment_item['data-id'])
-            content = comment_item.find(
-                'div', class_='zm-comment-content').text.replace('\n', '')
-            upvote_num = int(comment_item.find('span', class_='like-num').em.text)
-            time_string = comment_item.find('span', class_='date').text
-            a_url, a_name, a_photo_url = parser_author_from_comment(comment_item)
-            author_obj = Author(a_url, a_name, photo_url=a_photo_url,
-                                session=self._session)
-            yield Comment(comment_id, self, author_obj, upvote_num, content, time_string)
+        api_url = Get_Answer_Comment_URL.format(self.aid)
+        page = total = 1
+        while page <= total:
+            res = self._session.get(api_url + '?page=' + str(page))
+            if page == 1:
+                total = math.ceil(res.json()['paging']['totalCount'] / 30)
+            page += 1
+
+            comment_items = res.json()['data']
+            for comment_item in comment_items:
+                comment_id = comment_item['id']
+                content = comment_item['content']
+                upvote_num = comment_item['likesCount']
+                time_string = comment_item['createdTime'][:16].replace('T', ' ')
+
+                a_url = comment_item['author']['url']
+                a_name = comment_item['author']['name']
+                photo_url_tmp = comment_item['author']['avatar']['template']
+                photo_url_id = comment_item['author']['avatar']['id']
+                a_photo_url = photo_url_tmp.replace('{id}', photo_url_id).replace('_{size}', '')
+
+                author_obj = Author(a_url, a_name, photo_url=a_photo_url, 
+                                    session=self._session)
+
+                yield Comment(comment_id, self, author_obj, upvote_num, content, time_string)
 
     def refresh(self):
         """刷新 Answer object 的属性. 
