@@ -607,6 +607,8 @@ def test_topic():
     # 按时间由近到远获取所有问题
     for _, question in zip(range(10), topic.questions):
         print(question.title)
+        assert question.creation_time is not None
+        print(question.creation_time)
     # 马里亚纳网络存在吗？
     # 玛丽亚纳网络存在吗？
     # 为什么暗网里这么多违法的东西FBI不顺藤摸瓜呢?

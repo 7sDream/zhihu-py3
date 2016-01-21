@@ -277,7 +277,10 @@ class Topic(BaseZhihu):
             for qu_div in questions:
                 url = Zhihu_URL + qu_div.h2.a['href']
                 title = qu_div.h2.a.text
-                yield Question(url, title, session=self._session)
+                creation_time = datetime.fromtimestamp(
+                        int(qu_div.h2.span['data-timestamp']))
+                yield Question(url, title, creation_time=creation_time,
+                               session=self._session)
             older_time_stamp = int(questions[-1].h2.span['data-timestamp'])
             params['page'] += 1
 
