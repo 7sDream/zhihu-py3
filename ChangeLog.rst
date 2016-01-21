@@ -1,13 +1,14 @@
 更新日志
 ========
 
-WIP
----
+0.3.9-1
+-------
 
 - [fix] 修复了由于 img 的 title 属性修改为 alt 属性造成的 Author.followed_topic 获取前几个话题出错的 bug
 
 0.3.9
 -----
+
 - [add] Question 和 Answer 添加 deleted 属性
 - [fix] 修复了问题没有回答时 Question.answers 出错的问题
 - [fix] 修复了回答仅有一页时无法获取按时间排序的答案的问题
@@ -21,6 +22,7 @@ WIP
 
 0.3.8
 -----
+
 - [add] Answer 和 Question 增加 refresh() 方法, 刷新问题答案 object 的属性
 - [add] Question 初始化的 url 现在支持 ?sort=created
 - [add] 使用带 ?sort=created 的 url 初始化问题时, question.answers 按照时间顺序返回答案
