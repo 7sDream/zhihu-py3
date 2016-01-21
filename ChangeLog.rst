@@ -1,6 +1,11 @@
 更新日志
 ========
 
+WIP
+---
+
+- [fix] 修复了由于 img 的 title 属性修改为 alt 属性造成的 Author.followed_topic 获取前几个话题出错的 bug
+
 0.3.9
 -----
 - [add] Question 和 Answer 添加 deleted 属性

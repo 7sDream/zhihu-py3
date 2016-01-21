@@ -62,7 +62,8 @@ class Author(BaseZhihu):
         :return: 用户id
         :rtype: str
         """
-        return re.match(r'^.*/([^/]+)/$', self.url).group(1) if self.url is not None else ''
+        return re.match(r'^.*/([^/]+)/$', self.url).group(1) \
+            if self.url is not None else ''
 
     @property
     @check_soup('_xsrf')
@@ -275,7 +276,9 @@ class Author(BaseZhihu):
         if self.url is None:
             return 'unknown'
         else:
-            return 'female' if self.soup.find('i', class_='icon-profile-female') else 'male'
+            return 'female' \
+                if self.soup.find('i', class_='icon-profile-female') \
+                else 'male'
 
     @property
     @check_soup('_question_num')
@@ -340,7 +343,8 @@ class Author(BaseZhihu):
         if self.url is not None:
             tag = self.soup.find('div', class_='zm-profile-side-columns')
             if tag is not None:
-                return int(re_get_number.match(tag.parent.strong.text).group(1))
+                return int(re_get_number.match(
+                        tag.parent.strong.text).group(1))
         return 0
 
     @property
@@ -354,7 +358,8 @@ class Author(BaseZhihu):
         if self.url is not None:
             tag = self.soup.find('div', class_='zm-profile-side-topics')
             if tag is not None:
-                return int(re_get_number.match(tag.parent.strong.text).group(1))
+                return int(re_get_number.match(
+                        tag.parent.strong.text).group(1))
         return 0
 
     @property
@@ -538,21 +543,33 @@ class Author(BaseZhihu):
             tag = self.soup.find('div', class_='zm-profile-side-columns')
             if tag is not None:
                 for a in tag.find_all('a'):
-                    yield Column(a['href'], a.img['alt'], session=self._session)
+                    yield Column(a['href'], a.img['alt'],
+                                 session=self._session)
             if self.followed_column_num > 7:
                 offset = 7
                 gotten_data_num = 20
                 while gotten_data_num == 20:
-                    params = {'hash_id': self.hash_id, 'limit': 20, 'offset': offset}
-                    data = {'method': 'next', '_xsrf': self.xsrf, 'params': json.dumps(params)}
-                    j = self._session.post(Author_Get_More_Follow_Column_URL, data=data).json()
+                    params = {
+                        'hash_id': self.hash_id,
+                        'limit': 20,
+                        'offset': offset
+                    }
+                    data = {
+                        'method': 'next',
+                        '_xsrf': self.xsrf,
+                        'params': json.dumps(params)
+                    }
+                    j = self._session.post(Author_Get_More_Follow_Column_URL,
+                                           data=data).json()
                     gotten_data_num = len(j['msg'])
                     offset += gotten_data_num
                     for msg in map(BeautifulSoup, j['msg']):
                         name = msg.strong.text
                         url = msg.a['href']
-                        post_num = int(re_get_number.match(msg.span.text).group(1))
-                        yield Column(url, name, post_num=post_num, session=self._session)
+                        post_num = int(re_get_number.match(
+                                msg.span.text).group(1))
+                        yield Column(url, name, post_num=post_num,
+                                     session=self._session)
 
     @property
     def followed_topics(self):
@@ -568,16 +585,21 @@ class Author(BaseZhihu):
             tag = self.soup.find('div', class_='zm-profile-side-topics')
             if tag is not None:
                 for a in tag.find_all('a'):
-                    yield Topic(Zhihu_URL + a['href'], a.img['title'], session=self._session)
+                    yield Topic(Zhihu_URL + a['href'], a.img['alt'],
+                                session=self._session)
             if self.followed_topic_num > 7:
                 offset = 7
                 gotten_data_num = 20
                 while gotten_data_num == 20:
                     data = {'start': 0, 'offset': offset, '_xsrf': self.xsrf}
-                    j = self._session.post(Author_Get_More_Follow_Topic_URL.format(self.id), data=data).json()
+                    j = self._session.post(
+                            Author_Get_More_Follow_Topic_URL.format(self.id),
+                            data=data).json()
                     gotten_data_num = j['msg'][0]
                     offset += gotten_data_num
-                    for div in BeautifulSoup(j['msg'][1]).find_all('div', class_='zm-profile-section-item'):
+                    topic_item = BeautifulSoup(j['msg'][1]).find_all(
+                            'div', class_='zm-profile-section-item')
+                    for div in topic_item:
                         name = div.strong.text
                         url = Zhihu_URL + div.a['href']
                         yield Topic(url, name, session=self._session)
@@ -602,7 +624,8 @@ class Author(BaseZhihu):
             res = self._session.post(api_url, data=data)
             gotten_feed_num = res.json()['msg'][0]
             soup = BeautifulSoup(res.json()['msg'][1])
-            acts = soup.find_all('div', class_='zm-profile-section-item zm-item clearfix')
+            acts = soup.find_all(
+                    'div', class_='zm-profile-section-item zm-item clearfix')
 
             start = acts[-1]['data-time'] if len(acts) > 0 else 0
             for act in acts:
