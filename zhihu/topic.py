@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import time
+from datetime import datetime
+
 from .common import *
 from .base import BaseZhihu
-import time
 
 
 class Topic(BaseZhihu):
