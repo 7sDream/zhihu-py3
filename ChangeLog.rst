@@ -10,6 +10,9 @@
 - [fix] 修复收藏为0时获取收藏数出错的问题
 - [fix] 知乎修改了评论的前端代码
 - [change] Comment 类现在也提供 datetime.datetime 类型的 creation_time 属性, 去掉 time_string
+- [fix] 修复了 topic.question 由于时间戳乘以了 1000 而造成的错误
+- [fix] 修复了 topic.top_answer 无法获取到内容的 bug
+- [fix] 修复了 topic.hot_answer 无法获取到内容的 bug
 
 0.3.8
 -----
