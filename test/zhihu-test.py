@@ -596,6 +596,7 @@ def test_topic():
     # 沈万马
     # ...
 
+    """目前这个接口有问题
     # 获取话题下的精华回答
     for _, ans in zip(range(10), topic.top_answers):
         print(ans.question.title, ans.author.name, ans.upvote_num)
@@ -603,6 +604,7 @@ def test_topic():
     # 黑客逃避追踪，为什么要用虚拟机 + TOR + VPN 呢？ Ario 526
     # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ acel rovsion 420
     # ...
+    """
 
     # 按时间由近到远获取所有问题
     for _, question in zip(range(10), topic.questions):
