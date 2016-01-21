@@ -33,6 +33,7 @@ class Answer(BaseZhihu):
         self._author = author
         self._upvote_num = upvote_num
         self._content = content
+        self._deleted = None
 
     @property
     def id(self):
@@ -72,11 +73,6 @@ class Answer(BaseZhihu):
         :rtype: str
         """
         return self.soup.prettify()
-
-    @html.deleter
-    def html(self):
-        if hasattr(self, '_html'):
-            del self._html
 
     @property
     @check_soup('_author')
@@ -124,11 +120,6 @@ class Answer(BaseZhihu):
         return int(self.soup.find(
             'div', class_='zm-item-vote-info')['data-votecount'])
 
-    @upvote_num.deleter
-    def upvote_num(self):
-        if hasattr(self, '_upvote_num'):
-            del self._upvote_num
-
     @property
     def upvoters(self):
         """获取答案点赞用户，返回生成器.
@@ -158,11 +149,6 @@ class Answer(BaseZhihu):
         content = answer_content_process(content)
         return content
 
-    @content.deleter
-    def content(self):
-        if hasattr(self, '_content'):
-            del self._content
-
     @property
     @check_soup('_creation_time')
     def creation_time(self):
@@ -182,14 +168,13 @@ class Answer(BaseZhihu):
         :return:  答案收藏数量
         :rtype: int
         """
-        return int(self.soup.find("a", {
+        element = self.soup.find("a", {
             "data-za-a": "click_answer_collected_count"
-        }).get_text())
-
-    @collect_num.deleter
-    def collect_num(self):
-        if hasattr(self, '_collect_num'):
-            del self._collect_num
+        })
+        if element is None:
+            return 0
+        else:
+            return int(element.get_text())
 
     @property
     def collections(self):
@@ -288,10 +273,6 @@ class Answer(BaseZhihu):
         number = comment_num_string.split()[0]
         return int(number) if number.isdigit() else 0
 
-    @comment_num.deleter
-    def comment_num(self):
-        del self._comment_num
-
     @property
     def comments(self):
         """获取答案下的所有评论.
@@ -299,22 +280,43 @@ class Answer(BaseZhihu):
         :return: 答案下的所有评论，返回生成器
         :rtype: Comments.Iterable
         """
+        import math
         from .author import Author
         from .comment import Comment
-        r = self._session.get(Answer_Comment_Box_URL,
-                              params='params='+json.dumps({'answer_id': self.aid, 'load_all': True}))
-        soup = BeautifulSoup(r.content)
-        comment_items = soup.find_all('div', class_='zm-item-comment')
-        for comment_item in comment_items:
-            comment_id = int(comment_item['data-id'])
-            content = comment_item.find(
-                'div', class_='zm-comment-content').text.replace('\n', '')
-            upvote_num = int(comment_item.find('span', class_='like-num').em.text)
-            time_string = comment_item.find('span', class_='date').text
-            a_url, a_name, a_photo_url = parser_author_from_comment(comment_item)
-            author_obj = Author(a_url, a_name, photo_url=a_photo_url,
-                                session=self._session)
-            yield Comment(comment_id, self, author_obj, upvote_num, content, time_string)
+        api_url = Get_Answer_Comment_URL.format(self.aid)
+        page = pages = 1
+        while page <= pages:
+            res = self._session.get(api_url + '?page=' + str(page))
+            if page == 1:
+                total = int(res.json()['paging']['totalCount'])
+                if total == 0:
+                    return
+                pages = math.ceil(total / 30) 
+            page += 1
+
+            comment_items = res.json()['data']
+            for comment_item in comment_items:
+                comment_id = comment_item['id']
+                content = comment_item['content']
+                upvote_num = comment_item['likesCount']
+                time_string = comment_item['createdTime'][:19]
+                time = datetime.strptime(time_string, "%Y-%m-%dT%H:%M:%S")
+
+                if comment_item['author'].get('url') != None:
+                    a_url = comment_item['author']['url']
+                    a_name = comment_item['author']['name']
+                    photo_url_tmp = comment_item['author']['avatar']['template']
+                    photo_url_id = comment_item['author']['avatar']['id']
+                    a_photo_url = photo_url_tmp.replace(
+                            '{id}', photo_url_id).replace('_{size}', '')
+                else:
+                    a_name = '匿名用户'
+                    a_url = None
+                    a_photo_url = None
+                author_obj = Author(a_url, a_name, photo_url=a_photo_url, 
+                                    session=self._session)
+
+                yield Comment(comment_id, self, author_obj, upvote_num, content, time)
 
     def refresh(self):
         """刷新 Answer object 的属性. 
@@ -324,8 +326,16 @@ class Answer(BaseZhihu):
         :return: None
         """
         super().refresh()
-        del self.html
-        del self.upvote_num
-        del self.content
-        del self.collect_num
-        del self.comment_num
+        self._html = None
+        self._upvote_num = None
+        self._content = None
+        self._collect_num = None
+        self._comment_num = None
+
+    @property
+    @check_soup('_deleted')
+    def deleted(self):
+        """答案是否被删除, 被删除了返回 True, 为被删除返回 False
+        :return: True or False
+        """
+        return self._deleted

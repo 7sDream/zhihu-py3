@@ -8,6 +8,7 @@ import os
 from requests import Session
 from bs4 import BeautifulSoup as _Bs
 from bs4 import Tag, NavigableString
+from requests.packages.urllib3.util import Retry
 
 try:
     __import__('lxml')
@@ -28,6 +29,7 @@ Get_Profile_Card_URL = Zhihu_URL + '/node/MemberProfileCardV2'
 Question_Get_More_Answer_URL = Zhihu_URL + '/node/QuestionAnswerListV2'
 Answer_Add_Comment_URL = Zhihu_URL + '/node/AnswerCommentAddV2'
 Answer_Comment_Box_URL = Zhihu_URL + '/node/AnswerCommentBoxV2'
+Get_Answer_Comment_URL = Zhihu_URL + '/r/answers/{0}/comments'
 Author_Get_More_Followers_URL = Zhihu_URL + '/node/ProfileFollowersListV2'
 Author_Get_More_Followees_URL = Zhihu_URL + '/node/ProfileFolloweesListV2'
 Author_Get_More_Follow_Column_URL = Zhihu_URL + '/node/ProfileFollowedColumnsListV2'
@@ -113,6 +115,8 @@ def class_common_init(url_re, allowed_none=True, trailing_slash=True):
                     url += '/'
             if 'session' not in kwargs.keys() or kwargs['session'] is None:
                 kwargs['session'] = Session()
+                kwargs['session'].mount('https://', Retry(5))
+                kwargs['session'].mount('http://', Retry(5))
             self.soup = None
             return func(self, url, *args, **kwargs)
 

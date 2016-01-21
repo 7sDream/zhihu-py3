@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import time
+from datetime import datetime
+
 from .common import *
 from .base import BaseZhihu
-import time
 
 
 class Topic(BaseZhihu):
@@ -229,9 +231,8 @@ class Topic(BaseZhihu):
             if soup.find('div', class_='error') is not None:
                 return
             questions = soup.find_all('a', class_='question_link')
-            answers = soup.find_all(
-                'a', class_=re.compile(r'answer-date-link.*'))
-            authors = soup.find_all('h3', class_='zm-item-answer-author-wrap')
+            answers = soup.find_all('a', class_='answer-date-link')
+            authors = soup.find_all('div', class_='zm-item-answer-author-info')
             upvotes = soup.find_all('a', class_='zm-item-vote-count')
             for ans, up, q, au in zip(answers, upvotes, questions, authors):
                 answer_url = Zhihu_URL + ans['href']
@@ -277,7 +278,10 @@ class Topic(BaseZhihu):
             for qu_div in questions:
                 url = Zhihu_URL + qu_div.h2.a['href']
                 title = qu_div.h2.a.text
-                yield Question(url, title, session=self._session)
+                creation_time = datetime.fromtimestamp(
+                        int(qu_div.h2.span['data-timestamp']) // 1000)
+                yield Question(url, title, creation_time=creation_time,
+                               session=self._session)
             older_time_stamp = int(questions[-1].h2.span['data-timestamp'])
             params['page'] += 1
 
@@ -391,26 +395,28 @@ class Topic(BaseZhihu):
             last_score = answers_div[-1]['data-score']
             for div in answers_div:
                 # 没有 text area 的情况是：答案被和谐。
-                if not (div.h3 and div.textarea):
+                if not div.textarea:
                     continue
                 question_url = Zhihu_URL + div.h2.a['href']
-                question_title = div.a.text
+                question_title = div.h2.a.text
                 question = Question(question_url, question_title,
                                     session=self._session)
-                if div.h3.a is None:
+                author_link = div.find('a', class_='author-link')
+                if not author_link:
                     author_url = None
                     author_name = '匿名用户'
                     author_motto = ''
                 else:
-                    author_url = Zhihu_URL + div.h3.a['href']
-                    author_name = div.h3.a.text
-                    author_motto = div.strong['title'] if div.strong else ''
+                    author_url = Zhihu_URL + author_link['href']
+                    author_name = author_link.text
+                    author_motto_span = div.find('span', class_='bio')
+                    author_motto = author_motto_span['title'] \
+                        if author_motto_span else ''
                 author = Author(author_url, author_name, author_motto,
                                 session=self._session)
 
-                answer_url = Zhihu_URL + BeautifulSoup(
-                    ''.join(map(str, div.textarea.contents))).find(
-                    'a', class_='answer-date-link')['href']
+                body = div.find('div', class_='entry-body')
+                answer_url = question_url + "/answer/" + body['data-atoken']
                 upvote_num = int(div.find(
                     'a', class_='zm-item-vote-count')['data-votecount'])
 

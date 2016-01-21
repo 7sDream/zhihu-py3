@@ -1,6 +1,19 @@
 更新日志
 ========
 
+0.3.9
+-----
+- [add] Question 和 Answer 添加 deleted 属性
+- [fix] 修复了问题没有回答时 Question.answers 出错的问题
+- [fix] 修复了回答仅有一页时无法获取按时间排序的答案的问题
+- [fix] 修复无法刷新 answer_num 的问题
+- [fix] 修复收藏为0时获取收藏数出错的问题
+- [fix] 知乎修改了评论的前端代码
+- [change] Comment 类现在也提供 datetime.datetime 类型的 creation_time 属性, 去掉 time_string
+- [fix] 修复了 topic.question 由于时间戳乘以了 1000 而造成的错误
+- [fix] 修复了 topic.top_answer 无法获取到内容的 bug
+- [fix] 修复了 topic.hot_answer 无法获取到内容的 bug
+
 0.3.8
 -----
 - [add] Answer 和 Question 增加 refresh() 方法, 刷新问题答案 object 的属性

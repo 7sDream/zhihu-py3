@@ -127,6 +127,24 @@ def test_question():
         print(answer.author.name, answer.upvote_num, answer.author.motto)
     assert count >= 84
 
+    assert question.deleted == False
+
+    # test deleted question
+    url = 'https://www.zhihu.com/question/39416522'
+    question = client.question(url)
+    assert question.deleted == True
+
+    # test question without answer
+    url = 'https://www.zhihu.com/question/36358828?sort=created'
+    question = client.question(url)
+    assert len(list(question.answers)) == 0
+
+    # test answer in one page(< 20)
+    url = 'https://www.zhihu.com/question/28330796?sort=created'
+    question = client.question(url)
+    assert len(list(question.answers)) >= 9
+
+
 def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
     answer = client.answer(url)
@@ -161,8 +179,13 @@ def test_answer():
     assert answer.comment_num >= 161
 
     # 获取答案下的评论
-    for _, comment in zip(range(10), answer.comments):
-        print(comment.author.name, comment.content)
+    for i, comment in enumerate(answer.comments, 1):
+        if i == 1:
+            assert comment.creation_time == datetime(2014, 9, 25, 9, 18, 56)
+        if i < 11:
+            print(comment.author.name, comment.content)
+
+    assert i >= 161
 
     # 获取答案内容的HTML
     print(answer.content)
@@ -198,6 +221,28 @@ def test_answer():
     print(answer.content)
     print(answer.collect_num)
     print(answer.comment_num)
+    assert answer.deleted == False
+
+    # test deleted answer
+    url = 'https://www.zhihu.com/question/39271193/answer/80747935'
+    answer = client.answer(url)
+    assert answer.deleted == True
+
+    # test answer without collection
+    url = 'https://www.zhihu.com/question/23138285/answer/81246171'
+    answer = client.answer(url)
+    assert answer.collect_num == 0
+    assert sum(1 for _ in answer.collections) == 0
+
+    # test zero comment answer
+    url = 'https://www.zhihu.com/question/39051779/answer/81575803'
+    answer = client.answer(url)
+    assert sum(1 for _ in answer.comments) == 0
+
+    # test single page comment answer
+    url = 'https://www.zhihu.com/question/28399220/answer/79799671'
+    answer = client.answer(url)
+    assert 0 < sum(1 for _ in answer.comments) < 30
 
 
 def test_author():
@@ -434,6 +479,7 @@ def test_collection():
     assert log.answer is None
     assert log.time == datetime.strptime('2013-11-08 00:55:43', "%Y-%m-%d %H:%M:%S")
 
+
 def test_column():
     url = 'http://zhuanlan.zhihu.com/xiepanda'
     column = client.column(url)
@@ -561,6 +607,8 @@ def test_topic():
     # 按时间由近到远获取所有问题
     for _, question in zip(range(10), topic.questions):
         print(question.title)
+        assert question.creation_time is not None
+        print(question.creation_time)
     # 马里亚纳网络存在吗？
     # 玛丽亚纳网络存在吗？
     # 为什么暗网里这么多违法的东西FBI不顺藤摸瓜呢?
