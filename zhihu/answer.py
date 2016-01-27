@@ -318,6 +318,49 @@ class Answer(BaseZhihu):
 
                 yield Comment(comment_id, self, author_obj, upvote_num, content, time)
 
+    @property
+    def latest_comments(self):
+        """获取答案下的所有评论。较新的评论先返回。
+        使用该方法比 ``reversed(list(answer.comments))`` 效率高  
+        因为现在靠后的热门评论会被挪到前面，所以返回的评论未必严格满足时间先后关系
+
+        :return: 答案下的所有评论，返回生成器
+        :rtype: Comments.Iterable
+        """
+        import math
+        from .author import Author
+        from .comment import Comment
+        
+        if self.comment_num == 0:
+            return
+        pages = math.ceil(self.comment_num / 30)
+        api_url = Get_Answer_Comment_URL.format(self.aid)
+        for page in range(pages, 0, -1):
+            res = self._session.get(api_url + '?page=' + str(page))
+            comment_items = res.json()['data']
+            for comment_item in reversed(comment_items):
+                comment_id = comment_item['id']
+                content = comment_item['content']
+                upvote_num = comment_item['likesCount']
+                time_string = comment_item['createdTime'][:19]
+                time = datetime.strptime(time_string, "%Y-%m-%dT%H:%M:%S")
+
+                if comment_item['author'].get('url') != None:
+                    a_url = comment_item['author']['url']
+                    a_name = comment_item['author']['name']
+                    photo_url_tmp = comment_item['author']['avatar']['template']
+                    photo_url_id = comment_item['author']['avatar']['id']
+                    a_photo_url = photo_url_tmp.replace(
+                            '{id}', photo_url_id).replace('_{size}', '')
+                else:
+                    a_name = '匿名用户'
+                    a_url = None
+                    a_photo_url = None
+                author_obj = Author(a_url, a_name, photo_url=a_photo_url,
+                                    session=self._session)
+
+                yield Comment(comment_id, self, author_obj, upvote_num, content, time)
+
     def refresh(self):
         """刷新 Answer object 的属性. 
         例如赞同数增加了, 先调用 ``refresh()`` 

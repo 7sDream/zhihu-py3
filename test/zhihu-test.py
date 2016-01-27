@@ -186,6 +186,16 @@ def test_answer():
             print(comment.author.name, comment.content)
 
     assert i >= 161
+    
+    for i, comment in enumerate(answer.latest_comments, 1):
+        if i == 1:
+            assert comment.creation_time >= datetime(2015, 9, 21, 19, 50, 42)
+        if i < 11:
+            print(comment.author.name, comment.content)
+    
+    assert comment.creation_time == datetime(2014, 9, 25, 9, 18, 56)
+    assert i >= 161
+
 
     # 获取答案内容的HTML
     print(answer.content)
@@ -238,6 +248,7 @@ def test_answer():
     url = 'https://www.zhihu.com/question/39051779/answer/81575803'
     answer = client.answer(url)
     assert sum(1 for _ in answer.comments) == 0
+    assert sum(1 for _ in answer.latest_comments) == 0
 
     # test single page comment answer
     url = 'https://www.zhihu.com/question/28399220/answer/79799671'
