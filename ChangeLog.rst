@@ -4,6 +4,7 @@
 0.3.10
 ------
 - [add] 添加 answer.latest_comments 属性
+- [fix] 获取头像失败
 
 0.3.9-1
 -------

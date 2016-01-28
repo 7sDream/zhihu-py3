@@ -141,8 +141,7 @@ class Author(BaseZhihu):
         """
         if self.url is not None:
             if self.soup is not None:
-                img = 'http:' + self.soup.find(
-                    'img', class_='avatar avatar-l')['src']
+                img = self.soup.find('img', class_='Avatar Avatar--l')['src']
                 return img.replace('_l', '_r')
             else:
                 assert(self.card is not None)
