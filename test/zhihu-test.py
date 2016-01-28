@@ -260,6 +260,47 @@ def test_author():
     url = 'http://www.zhihu.com/people/7sdream'
     author = client.author(url)
 
+    # 获取用户动态
+    for _, act in zip(range(10), author.activities):
+        print(act.content.url)
+        if act.type == ActType.FOLLOW_COLUMN:
+            print('%s 在 %s 关注了专栏 %s' %
+                  (author.name, act.time, act.column.name))
+        elif act.type == ActType.FOLLOW_QUESTION:
+            print('%s 在 %s 关注了问题 %s' %
+                  (author.name, act.time, act.question.title))
+        elif act.type == ActType.ASK_QUESTION:
+            print('%s 在 %s 提了个问题 %s' %
+                  (author.name, act.time, act.question.title))
+        elif act.type == ActType.UPVOTE_POST:
+            print('%s 在 %s 赞同了专栏 %s 中 %s 的文章 %s, '
+                  '此文章赞同数 %d, 评论数 %d' %
+                  (author.name, act.time, act.post.column.name,
+                   act.post.author.name, act.post.title, act.post.upvote_num,
+                   act.post.comment_num))
+        elif act.type == ActType.PUBLISH_POST:
+            print('%s 在 %s 在专栏 %s 中发布了文章 %s, '
+                  '此文章赞同数 %d, 评论数 %d' %
+                  (author.name, act.time, act.post.column.name,
+                   act.post.title, act.post.upvote_num,
+                   act.post.comment_num))
+        elif act.type == ActType.UPVOTE_ANSWER:
+            print('%s 在 %s 赞同了问题 %s 中 %s(motto: %s) 的回答, '
+                  '此回答赞同数 %d' %
+                  (author.name, act.time, act.answer.question.title,
+                   act.answer.author.name, act.answer.author.motto,
+                   act.answer.upvote_num))
+        elif act.type == ActType.ANSWER_QUESTION:
+            print('%s 在 %s 回答了问题 %s 此回答赞同数 %d' %
+                  (author.name, act.time, act.answer.question.title,
+                   act.answer.upvote_num))
+        elif act.type == ActType.FOLLOW_TOPIC:
+            print('%s 在 %s 关注了话题 %s' %
+                  (author.name, act.time, act.topic.name))
+        elif act.type == ActType.FOLLOW_COLLECTION:
+            print('%s 在 %s 关注了收藏夹 %s' %
+                  (author.name, act.time, act.collection.name))
+
     # 获取用户名称
     print(author.name)
     # 7sDream
@@ -396,47 +437,6 @@ def test_author():
     # Python http://www.zhihu.com/topic/19552832/
     # 计算机 http://www.zhihu.com/topic/19555547/
     # 生活 http://www.zhihu.com/topic/19551147/
-
-    # 获取用户动态
-    for _, act in zip(range(10), author.activities):
-        print(act.content.url)
-        if act.type == ActType.FOLLOW_COLUMN:
-            print('%s 在 %s 关注了专栏 %s' %
-                  (author.name, act.time, act.column.name))
-        elif act.type == ActType.FOLLOW_QUESTION:
-            print('%s 在 %s 关注了问题 %s' %
-                  (author.name, act.time, act.question.title))
-        elif act.type == ActType.ASK_QUESTION:
-            print('%s 在 %s 提了个问题 %s' %
-                  (author.name, act.time, act.question.title))
-        elif act.type == ActType.UPVOTE_POST:
-            print('%s 在 %s 赞同了专栏 %s 中 %s 的文章 %s, '
-                  '此文章赞同数 %d, 评论数 %d' %
-                  (author.name, act.time, act.post.column.name,
-                   act.post.author.name, act.post.title, act.post.upvote_num,
-                   act.post.comment_num))
-        elif act.type == ActType.PUBLISH_POST:
-            print('%s 在 %s 在专栏 %s 中发布了文章 %s, '
-                  '此文章赞同数 %d, 评论数 %d' %
-                  (author.name, act.time, act.post.column.name,
-                   act.post.title, act.post.upvote_num,
-                   act.post.comment_num))
-        elif act.type == ActType.UPVOTE_ANSWER:
-            print('%s 在 %s 赞同了问题 %s 中 %s(motto: %s) 的回答, '
-                  '此回答赞同数 %d' %
-                  (author.name, act.time, act.answer.question.title,
-                   act.answer.author.name, act.answer.author.motto,
-                   act.answer.upvote_num))
-        elif act.type == ActType.ANSWER_QUESTION:
-            print('%s 在 %s 回答了问题 %s 此回答赞同数 %d' %
-                  (author.name, act.time, act.answer.question.title,
-                   act.answer.upvote_num))
-        elif act.type == ActType.FOLLOW_TOPIC:
-            print('%s 在 %s 关注了话题 %s' %
-                  (author.name, act.time, act.topic.name))
-        elif act.type == ActType.FOLLOW_COLLECTION:
-            print('%s 在 %s 关注了收藏夹 %s' %
-                  (author.name, act.time, act.collection.name))
 
 
 def test_collection():

@@ -73,9 +73,7 @@ class Author(BaseZhihu):
         :return: xsrf参数
         :rtype: str
         """
-        self._make_soup()
-        return self.soup.find(
-            'input', attrs={'name': '_xsrf'})['value']
+        return self.soup.find('input', attrs={'name': '_xsrf'})['value']
 
     @property
     @check_soup('_hash_id')
@@ -614,7 +612,7 @@ class Author(BaseZhihu):
 
         if self.url is None:
             return
-        self._make_soup()
+
         gotten_feed_num = 20
         start = '0'
         api_url = self.url + 'activities'
