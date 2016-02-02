@@ -659,6 +659,9 @@ class _Anonymous:
         self.name = "匿名用户"
         self.url = ''
 
-#: 匿名用户常量，通过 ``zhihu.ANONYMOUS`` 访问。
-#: 提问者、回答者、点赞者、问题关注者、评论者都可能是 ``ANONYMOUS``
+
 ANONYMOUS = _Anonymous()
+"""匿名用户常量，通过 ``zhihu.ANONYMOUS`` 访问。
+
+提问者、回答者、点赞者、问题关注者、评论者都可能是 ``ANONYMOUS``
+"""

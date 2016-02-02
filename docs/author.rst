@@ -5,5 +5,5 @@ Author 用户类
     :members:
     :special-members: __init__
 
-.. autodata:: ANONYMOUS
+.. autodata:: zhihu.author.ANONYMOUS
    :annotation:
