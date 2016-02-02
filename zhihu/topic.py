@@ -217,7 +217,8 @@ class Topic(BaseZhihu):
         """
         from .question import Question
         from .answer import Answer
-        from .author import Author
+        from .author import Author, ANONYMOUS
+
         top_answers_url = Topic_Top_Answers_Url.format(self.id)
         params = {'page': 1}
         while True:
@@ -242,16 +243,13 @@ class Topic(BaseZhihu):
                 question = Question(question_url, question_title,
                                     session=self._session)
                 if au.a is None:
-                    author_url = None
-                    author_name = '匿名用户'
-                    author_motto = ''
+                    author = ANONYMOUS
                 else:
                     author_url = Zhihu_URL + au.a['href']
                     author_name = au.a.text
                     author_motto = au.strong['title'] if au.strong else ''
-
-                author = Author(author_url, author_name, author_motto,
-                                session=self._session)
+                    author = Author(author_url, author_name, author_motto,
+                                    session=self._session)
                 yield Answer(answer_url, question, author, upvote,
                              session=self._session)
 
@@ -294,7 +292,8 @@ class Topic(BaseZhihu):
         """
         from .question import Question
         from .answer import Answer
-        from .author import Author
+        from .author import Author, ANONYMOUS
+
         newest_url = Topic_Newest_Url.format(self.id)
         params = {'start': 0, '_xsrf': self.xsrf}
         res = self._session.get(newest_url)
@@ -320,15 +319,13 @@ class Topic(BaseZhihu):
 
                 au = div.find('div', class_='zm-item-answer-author-info')
                 if au.a is None:
-                    author_url = None
-                    author_name = '匿名用户'
-                    author_motto = ''
+                    author = ANONYMOUS
                 else:
                     author_url = Zhihu_URL + au.a['href']
                     author_name = au.a.text
                     author_motto = au.strong['title'] if au.strong else ''
-                author = Author(author_url, author_name, author_motto,
-                                session=self._session)
+                    author = Author(author_url, author_name, author_motto,
+                                    session=self._session)
                 yield Answer(answer_url, question, author, upvote,
                              session=self._session)
 

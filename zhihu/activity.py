@@ -10,7 +10,7 @@ from .answer import Answer
 from .column import Column
 from .post import Post
 from .topic import Topic
-from .author import Author
+from .author import Author, ANONYMOUS
 from .collection import Collection
 
 
@@ -79,11 +79,10 @@ class Activity:
             author_name = author_info[0]
             author_motto = author_info[1] \
                 if len(author_info) > 1 else ''
+            author = Author(author_url, author_name, author_motto,
+                            session=self._session)
         except TypeError:
-            author_url = None
-            author_name = '匿名用户'
-            author_motto = ''
-        author = Author(author_url, author_name, author_motto, session=self._session)
+            author = ANONYMOUS
         post_url = act.find('a', class_='post-link')['href']
         post_title = act.find('a', class_='post-link').text
         post_comment_num, post_upvote_num = self._parse_un_cn(act)

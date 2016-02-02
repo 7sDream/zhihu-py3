@@ -304,14 +304,14 @@ class Question(BaseZhihu):
         """获取问题的提问者.
         
         :return: 提问者
-        :rtype: Author or None，None 代表提问者为匿名用户
+        :rtype: Author or zhihu.ANONYMOUS
         """
-        from .author import Author
+        from .author import Author, ANONYMOUS
 
         logs = self._query_logs()
         author_a = logs[-1].find_all('div')[0].a
         if author_a.text == '匿名用户':
-            return None
+            return ANONYMOUS
         else:
             url = Zhihu_URL + author_a['href']
             return Author(url, name=author_a.text, session=self._session)

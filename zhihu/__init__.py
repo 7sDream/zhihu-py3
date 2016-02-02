@@ -6,7 +6,7 @@ __version__ = '0.3.9-1'
 
 from .client import ZhihuClient
 from .question import Question
-from .author import Author
+from .author import Author, ANONYMOUS
 from .activity import Activity
 from .acttype import ActType
 from .answer import Answer
@@ -16,4 +16,4 @@ from .post import Post
 from .topic import Topic
 
 __all__ = ['ZhihuClient', 'Question', 'Author', 'ActType', 'Activity',
-           'Answer', 'Collection', 'Column', 'Post', 'Topic']
+           'Answer', 'Collection', 'Column', 'Post', 'Topic', 'ANONYMOUS']
