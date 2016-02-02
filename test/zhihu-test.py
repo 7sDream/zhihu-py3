@@ -7,7 +7,7 @@ import os
 import shutil
 from datetime import datetime
 
-from zhihu import ZhihuClient, ActType
+from zhihu import ZhihuClient, ActType, ANONYMOUS
 
 
 def test_question():
@@ -65,7 +65,7 @@ def test_question():
     assert last_edit_time >= datetime.strptime('2015-04-01 00:39:21', "%Y-%m-%d %H:%M:%S")
 
     # 获取提问者
-    assert question.author is None
+    assert question.author is ANONYMOUS
     question = client.question('https://www.zhihu.com/question/38531356')
     assert question.author.name == '杨捷'
     assert question.author.url == 'https://www.zhihu.com/people/yangjiePro/'
@@ -102,7 +102,7 @@ def test_question():
     last_edit_time = question.last_edit_time
     print(last_edit_time)
     assert last_edit_time >= datetime.strptime('2015-04-01 00:39:21', "%Y-%m-%d %H:%M:%S")
-    assert question.author is None
+    assert question.author is ANONYMOUS
     question = client.question('https://www.zhihu.com/question/38531356')
     assert question.author.name == '杨捷'
     assert question.author.url == 'https://www.zhihu.com/people/yangjiePro/'
@@ -729,6 +729,43 @@ def test_me():
     print('通过')
 
 
+def test_anonymous():
+    # 提问
+    url = 'https://www.zhihu.com/question/24825703'
+    question = client.question(url)
+    assert question.author is ANONYMOUS
+
+    # 回答
+    url = 'https://www.zhihu.com/question/24937466/answer/29661298'
+    answer = client.answer(url)
+    assert answer.author is ANONYMOUS
+
+    # 点赞
+    url = 'https://www.zhihu.com/question/39772334/answer/83106851'
+    answer = client.answer(url)
+    anonymous_upvote_count = 0
+    for upvoter in answer.upvoters:
+        if upvoter is ANONYMOUS:
+            anonymous_upvote_count += 1
+    assert anonymous_upvote_count >= 3
+
+    # 评论
+    url = 'https://www.zhihu.com/question/37172453/answer/72350276'
+    answer = client.answer(url)
+    for i, comment in enumerate(answer.comments):
+        if i == 0:
+            assert comment.author is ANONYMOUS
+
+    # 关注问题
+    url = 'https://www.zhihu.com/question/37172453'
+    question = client.question(url)
+    anonymous_follower_count = 0
+    for follower in question.followers:
+        if follower is ANONYMOUS:
+            anonymous_follower_count += 1
+    assert anonymous_follower_count >= 3
+
+
 def test():
     test_question()
     test_answer()
@@ -737,6 +774,7 @@ def test():
     test_column()
     test_post()
     test_topic()
+    test_anonymous()
     # test_me()
 
 
