@@ -652,3 +652,11 @@ class Author(BaseZhihu):
         """
         return self.upvote_num + self.thank_num + \
             self.question_num + self.answer_num == 0
+
+
+class _Anonymous:
+    def __init__(self):
+        self.name = "匿名用户"
+        self.url = ''
+
+ANONYMOUS = _Anonymous()
