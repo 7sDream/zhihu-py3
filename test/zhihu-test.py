@@ -149,6 +149,8 @@ def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
     answer = client.answer(url)
 
+    assert answer.deleted == False
+
     # 获取答案url
     print(answer.url)
 
@@ -234,8 +236,10 @@ def test_answer():
     assert answer.deleted == False
 
     # test deleted answer
-    url = 'https://www.zhihu.com/question/39271193/answer/80747935'
+    url = 'https://www.zhihu.com/question/40185501/answer/85271078'
     answer = client.answer(url)
+    assert answer.deleted == True
+    answer.refresh()
     assert answer.deleted == True
 
     # test answer without collection
@@ -779,7 +783,7 @@ def test():
 
 
 if __name__ == '__main__':
-    Cookies_File = 'test.json'
+    Cookies_File = 'test.json'  # TODO: update cookie
     BASE_DIR = os.path.dirname(os.path.realpath(__file__))
     TEST_DIR = os.path.join(BASE_DIR, 'test')
 

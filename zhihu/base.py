@@ -11,10 +11,10 @@ class BaseZhihu:
         resp = self._session.get(self.url)
 
         if self.__class__.__name__ == 'Answer':
-            if resp.history and resp.history[0].status_code in (301, 302):
-                self._deleted = True
-            else:
+            if 'answer' in resp.url:
                 self._deleted = False
+            else:
+                self._deleted = True
 
         return resp.content
 

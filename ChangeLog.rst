@@ -6,6 +6,7 @@
 - [add] 添加 answer.latest_comments 属性
 - [fix] 获取头像失败
 - [add] zhihu.ANONYMOUS 表示匿名用户
+- [fix] answer.deleted 属性错误
 
 0.3.9-1
 -------
