@@ -9,6 +9,7 @@
 - [fix] answer.deleted 属性错误
 - [fix] 解决一些诡异的用户带来的问题
 - [add] post 可保存为 html 格式
+- [fix] 修复 Author 的 location education 等属性无法获取的 bug
 
 0.3.9-1
 -------
