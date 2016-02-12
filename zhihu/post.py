@@ -130,25 +130,33 @@ class Post(JsonAsSoupMixin, BaseZhihu):
         """
         return self.soup['commentsCount']
 
-    def save(self, filepath=None, filename=None):
-        """将文章保存为 markdown 格式.
+    def save(self, filepath=None, filename=None, mode="md"):
+        """保存答案为 Html 文档或 markdown 文档.
 
-        :param str filepath: 要保存的文件所在的绝对目录或相对目录，
-            不填为当前目录下以专栏名命名的目录, 设为"."则为当前目录
-        :param str filename: 要保存的文件名，不填则默认为 文章标题 - 作者名.md
+        :param str filepath: 要保存的文件所在的目录，
+            不填为当前目录下以专栏标题命名的目录, 设为"."则为当前目录。
+        :param str filename: 要保存的文件名，
+            不填则默认为 所在文章标题 - 作者名.html/md。
             如果文件已存在，自动在后面加上数字区分。
-            自定义参数时请不要输入扩展名 .md
-        :return: None
+            **自定义文件名时请不要输入后缀 .html 或 .md。**
+        :param str mode: 保存类型，可选 `html` 、 `markdown` 、 `md` 。
+        :return: 无
+        :rtype: None
         """
-        self._make_soup()
-        file = get_path(filepath, filename, 'md',
-                        self.column.name,
-                        self.title + ' - ' + self.author.name)
+        print(1213)
+        if mode not in ["html", "md", "markdown"]:
+            raise ValueError("`mode` must be 'html', 'markdown' or 'md',"
+                             " got {0}".format(mode))
+        file = get_path(filepath, filename, mode, self.column.name,
+                        self.title + '-' + self.author.name)
         with open(file, 'wb') as f:
-            import html2text
-            h2t = html2text.HTML2Text()
-            h2t.body_width = 0
-            f.write(h2t.handle(self.soup['content']).encode('utf-8'))
+            if mode == "html":
+                f.write(self.soup['content'].encode('utf-8'))
+            else:
+                import html2text
+                h2t = html2text.HTML2Text()
+                h2t.body_width = 0
+                f.write(h2t.handle(self.soup['content']).encode('utf-8'))
 
     @property
     def upvoters(self):

@@ -8,6 +8,7 @@
 - [add] zhihu.ANONYMOUS 表示匿名用户
 - [fix] answer.deleted 属性错误
 - [fix] 解决一些诡异的用户带来的问题
+- [add] post 可保存为 html 格式
 
 0.3.9-1
 -------
