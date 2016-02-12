@@ -144,7 +144,7 @@ class Topic(BaseZhihu):
         :return: 话题关注者，返回生成器
         :rtype: Author.Iterable
         """
-        from .author import Author
+        from .author import Author, ANONYMOUS
         self._make_soup()
         gotten_data_num = 20
         data = {
@@ -165,7 +165,10 @@ class Topic(BaseZhihu):
                 url = Zhihu_URL + h2.a['href']
                 name = h2.a.text
                 motto = h2.next_element.text
-                yield Author(url, name, motto, session=self._session)
+                try:
+                    yield Author(url, name, motto, session=self._session)
+                except ValueError:  # invalid url
+                    yield ANONYMOUS
             data['start'] = int(re_get_number.match(divs[-1]['id']).group(1))
 
     @property
@@ -197,7 +200,7 @@ class Topic(BaseZhihu):
         :return: 此话题下最佳回答者，一般来说是5个，要不就没有，返回生成器
         :rtype: Author.Iterable
         """
-        from .author import Author
+        from .author import Author, ANONYMOUS
         self._make_soup()
         t = self.soup.find('div', id='zh-topic-top-answerer')
         if t is None:
@@ -206,7 +209,10 @@ class Topic(BaseZhihu):
             url = Zhihu_URL + d.a['href']
             name = d.a.text
             motto = d.div['title']
-            yield Author(url, name, motto, session=self._session)
+            try:
+                yield Author(url, name, motto, session=self._session)
+            except ValueError:  # invalid url
+                yield ANONYMOUS
 
     @property
     def top_answers(self):

@@ -231,8 +231,11 @@ def common_follower(url, xsrf, session):
                 author_photo = PROTOCOL + div.img['src'].replace('_m', '_r')
                 numbers = [re_get_number.match(a.text).group(1)
                            for a in div.find_all('a', target='_blank')]
-                yield Author(author_url, author_name, author_motto, *numbers,
-                             photo_url=author_photo, session=session)
+                try:
+                    yield Author(author_url, author_name, author_motto, *numbers,
+                                 photo_url=author_photo, session=session)
+                except ValueError:  # invalid url
+                    yield ANONYMOUS
             else:
                 yield ANONYMOUS
 

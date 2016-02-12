@@ -156,7 +156,7 @@ class Post(JsonAsSoupMixin, BaseZhihu):
 
         :return: 文章的点赞用户，返回生成器。
         """
-        from .author import Author
+        from .author import Author, ANONYMOUS
         self._make_soup()
         headers = dict(Default_Header)
         headers['Host'] = 'zhuanlan.zhihu.com'
@@ -168,10 +168,14 @@ class Post(JsonAsSoupMixin, BaseZhihu):
                 headers=headers
         ).json()
         for au in json:
-            yield Author(
-                    au['profileUrl'],
-                    au['name'],
-                    au['bio'],
-                    photo_url=au['avatar']['template'].format(id=au['avatar']['id'], size='r'),
-                    session=self._session
-            )
+            try:
+                yield Author(
+                        au['profileUrl'],
+                        au['name'],
+                        au['bio'],
+                        photo_url=au['avatar']['template'].format(
+                                id=au['avatar']['id'], size='r'),
+                        session=self._session
+                )
+            except ValueError:  # invalid url
+                yield ANONYMOUS

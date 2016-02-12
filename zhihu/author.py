@@ -468,8 +468,11 @@ class Author(BaseZhihu):
                 author_photo = PROTOCOL + soup.a.img['src'].replace('_m', '_r')
                 numbers = [int(re_get_number.match(x.text).group(1))
                            for x in soup.find_all('a', target='_blank')]
-                yield Author(author_url, author_name, author_motto, *numbers,
-                             photo_url=author_photo, session=self._session)
+                try:
+                    yield Author(author_url, author_name, author_motto, *numbers,
+                                 photo_url=author_photo, session=self._session)
+                except ValueError:  # invalid url
+                    yield ANONYMOUS
 
     @property
     def collections(self):
