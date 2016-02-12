@@ -209,7 +209,7 @@ def get_path(path, filename, mode, default_path, default_name):
 
 
 def common_follower(url, xsrf, session):
-    from .author import Author
+    from .author import Author, ANONYMOUS
     headers = dict(Default_Header)
     headers['Referer'] = url
     data = {'offset': 0, '_xsrf': xsrf}
@@ -231,14 +231,13 @@ def common_follower(url, xsrf, session):
                 author_photo = PROTOCOL + div.img['src'].replace('_m', '_r')
                 numbers = [re_get_number.match(a.text).group(1)
                            for a in div.find_all('a', target='_blank')]
+                try:
+                    yield Author(author_url, author_name, author_motto, *numbers,
+                                 photo_url=author_photo, session=session)
+                except ValueError:  # invalid url
+                    yield ANONYMOUS
             else:
-                author_name = '匿名用户'
-                author_url = None
-                author_motto = ''
-                author_photo = None
-                numbers = [None] * 4
-            yield Author(author_url, author_name, author_motto, *numbers,
-                         photo_url=author_photo, session=session)
+                yield ANONYMOUS
 
 
 def clone_bs4_elem(el):

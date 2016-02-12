@@ -7,7 +7,7 @@ import os
 import shutil
 from datetime import datetime
 
-from zhihu import ZhihuClient, ActType
+from zhihu import ZhihuClient, ActType, ANONYMOUS
 
 
 def test_question():
@@ -65,7 +65,7 @@ def test_question():
     assert last_edit_time >= datetime.strptime('2015-04-01 00:39:21', "%Y-%m-%d %H:%M:%S")
 
     # 获取提问者
-    assert question.author is None
+    assert question.author is ANONYMOUS
     question = client.question('https://www.zhihu.com/question/38531356')
     assert question.author.name == '杨捷'
     assert question.author.url == 'https://www.zhihu.com/people/yangjiePro/'
@@ -102,7 +102,7 @@ def test_question():
     last_edit_time = question.last_edit_time
     print(last_edit_time)
     assert last_edit_time >= datetime.strptime('2015-04-01 00:39:21', "%Y-%m-%d %H:%M:%S")
-    assert question.author is None
+    assert question.author is ANONYMOUS
     question = client.question('https://www.zhihu.com/question/38531356')
     assert question.author.name == '杨捷'
     assert question.author.url == 'https://www.zhihu.com/people/yangjiePro/'
@@ -149,6 +149,8 @@ def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
     answer = client.answer(url)
 
+    assert answer.deleted == False
+
     # 获取答案url
     print(answer.url)
 
@@ -186,6 +188,16 @@ def test_answer():
             print(comment.author.name, comment.content)
 
     assert i >= 161
+    
+    for i, comment in enumerate(answer.latest_comments, 1):
+        if i == 1:
+            assert comment.creation_time >= datetime(2015, 9, 21, 19, 50, 42)
+        if i < 11:
+            print(comment.author.name, comment.content)
+    
+    assert comment.creation_time == datetime(2014, 9, 25, 9, 18, 56)
+    assert i >= 161
+
 
     # 获取答案内容的HTML
     print(answer.content)
@@ -224,8 +236,10 @@ def test_answer():
     assert answer.deleted == False
 
     # test deleted answer
-    url = 'https://www.zhihu.com/question/39271193/answer/80747935'
+    url = 'https://www.zhihu.com/question/40185501/answer/85271078'
     answer = client.answer(url)
+    assert answer.deleted == True
+    answer.refresh()
     assert answer.deleted == True
 
     # test answer without collection
@@ -238,6 +252,7 @@ def test_answer():
     url = 'https://www.zhihu.com/question/39051779/answer/81575803'
     answer = client.answer(url)
     assert sum(1 for _ in answer.comments) == 0
+    assert sum(1 for _ in answer.latest_comments) == 0
 
     # test single page comment answer
     url = 'https://www.zhihu.com/question/28399220/answer/79799671'
@@ -248,6 +263,47 @@ def test_answer():
 def test_author():
     url = 'http://www.zhihu.com/people/7sdream'
     author = client.author(url)
+
+    # 获取用户动态
+    for _, act in zip(range(10), author.activities):
+        print(act.content.url)
+        if act.type == ActType.FOLLOW_COLUMN:
+            print('%s 在 %s 关注了专栏 %s' %
+                  (author.name, act.time, act.column.name))
+        elif act.type == ActType.FOLLOW_QUESTION:
+            print('%s 在 %s 关注了问题 %s' %
+                  (author.name, act.time, act.question.title))
+        elif act.type == ActType.ASK_QUESTION:
+            print('%s 在 %s 提了个问题 %s' %
+                  (author.name, act.time, act.question.title))
+        elif act.type == ActType.UPVOTE_POST:
+            print('%s 在 %s 赞同了专栏 %s 中 %s 的文章 %s, '
+                  '此文章赞同数 %d, 评论数 %d' %
+                  (author.name, act.time, act.post.column.name,
+                   act.post.author.name, act.post.title, act.post.upvote_num,
+                   act.post.comment_num))
+        elif act.type == ActType.PUBLISH_POST:
+            print('%s 在 %s 在专栏 %s 中发布了文章 %s, '
+                  '此文章赞同数 %d, 评论数 %d' %
+                  (author.name, act.time, act.post.column.name,
+                   act.post.title, act.post.upvote_num,
+                   act.post.comment_num))
+        elif act.type == ActType.UPVOTE_ANSWER:
+            print('%s 在 %s 赞同了问题 %s 中 %s(motto: %s) 的回答, '
+                  '此回答赞同数 %d' %
+                  (author.name, act.time, act.answer.question.title,
+                   act.answer.author.name, act.answer.author.motto,
+                   act.answer.upvote_num))
+        elif act.type == ActType.ANSWER_QUESTION:
+            print('%s 在 %s 回答了问题 %s 此回答赞同数 %d' %
+                  (author.name, act.time, act.answer.question.title,
+                   act.answer.upvote_num))
+        elif act.type == ActType.FOLLOW_TOPIC:
+            print('%s 在 %s 关注了话题 %s' %
+                  (author.name, act.time, act.topic.name))
+        elif act.type == ActType.FOLLOW_COLLECTION:
+            print('%s 在 %s 关注了收藏夹 %s' %
+                  (author.name, act.time, act.collection.name))
 
     # 获取用户名称
     print(author.name)
@@ -385,47 +441,6 @@ def test_author():
     # Python http://www.zhihu.com/topic/19552832/
     # 计算机 http://www.zhihu.com/topic/19555547/
     # 生活 http://www.zhihu.com/topic/19551147/
-
-    # 获取用户动态
-    for _, act in zip(range(10), author.activities):
-        print(act.content.url)
-        if act.type == ActType.FOLLOW_COLUMN:
-            print('%s 在 %s 关注了专栏 %s' %
-                  (author.name, act.time, act.column.name))
-        elif act.type == ActType.FOLLOW_QUESTION:
-            print('%s 在 %s 关注了问题 %s' %
-                  (author.name, act.time, act.question.title))
-        elif act.type == ActType.ASK_QUESTION:
-            print('%s 在 %s 提了个问题 %s' %
-                  (author.name, act.time, act.question.title))
-        elif act.type == ActType.UPVOTE_POST:
-            print('%s 在 %s 赞同了专栏 %s 中 %s 的文章 %s, '
-                  '此文章赞同数 %d, 评论数 %d' %
-                  (author.name, act.time, act.post.column.name,
-                   act.post.author.name, act.post.title, act.post.upvote_num,
-                   act.post.comment_num))
-        elif act.type == ActType.PUBLISH_POST:
-            print('%s 在 %s 在专栏 %s 中发布了文章 %s, '
-                  '此文章赞同数 %d, 评论数 %d' %
-                  (author.name, act.time, act.post.column.name,
-                   act.post.title, act.post.upvote_num,
-                   act.post.comment_num))
-        elif act.type == ActType.UPVOTE_ANSWER:
-            print('%s 在 %s 赞同了问题 %s 中 %s(motto: %s) 的回答, '
-                  '此回答赞同数 %d' %
-                  (author.name, act.time, act.answer.question.title,
-                   act.answer.author.name, act.answer.author.motto,
-                   act.answer.upvote_num))
-        elif act.type == ActType.ANSWER_QUESTION:
-            print('%s 在 %s 回答了问题 %s 此回答赞同数 %d' %
-                  (author.name, act.time, act.answer.question.title,
-                   act.answer.upvote_num))
-        elif act.type == ActType.FOLLOW_TOPIC:
-            print('%s 在 %s 关注了话题 %s' %
-                  (author.name, act.time, act.topic.name))
-        elif act.type == ActType.FOLLOW_COLLECTION:
-            print('%s 在 %s 关注了收藏夹 %s' %
-                  (author.name, act.time, act.collection.name))
 
 
 def test_collection():
@@ -718,6 +733,43 @@ def test_me():
     print('通过')
 
 
+def test_anonymous():
+    # 提问
+    url = 'https://www.zhihu.com/question/24825703'
+    question = client.question(url)
+    assert question.author is ANONYMOUS
+
+    # 回答
+    url = 'https://www.zhihu.com/question/24937466/answer/29661298'
+    answer = client.answer(url)
+    assert answer.author is ANONYMOUS
+
+    # 点赞
+    url = 'https://www.zhihu.com/question/39772334/answer/83106851'
+    answer = client.answer(url)
+    anonymous_upvote_count = 0
+    for upvoter in answer.upvoters:
+        if upvoter is ANONYMOUS:
+            anonymous_upvote_count += 1
+    assert anonymous_upvote_count >= 3
+
+    # 评论
+    url = 'https://www.zhihu.com/question/37172453/answer/72350276'
+    answer = client.answer(url)
+    for i, comment in enumerate(answer.comments):
+        if i == 0:
+            assert comment.author is ANONYMOUS
+
+    # 关注问题
+    url = 'https://www.zhihu.com/question/37172453'
+    question = client.question(url)
+    anonymous_follower_count = 0
+    for follower in question.followers:
+        if follower is ANONYMOUS:
+            anonymous_follower_count += 1
+    assert anonymous_follower_count >= 3
+
+
 def test():
     test_question()
     test_answer()
@@ -726,11 +778,12 @@ def test():
     test_column()
     test_post()
     test_topic()
+    test_anonymous()
     # test_me()
 
 
 if __name__ == '__main__':
-    Cookies_File = 'test.json'
+    Cookies_File = 'test.json'  # TODO: update cookie
     BASE_DIR = os.path.dirname(os.path.realpath(__file__))
     TEST_DIR = os.path.join(BASE_DIR, 'test')
 

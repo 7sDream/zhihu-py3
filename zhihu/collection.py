@@ -224,7 +224,7 @@ class Collection(BaseZhihu):
 
     def _page_get_answers(self, soup):
         from .question import Question
-        from .author import Author
+        from .author import Author, ANONYMOUS
         from .answer import Answer
 
         answer_tags = soup.find_all("div", class_="zm-item")
@@ -240,9 +240,6 @@ class Collection(BaseZhihu):
                     reason = tag.find('div', id='answer-status').p.text
                     print("pass a answer, reason %s ." % reason)
                     continue
-                author_name = '匿名用户'
-                author_motto = ''
-                author_url = None
                 if tag.h2 is not None:
                     question_title = tag.h2.a.text
                     question_url = Zhihu_URL + tag.h2.a['href']
@@ -255,10 +252,11 @@ class Collection(BaseZhihu):
                     author_url = Zhihu_URL + author_link['href']
                     author_name = author_link.text
                     motto_span = div.find('span', class_='bio')
-                    if motto_span is not None:
-                        author_motto = motto_span['title']
-                author = Author(author_url, author_name, author_motto,
-                                session=self._session)
+                    author_motto = motto_span['title'] if motto_span else ''
+                    author = Author(author_url, author_name, author_motto,
+                                    session=self._session)
+                else:
+                    author = ANONYMOUS
                 upvote = int(tag.find(
                     'a', class_='zm-item-vote-count')['data-votecount'])
                 answer = Answer(answer_url, question, author,

@@ -73,9 +73,7 @@ class Author(BaseZhihu):
         :return: xsrf参数
         :rtype: str
         """
-        self._make_soup()
-        return self.soup.find(
-            'input', attrs={'name': '_xsrf'})['value']
+        return self.soup.find('input', attrs={'name': '_xsrf'})['value']
 
     @property
     @check_soup('_hash_id')
@@ -141,8 +139,7 @@ class Author(BaseZhihu):
         """
         if self.url is not None:
             if self.soup is not None:
-                img = 'http:' + self.soup.find(
-                    'img', class_='avatar avatar-l')['src']
+                img = self.soup.find('img', class_='Avatar Avatar--l')['src']
                 return img.replace('_l', '_r')
             else:
                 assert(self.card is not None)
@@ -471,8 +468,11 @@ class Author(BaseZhihu):
                 author_photo = PROTOCOL + soup.a.img['src'].replace('_m', '_r')
                 numbers = [int(re_get_number.match(x.text).group(1))
                            for x in soup.find_all('a', target='_blank')]
-                yield Author(author_url, author_name, author_motto, *numbers,
-                             photo_url=author_photo, session=self._session)
+                try:
+                    yield Author(author_url, author_name, author_motto, *numbers,
+                                 photo_url=author_photo, session=self._session)
+                except ValueError:  # invalid url
+                    yield ANONYMOUS
 
     @property
     def collections(self):
@@ -615,7 +615,7 @@ class Author(BaseZhihu):
 
         if self.url is None:
             return
-        self._make_soup()
+
         gotten_feed_num = 20
         start = '0'
         api_url = self.url + 'activities'
@@ -655,3 +655,16 @@ class Author(BaseZhihu):
         """
         return self.upvote_num + self.thank_num + \
             self.question_num + self.answer_num == 0
+
+
+class _Anonymous:
+    def __init__(self):
+        self.name = "匿名用户"
+        self.url = ''
+
+
+ANONYMOUS = _Anonymous()
+"""匿名用户常量，通过 ``zhihu.ANONYMOUS`` 访问。
+
+提问者、回答者、点赞者、问题关注者、评论者都可能是 ``ANONYMOUS``
+"""
