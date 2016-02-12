@@ -143,7 +143,6 @@ class Post(JsonAsSoupMixin, BaseZhihu):
         :return: 无
         :rtype: None
         """
-        print(1213)
         if mode not in ["html", "md", "markdown"]:
             raise ValueError("`mode` must be 'html', 'markdown' or 'md',"
                              " got {0}".format(mode))
