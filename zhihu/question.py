@@ -408,7 +408,10 @@ class Question(BaseZhihu):
 
     def _get_content(self):
         # override base class's method cause we need self._url not self.url
-        resp = self._session.get(self._url)
+        if self._url.endswith('/'):
+            resp = self._session.get(self._url[:-1])
+        else:
+            resp = self._session.get(self._url)
 
         if resp.status_code == 404:
             self._deleted = True

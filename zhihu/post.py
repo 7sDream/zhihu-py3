@@ -44,8 +44,7 @@ class Post(JsonAsSoupMixin, BaseZhihu):
         origin_host = self._session.headers.get('Host')
         self._session.headers.update(Host='zhuanlan.zhihu.com')
         json = self._session.get(
-            Column_Post_Data.format(
-                self.column_in_name, self.slug)).json()
+            Column_Post_Data.format(self.column_in_name, self.slug)).json()
         self._session.headers.update(Host=origin_host)
         return json
 

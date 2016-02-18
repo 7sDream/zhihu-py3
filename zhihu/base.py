@@ -8,7 +8,7 @@ class BaseZhihu:
         self.soup = BeautifulSoup(content)
 
     def _get_content(self):
-        resp = self._session.get(self.url)
+        resp = self._session.get(self.url[:-1])
 
         if self.__class__.__name__ == 'Answer':
             if 'answer' in resp.url:
