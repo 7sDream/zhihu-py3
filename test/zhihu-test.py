@@ -521,7 +521,7 @@ def test_column():
 
 
 def test_post():
-    url = 'http://zhuanlan.zhihu.com/xiepanda/19950456'
+    url = 'http://zhuanlan.zhihu.com/o0v0o/20569063'
     post = client.post(url)
 
     # 获取文章地址
