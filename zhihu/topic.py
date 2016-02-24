@@ -261,9 +261,11 @@ class Topic(BaseZhihu):
 
     @property
     def questions(self):
-        """获取话题下的所有问题（按时间降序排列）
+        """获取话题下的等待回答的问题（按时间降序排列）
 
-        :return: 话题下的所有问题，返回生成器
+        什么是等待回答的问题: https://www.zhihu.com/question/40470324
+
+        :return: 话题下等待回答的问题，返回生成器
         :rtype: Question.Iterable
         """
         from .question import Question
