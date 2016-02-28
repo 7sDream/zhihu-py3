@@ -653,6 +653,14 @@ def test_topic():
     # 《纸牌屋》中提到的深网 (Deep Web) 是什么？ 匿名用户 21
     # ...
 
+    # 获取等待回答的问题
+    for _, q in zip(range(10), topic.unanswered_questions):
+        print(q.title)
+    # 如何用tor登陆qq? 匿名用户 0
+    # 想看一下暗网（deep web），但是怕中病毒，所以有谁能发发截图？？ tor 0
+    # icq是什么 为什么暗网交流一般都用icq？ tor 0
+    # ...
+
 
 def test_me():
     """

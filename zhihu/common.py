@@ -32,8 +32,10 @@ Answer_Comment_Box_URL = Zhihu_URL + '/node/AnswerCommentBoxV2'
 Get_Answer_Comment_URL = Zhihu_URL + '/r/answers/{0}/comments'
 Author_Get_More_Followers_URL = Zhihu_URL + '/node/ProfileFollowersListV2'
 Author_Get_More_Followees_URL = Zhihu_URL + '/node/ProfileFolloweesListV2'
-Author_Get_More_Follow_Column_URL = Zhihu_URL + '/node/ProfileFollowedColumnsListV2'
-Author_Get_More_Follow_Topic_URL = Zhihu_URL + '/people/{0}/topics'
+Author_Get_More_Follow_Column_URL = Zhihu_URL + \
+                                    '/node/ProfileFollowedColumnsListV2'
+Author_Get_More_Follow_Topic_URL = Zhihu_URL + \
+                                   '/people/{0}/topics'
 
 PROTOCOL = ''
 
@@ -47,7 +49,8 @@ Post_Get_Upvoter = Column_API + '/{0}/posts/{1}/likers'
 Topic_Url = Zhihu_URL + '/topic'
 Topic_Get_Children_Url = Topic_Url + '/{0}/organize/entire'
 Topic_Get_More_Follower_Url = Topic_Url + '/{0}/followers'
-Topic_Question_Url = Topic_Url + '/{0}/questions/newest'
+Topic_Questions_Url = Topic_Url + '/{0}/questions'
+Topic_Unanswered_Question_Url = Topic_Url + '/{0}/unanswered'
 Topic_Top_Answers_Url = Topic_Url + '/{0}/top-answers'
 Topic_Hot_Questions_Url = Topic_Url + '/{0}/hot'
 Topic_Newest_Url = Topic_Url + '/{0}/newest'
@@ -67,7 +70,8 @@ Unhelpful_Url = Zhihu_URL + '/answer/not_helpful'
 Cancel_Unhelpful_Url = Zhihu_URL + '/answer/helpful'
 Get_Collection_Url = Zhihu_URL + '/node/AnswerFavlists'
 
-re_question_url = re.compile(r'^https?://www\.zhihu\.com/question/\d+(\?sort=created|/?)$')
+re_question_url = re.compile(
+    r'^https?://www\.zhihu\.com/question/\d+(\?sort=created|/?)$')
 re_question_url_std = re.compile(r'^https?://www\.zhihu\.com/question/\d+/?')
 re_ans_url = re.compile(
     r'^https?://www\.zhihu\.com/question/\d+/answer/\d+/?$')
@@ -232,8 +236,9 @@ def common_follower(url, xsrf, session):
                 numbers = [re_get_number.match(a.text).group(1)
                            for a in div.find_all('a', target='_blank')]
                 try:
-                    yield Author(author_url, author_name, author_motto, *numbers,
-                                 photo_url=author_photo, session=session)
+                    yield Author(author_url, author_name, author_motto,
+                                 *numbers, photo_url=author_photo,
+                                 session=session)
                 except ValueError:  # invalid url
                     yield ANONYMOUS
             else:

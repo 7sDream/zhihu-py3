@@ -261,15 +261,13 @@ class Topic(BaseZhihu):
 
     @property
     def questions(self):
-        """获取话题下的等待回答的问题（按时间降序排列）
+        """获取话题下的所有问题（按时间降序排列）
 
-        什么是等待回答的问题: https://www.zhihu.com/question/40470324
-
-        :return: 话题下等待回答的问题，返回生成器
+        :return: 话题下所有问题，返回生成器
         :rtype: Question.Iterable
         """
         from .question import Question
-        question_url = Topic_Question_Url.format(self.id)
+        question_url = Topic_Questions_Url.format(self.id)
         params = {'page': 1}
         older_time_stamp = int(time.time()) * 1000
         while True:
@@ -289,6 +287,30 @@ class Topic(BaseZhihu):
                 yield Question(url, title, creation_time=creation_time,
                                session=self._session)
             older_time_stamp = int(questions[-1].h2.span['data-timestamp'])
+            params['page'] += 1
+
+    @property
+    def unanswered_questions(self):
+        """获取话题下的等待回答的问题
+
+        什么是「等待回答」的问题：https://www.zhihu.com/question/40470324
+
+        :return: 话题下等待回答的问题，返回生成器
+        :rtype: Question.Iterable
+        """
+        from .question import Question
+        question_url = Topic_Unanswered_Question_Url.format(self.id)
+        params = {'page': 1}
+        while True:
+            res = self._session.get(question_url, params=params)
+            soup = BeautifulSoup(res.content)
+            if soup.find('div', class_='error') is not None:
+                return
+            questions = soup.find_all('div', class_='question-item')
+            for qu_div in questions:
+                url = Zhihu_URL + qu_div.h2.a['href']
+                title = qu_div.h2.a.text
+                yield Question(url, title, session=self._session)
             params['page'] += 1
 
     @property
