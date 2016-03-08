@@ -162,7 +162,7 @@ class ZhihuClient:
         from functools import partial
         from random import choice
 
-        self.proxies = proxies
+        self.proxies = [{'http': p, 'https': p} for p in proxies]
 
         def get_with_random_proxy(url, **kwargs):
             proxy = choice(self.proxies)

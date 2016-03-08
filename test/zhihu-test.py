@@ -780,12 +780,8 @@ def test_anonymous():
 
 def test_proxy():
     # visit http://cn-proxy.com/ to get available proxies if test failed
-    proxy_ips = ('112.25.41.136', '180.97.29.57')
-    proxies = [
-        {'http': proxy_ips[0]},
-        {'http': proxy_ips[1]}
-    ]
-    client.set_multiple_proxies(proxies)
+    proxy_ips = ['112.25.41.136', '180.97.29.57']
+    client.set_proxy_pool(proxy_ips)
     for _ in range(5):
         result = client._session.get('http://httpbin.org/ip').json()
         assert result['origin'] in proxy_ips
