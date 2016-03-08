@@ -146,6 +146,43 @@ class ZhihuClient:
         """
         self._session.proxies.update({'http': proxy})
 
+    def set_proxy_pool(self, proxies, auth=None):
+        """设置代理池
+
+        :param proxies: proxy列表, 形如 ``["ip1:port1", "ip2:port2"]``
+        :param auth: 如果代理需要验证身份, 通过这个参数提供, 比如
+        .. code-block:: python
+
+              from requests.auth import HTTPProxyAuth
+              auth = HTTPProxyAuth('laike9m', '123')
+        :说明:
+             每次 GET/POST 请求会随机选择列表中的代理, HTTP和HTTPS都会走代理
+             故请保证代理支持HTTPS
+        """
+        from functools import partial
+        from random import choice
+
+        self.proxies = proxies
+
+        def get_with_random_proxy(url, **kwargs):
+            proxy = choice(self.proxies)
+            kwargs['proxies'] = proxy
+            if auth:
+                kwargs['auth'] = auth
+            return self._session.original_get(url, **kwargs)
+
+        def post_with_random_proxy(url, *args, **kwargs):
+            proxy = choice(self.proxies)
+            kwargs['proxies'] = proxy
+            if auth:
+                kwargs['auth'] = auth
+            return self._session.original_post(url, *args, **kwargs)
+
+        self._session.original_get = self._session.get
+        self._session.get = get_with_random_proxy
+        self._session.original_post = self._session.post
+        self._session.post = post_with_random_proxy
+
     # ===== getter staff ======
 
     def me(self):
