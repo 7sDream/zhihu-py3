@@ -790,6 +790,12 @@ def test_proxy():
         assert result['form'] == {'m': '1'}
         assert result['origin'] in proxy_ips
 
+    client.remove_proxy_pool()
+    client.set_proxy_pool(proxy_ips, https=False)
+    for _ in range(5):
+        result = client._session.get('http://httpbin.org/ip').json()
+        assert result['origin'] in proxy_ips
+
 
 def test():
     test_question()

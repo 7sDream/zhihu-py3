@@ -4,6 +4,7 @@
 0.3.13
 ------
 - [add] 增加 client.add_proxy_pool 方法设置代理池
+- [add] 增加 client.remove_proxy_pool 方法移除代理池
 
 0.3.12
 ------
