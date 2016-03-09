@@ -187,6 +187,14 @@ class ZhihuClient:
         self._session.original_post = self._session.post
         self._session.post = post_with_random_proxy
 
+    def remove_proxy_pool(self):
+        """
+        移除代理池
+        """
+        self.proxies = None
+        self._session.get = self._session.original_get
+        self._session.post = self._session.original_post
+
     # ===== getter staff ======
 
     def me(self):
