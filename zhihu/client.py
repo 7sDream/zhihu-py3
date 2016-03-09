@@ -22,6 +22,7 @@ class ZhihuClient:
         """
         self._session = requests.Session()
         self._session.headers.update(Default_Header)
+        self.proxies = None
         if cookies is not None:
             assert isinstance(cookies, str)
             self.login_with_cookies(cookies)
@@ -146,23 +147,26 @@ class ZhihuClient:
         """
         self._session.proxies.update({'http': proxy})
 
-    def set_proxy_pool(self, proxies, auth=None):
+    def set_proxy_pool(self, proxies, auth=None, https=True):
         """设置代理池
 
         :param proxies: proxy列表, 形如 ``["ip1:port1", "ip2:port2"]``
         :param auth: 如果代理需要验证身份, 通过这个参数提供, 比如
+        :param https: 默认为 True, 传入 False 则不设置 https 代理
         .. code-block:: python
 
               from requests.auth import HTTPProxyAuth
               auth = HTTPProxyAuth('laike9m', '123')
         :说明:
-             每次 GET/POST 请求会随机选择列表中的代理, HTTP和HTTPS都会走代理
-             故请保证代理支持HTTPS
+             每次 GET/POST 请求会随机选择列表中的代理
         """
         from functools import partial
         from random import choice
 
-        self.proxies = [{'http': p, 'https': p} for p in proxies]
+        if https:
+            self.proxies = [{'http': p, 'https': p} for p in proxies]
+        else:
+            self.proxies = [{'http': p} for p in proxies]
 
         def get_with_random_proxy(url, **kwargs):
             proxy = choice(self.proxies)
