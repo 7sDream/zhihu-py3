@@ -160,7 +160,6 @@ class ZhihuClient:
         :说明:
              每次 GET/POST 请求会随机选择列表中的代理
         """
-        from functools import partial
         from random import choice
 
         if https:
@@ -194,6 +193,8 @@ class ZhihuClient:
         self.proxies = None
         self._session.get = self._session.original_get
         self._session.post = self._session.original_post
+        del self._session.original_get
+        del self._session.original_post
 
     # ===== getter staff ======
 
