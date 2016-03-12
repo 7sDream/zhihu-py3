@@ -29,30 +29,11 @@ class ZhihuClient:
 
     # ===== login staff =====
 
-    @staticmethod
-    def _get_captcha_url():
-        return Captcha_URL_Prefix + str(int(time.time() * 1000))
-
-    def get_captcha(self):
-        """获取验证码数据。
-
-        :return: 验证码图片数据。
-        :rtype: bytes
-        """
-        # some unbelievable zhihu logic
-        self._session.get(Zhihu_URL)
-        data = {'email': '', 'password': '', 'remember_me': 'true'}
-        self._session.post(Login_URL, data=data)
-
-        r = self._session.get(self._get_captcha_url())
-        return r.content
-
-    def login(self, email, password, captcha):
+    def login(self, email, password):
         """登陆知乎.
 
         :param str email: 邮箱
         :param str password: 密码
-        :param str captcha: 验证码
         :return:
             ======== ======== ============== ====================
             元素序号 元素类型 意义           说明
@@ -65,11 +46,13 @@ class ZhihuClient:
         :rtype: (int, str, str)
         """
         data = {'email': email, 'password': password,
-                'remember_me': 'true', 'captcha': captcha}
+                'remember_me': 'true'}
         r = self._session.post(Login_URL, data=data)
         j = r.json()
         code = int(j['r'])
         message = j['msg']
+
+        r = self._session.get(Zhihu_URL) # _xsrf，cookies 的这个项只有登陆后再访问一次页面才能拿到，其余 cookies 项在第一步 post 已获得
         cookies_str = json.dumps(self._session.cookies.get_dict()) \
             if code == 0 else ''
         return code, message, cookies_str
@@ -104,17 +87,9 @@ class ZhihuClient:
         email = input('email: ')
         password = input('password: ')
 
-        captcha_data = self.get_captcha()
-        with open('captcha.gif', 'wb') as f:
-            f.write(captcha_data)
-
-        print('please check captcha.gif for captcha')
-        captcha = input('captcha: ')
-        os.remove('captcha.gif')
-
         print('====== logging.... =====')
 
-        code, msg, cookies = self.login(email, password, captcha)
+        code, msg, cookies = self.login(email, password)
 
         if code == 0:
             print('login successfully')
