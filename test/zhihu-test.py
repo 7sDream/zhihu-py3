@@ -799,14 +799,14 @@ def test_proxy():
 
 
 def test():
-    # test_question()
-    # test_answer()
-    # test_author()
-    # test_collection()
-    # test_column()
-    # test_post()
-    # test_topic()
-    # test_anonymous()
+    test_question()
+    test_answer()
+    test_author()
+    test_collection()
+    test_column()
+    test_post()
+    test_topic()
+    test_anonymous()
     test_proxy()
     # test_me()
 
