@@ -303,7 +303,7 @@ class Answer(BaseZhihu):
                 time_string = comment_item['createdTime'][:19]
                 time = datetime.strptime(time_string, "%Y-%m-%dT%H:%M:%S")
 
-                if comment_item['author'].get('url') != None:
+                if comment_item['author'].get('url') is not None:
                     a_url = comment_item['author']['url']
                     a_name = comment_item['author']['name']
                     photo_url_tmp = comment_item['author']['avatar']['template']

@@ -69,16 +69,17 @@ class Activity:
         return self._time
 
     def __find_post(self, act):
-        column_url = act.find('a', class_='column_link')['href']
-        column_name = act.find('a', class_='column_link').text
-        column = Column(column_url, column_name, session=self._session)
+        try:
+            column_url = act.find('a', class_='column_link')['href']
+            column_name = act.find('a', class_='column_link').text
+            column = Column(column_url, column_name, session=self._session)
+        except TypeError:
+            column = None
         try:
             author_tag = act.find('div', class_='author-info')
             author_url = Zhihu_URL + author_tag.a['href']
-            author_info = list(author_tag.stripped_strings)
-            author_name = author_info[0]
-            author_motto = author_info[1] \
-                if len(author_info) > 1 else ''
+            author_name = author_tag.a.text
+            author_motto = author_tag.span.text if author_tag.span else ''
             author = Author(author_url, author_name, author_motto,
                             session=self._session)
         except TypeError:

@@ -164,7 +164,7 @@ class Topic(BaseZhihu):
                 h2 = div.h2
                 url = Zhihu_URL + h2.a['href']
                 name = h2.a.text
-                motto = h2.next_element.text
+                motto = h2.parent.div.text
                 try:
                     yield Author(url, name, motto, session=self._session)
                 except ValueError:  # invalid url

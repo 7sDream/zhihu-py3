@@ -4,6 +4,7 @@
 from .common import *
 from .base import BaseZhihu
 
+
 class Collection(BaseZhihu):
 
     """收藏夹，请使用``ZhihuClient.collection``方法构造对象."""
@@ -166,6 +167,7 @@ class Collection(BaseZhihu):
         import time
         from datetime import datetime
         from .answer import Answer
+        from .question import Question
         from .acttype import CollectActType
 
         self._make_soup()
@@ -186,24 +188,26 @@ class Collection(BaseZhihu):
 
             for zm_item in zm_items:
                 act_time = datetime.strptime(zm_item.find('time').text, "%Y-%m-%d %H:%M:%S")
-
                 if zm_item.find('ins'):
-                    try:
-                        answer = Answer(Zhihu_URL + zm_item.find('ins').a['href'],
-                                        session=self._session)
-                        type = CollectActType.INSERT_ANSWER
-                        yield CollectActivity(type, act_time, self.owner, self, answer)
-                    except ValueError:
-                        type = CollectActType.CREATE_COLLECTION
-                        yield CollectActivity(type, act_time, self.owner, self)
+                    link = zm_item.find('ins').a
+                    act_type = CollectActType.INSERT_ANSWER
                 elif zm_item.find('del'):
-                    type = CollectActType.DELETE_ANSWER
-                    answer = Answer(Zhihu_URL + zm_item.find('del').a['href'],
-                                    session=self._session)
-                    yield CollectActivity(type, act_time, self.owner, self, answer)
+                    link = zm_item.find('del').a
+                    act_type = CollectActType.DELETE_ANSWER
                 else:
                     continue
-
+                try:
+                    answer_url = Zhihu_URL + link['href']
+                    question_url = re_a2q.match(answer_url).group(1)
+                    question = Question(question_url, link.text)
+                    answer = Answer(
+                        answer_url, question, session=self._session)
+                    yield CollectActivity(
+                        act_type, act_time, self.owner, self, answer)
+                except AttributeError:
+                    act_type = CollectActType.CREATE_COLLECTION
+                    yield CollectActivity(
+                        act_type, act_time, self.owner, self)
             data['start'] = zm_items[-1]['id'][8:]
             time.sleep(0.5)
 

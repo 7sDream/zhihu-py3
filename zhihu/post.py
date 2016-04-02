@@ -32,8 +32,7 @@ class Post(JsonAsSoupMixin, BaseZhihu):
         self._title = title
         self._upvote_num = upvote_num
         self._comment_num = comment_num
-        self._column_in_name = match.group(1)    # 专栏内部名称
-        self._slug = int(match.group(2))  # 文章编号
+        self._slug = int(match.group(1))  # 文章编号
 
     def _make_soup(self):
         if self.soup is None:
@@ -54,7 +53,11 @@ class Post(JsonAsSoupMixin, BaseZhihu):
         :return: 专栏的内部名称
         :rtype: str
         """
-        return self._column_in_name
+        self._make_soup()
+        if 'column' in self.soup:
+            return self.soup['column']['slug']
+        else:
+            return None
 
     @property
     def slug(self):
@@ -75,9 +78,12 @@ class Post(JsonAsSoupMixin, BaseZhihu):
         """
         from .column import Column
 
-        url = Column_Url + '/' + self.soup['column']['slug']
-        name = self.soup['column']['name']
-        return Column(url, name, session=self._session)
+        if 'column' in self.soup:
+            url = Column_Url + '/' + self.soup['column']['slug']
+            name = self.soup['column']['name']
+            return Column(url, name, session=self._session)
+        else:
+            return None
 
     @property
     @check_soup('_author')
