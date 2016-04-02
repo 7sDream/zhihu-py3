@@ -43,8 +43,7 @@ class Post(JsonAsSoupMixin, BaseZhihu):
     def _get_content(self):
         origin_host = self._session.headers.get('Host')
         self._session.headers.update(Host='zhuanlan.zhihu.com')
-        json = self._session.get(
-            Column_Post_Data.format(self.column_in_name, self.slug)).json()
+        json = self._session.get(Column_Post_Data.format(self.slug)).json()
         self._session.headers.update(Host=origin_host)
         return json
 
@@ -168,11 +167,8 @@ class Post(JsonAsSoupMixin, BaseZhihu):
         headers = dict(Default_Header)
         headers['Host'] = 'zhuanlan.zhihu.com'
         json = self._session.get(
-                Post_Get_Upvoter.format(
-                        self.column_in_name,
-                        self.slug
-                ),
-                headers=headers
+            Post_Get_Upvoter.format(self.slug),
+            headers=headers
         ).json()
         for au in json:
             try:
