@@ -229,7 +229,7 @@ class Question(BaseZhihu):
             data = {'_xsrf': self.xsrf,
                     'method': 'next',
                     'params': ''}
-            for i in range(0, (self.answer_num - 1) // 50 + 1):
+            for i in range(0, (self.answer_num - 1) // 20 + 1):
                 if i == 0:
                     # 修正各种建议修改的回答……
                     error_answers = self.soup.find_all('div', id='answer-status')
@@ -256,7 +256,7 @@ class Question(BaseZhihu):
                         yield Answer(url, self, author_obj, upvote_num, content,
                                      session=self._session)
                 else:
-                    params['offset'] = i * 50
+                    params['offset'] = i * 20
                     data['params'] = json.dumps(params)
                     r = self._session.post(Question_Get_More_Answer_URL, data=data,
                                            headers=new_header)

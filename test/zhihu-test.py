@@ -125,14 +125,14 @@ def test_question():
     for answer in question.answers:
         count += 1
         print(answer.author.name, answer.upvote_num, answer.author.motto)
-    assert count >= 84
+    assert count >= 83
 
-    assert question.deleted == False
+    assert question.deleted is False
 
     # test deleted question
     url = 'https://www.zhihu.com/question/39416522'
     question = client.question(url)
-    assert question.deleted == True
+    assert question.deleted is True
 
     # test question without answer
     url = 'https://www.zhihu.com/question/36358828?sort=created'
@@ -142,14 +142,14 @@ def test_question():
     # test answer in one page(< 20)
     url = 'https://www.zhihu.com/question/28330796?sort=created'
     question = client.question(url)
-    assert len(list(question.answers)) >= 9
+    assert len(list(question.answers)) >= 7
 
 
 def test_answer():
     url = 'http://www.zhihu.com/question/24825703/answer/30975949'
     answer = client.answer(url)
 
-    assert answer.deleted == False
+    assert answer.deleted is False
 
     # 获取答案url
     print(answer.url)
@@ -211,7 +211,7 @@ def test_answer():
 
     # 获取答案收藏数量
     print(answer.collect_num)
-    assert answer.collect_num >= 1070
+    assert answer.collect_num >= 821
 
     # 获取收藏答案的收藏夹
     for _, collection in zip(range(10), answer.collections):
@@ -778,6 +778,26 @@ def test_anonymous():
     assert anonymous_follower_count >= 3
 
 
+def test_proxy():
+    # visit http://cn-proxy.com/ to get available proxies if test failed
+
+    proxy_ips = ['117.135.251.131', '117.135.251.134']
+    client.set_proxy_pool(proxy_ips)
+    for _ in range(5):
+        result = client._session.get('http://httpbin.org/ip').json()
+        assert result['origin'] in proxy_ips
+        result = client._session.post('http://httpbin.org/post',
+                                      data={'m': '1'}).json()
+        assert result['form'] == {'m': '1'}
+        assert result['origin'] in proxy_ips
+
+    client.remove_proxy_pool()
+    client.set_proxy_pool(proxy_ips, https=False)
+    for _ in range(5):
+        result = client._session.get('http://httpbin.org/ip').json()
+        assert result['origin'] in proxy_ips
+
+
 def test():
     test_question()
     test_answer()
@@ -787,11 +807,12 @@ def test():
     test_post()
     test_topic()
     test_anonymous()
+    test_proxy()
     # test_me()
 
 
 if __name__ == '__main__':
-    Cookies_File = 'test.json'  # TODO: update cookie
+    Cookies_File = 'test.json'
     BASE_DIR = os.path.dirname(os.path.realpath(__file__))
     TEST_DIR = os.path.join(BASE_DIR, 'test')
 
