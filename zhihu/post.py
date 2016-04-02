@@ -145,6 +145,7 @@ class Post(JsonAsSoupMixin, BaseZhihu):
         if mode not in ["html", "md", "markdown"]:
             raise ValueError("`mode` must be 'html', 'markdown' or 'md',"
                              " got {0}".format(mode))
+        self._make_soup()
         file = get_path(filepath, filename, mode, self.column.name,
                         self.title + '-' + self.author.name)
         with open(file, 'wb') as f:
