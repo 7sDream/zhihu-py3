@@ -514,18 +514,18 @@ class Author(BaseZhihu):
         if self.url is None or self.post_num == 0:
             return
         soup = BeautifulSoup(self._session.get(self.url + 'posts').text)
-        column_tags = soup.find_all('div', class_='column')
+        column_list = soup.find('div', class_='column-list')
+        column_tags = column_list.find_all('div', class_='item')
         for column_tag in column_tags:
-            name = column_tag.div.a.span.text
-            url = column_tag.div.a['href']
-            follower_num = int(re_get_number.match(
-                column_tag.div.div.a.text).group(1))
-            footer = column_tag.find('div', class_='footer')
-            if footer is None:
+            name = column_tag['title']
+            url = column_tag['data-href']
+            numbers = column_tag.find('span', class_='des').text.split('•')
+            follower_num = int(re_get_number.match(numbers[0]).group(1))
+            if len(numbers) == 1:
                 post_num = 0
             else:
                 post_num = int(
-                    re_get_number.match(footer.a.text).group(1))
+                    re_get_number.match(numbers[1]).group(1))
             yield Column(url, name, follower_num, post_num,
                          session=self._session)
 

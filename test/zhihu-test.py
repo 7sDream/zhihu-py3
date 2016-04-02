@@ -7,7 +7,7 @@ import os
 import shutil
 from datetime import datetime
 
-from zhihu import ZhihuClient, ActType, ANONYMOUS
+from zhihu import ZhihuClient, ActType, CollectActType, ANONYMOUS
 
 
 def test_question():
@@ -233,14 +233,14 @@ def test_answer():
     print(answer.content)
     print(answer.collect_num)
     print(answer.comment_num)
-    assert answer.deleted == False
+    assert answer.deleted is False
 
     # test deleted answer
     url = 'https://www.zhihu.com/question/40185501/answer/85271078'
     answer = client.answer(url)
-    assert answer.deleted == True
+    assert answer.deleted is True
     answer.refresh()
-    assert answer.deleted == True
+    assert answer.deleted is True
 
     # test answer without collection
     url = 'https://www.zhihu.com/question/23138285/answer/81246171'
@@ -265,7 +265,7 @@ def test_author():
     author = client.author(url)
 
     # 获取用户动态
-    for _, act in zip(range(10), author.activities):
+    for _, act in zip(range(30), author.activities):
         print(act.content.url)
         if act.type == ActType.FOLLOW_COLUMN:
             print('%s 在 %s 关注了专栏 %s' %
@@ -399,16 +399,16 @@ def test_author():
 
     # 获取用户文章数
     print(author.post_num)
-    # 0
+    # 7
 
     # 获取用户专栏名
     for column in author.columns:
         print(column.name)
-    # 我没有专栏T^T
+    # 科学の禁书目录
 
     # 获取用户收藏夹数
     print(author.collection_num)
-    # 5
+    # 3
 
     # 获取用户收藏夹名
     for collection in author.collections:
@@ -468,7 +468,7 @@ def test_collection():
 
     # 获取收藏夹创建者名字
     print(collection.owner.name)
-    # 7sDream
+    # 树叶
 
     # 获取收藏夹内所有答案的点赞数
     for _, answer in zip(range(10), collection.answers):
@@ -488,8 +488,12 @@ def test_collection():
     # ...
 
     # 获取收藏夹日志
+    log = None
     for log in collection.logs:
-        print(log.type, log.time, log.answer, log.owner)
+        if log.type != CollectActType.CREATE_COLLECTION:
+            print(log.type, log.time, log.answer.question.title, log.owner.name)
+        else:
+            print(log.type, log.time, log.owner.name, "create the collection")
 
     assert log.answer is None
     assert log.time == datetime.strptime('2013-11-08 00:55:43', "%Y-%m-%d %H:%M:%S")
@@ -521,7 +525,7 @@ def test_column():
 
 
 def test_post():
-    url = 'http://zhuanlan.zhihu.com/o0v0o/20569063'
+    url = 'http://zhuanlan.zhihu.com/p/20569063'
     post = client.post(url)
 
     # 获取文章地址
@@ -599,7 +603,7 @@ def test_topic():
     # 互联网
 
     # 获取子话题
-    for _, child in zip(range(10), topic.children):
+    for _, child in zip(range(20), topic.children):
         print(child.name)
     # Tor
 
