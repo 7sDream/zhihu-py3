@@ -5,6 +5,7 @@ import time
 import json
 import requests
 import importlib
+import getpass
 
 from .common import *
 
@@ -46,12 +47,12 @@ class ZhihuClient:
         r = self._session.get(self._get_captcha_url())
         return r.content
 
-    def login(self, email, password, captcha):
+    def login(self, email, password, captcha=None):
         """登陆知乎.
 
         :param str email: 邮箱
         :param str password: 密码
-        :param str captcha: 验证码
+        :param str captcha: 验证码, 默认为None，表示不提交验证码
         :return:
             ======== ======== ============== ====================
             元素序号 元素类型 意义           说明
@@ -64,7 +65,9 @@ class ZhihuClient:
         :rtype: (int, str, str)
         """
         data = {'email': email, 'password': password,
-                'remember_me': 'true', 'captcha': captcha}
+                'remember_me': 'true'}
+        if captcha is not None:
+            data['captcha'] = captcha
         r = self._session.post(Login_URL, data=data)
         j = r.json()
         code = int(j['r'])
@@ -81,7 +84,7 @@ class ZhihuClient:
             参数形式       作用
             ============== ===========================
             文件名         将文件内容作为cookies字符串
-            cookies字符串  直接提供cookies字符串
+            cookies 字符串  直接提供cookies字符串
             ============== ===========================
         :return: 无
         :rtype: None
@@ -92,24 +95,28 @@ class ZhihuClient:
         cookies_dict = json.loads(cookies)
         self._session.cookies.update(cookies_dict)
 
-    def login_in_terminal(self):
+    def login_in_terminal(self, need_captcha=False):
         """不使用cookies，在终端中根据提示登陆知乎
 
+        :param bool need_captcha: 是否要求输入验证码，如果登录失败请设为 True
         :return: 如果成功返回cookies字符串
         :rtype: str
         """
         print('====== zhihu login =====')
 
         email = input('email: ')
-        password = input('password: ')
+        password = getpass.getpass('password: ')
 
-        captcha_data = self.get_captcha()
-        with open('captcha.gif', 'wb') as f:
-            f.write(captcha_data)
+        if need_captcha:
+            captcha_data = self.get_captcha()
+            with open('captcha.gif', 'wb') as f:
+                f.write(captcha_data)
 
-        print('please check captcha.gif for captcha')
-        captcha = input('captcha: ')
-        os.remove('captcha.gif')
+            print('please check captcha.gif for captcha')
+            captcha = input('captcha: ')
+            os.remove('captcha.gif')
+        else:
+            captcha = None
 
         print('====== logging.... =====')
 
@@ -122,8 +129,14 @@ class ZhihuClient:
 
         return cookies
 
-    def create_cookies(self, file):
-        cookies_str = self.login_in_terminal()
+    def create_cookies(self, file, need_captcha=False):
+        """在终端中执行登录流程，将 cookies 存放在文件中以便后续使用
+
+        :param str file: 文件名
+        :param bool need_captcha: 登录过程中是否使用验证码， 默认为 False
+        :return:
+        """
+        cookies_str = self.login_in_terminal(need_captcha)
         if cookies_str:
             with open(file, 'w') as f:
                 f.write(cookies_str)
@@ -149,7 +162,7 @@ class ZhihuClient:
     # ===== getter staff ======
 
     def me(self):
-        """获取使用特定cookies的Me实例
+        """获取使用特定 cookies 的 Me 实例
 
         :return: cookies对应的Me对象
         :rtype: Me
