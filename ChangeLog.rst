@@ -9,6 +9,8 @@
 - [fix] 在终端登录时输入的密码改为不可见
 - [change] 貌似知乎登录不怎么需要验证码了，现在作为一个可选项，login_in_terminal 和 create_cookies 默认均不要求验证码
 - [fix] 修复因知乎专栏改版，API 地址变更 造成的 Post 类无法使用的问题
+- [add] 增加 client.add_proxy_pool 方法设置代理池
+- [add] 增加 client.remove_proxy_pool 方法移除代理池
 
 0.3.12
 ------

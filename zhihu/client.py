@@ -23,6 +23,7 @@ class ZhihuClient:
         """
         self._session = requests.Session()
         self._session.headers.update(Default_Header)
+        self.proxies = None
         if cookies is not None:
             assert isinstance(cookies, str)
             self.login_with_cookies(cookies)
@@ -158,6 +159,55 @@ class ZhihuClient:
             一个Session，所以调用这个方法也会将所有生成出的知乎类设置上代理。
         """
         self._session.proxies.update({'http': proxy})
+
+    def set_proxy_pool(self, proxies, auth=None, https=True):
+        """设置代理池
+
+        :param proxies: proxy列表, 形如 ``["ip1:port1", "ip2:port2"]``
+        :param auth: 如果代理需要验证身份, 通过这个参数提供, 比如
+        :param https: 默认为 True, 传入 False 则不设置 https 代理
+        .. code-block:: python
+
+              from requests.auth import HTTPProxyAuth
+              auth = HTTPProxyAuth('laike9m', '123')
+        :说明:
+             每次 GET/POST 请求会随机选择列表中的代理
+        """
+        from random import choice
+
+        if https:
+            self.proxies = [{'http': p, 'https': p} for p in proxies]
+        else:
+            self.proxies = [{'http': p} for p in proxies]
+
+        def get_with_random_proxy(url, **kwargs):
+            proxy = choice(self.proxies)
+            kwargs['proxies'] = proxy
+            if auth:
+                kwargs['auth'] = auth
+            return self._session.original_get(url, **kwargs)
+
+        def post_with_random_proxy(url, *args, **kwargs):
+            proxy = choice(self.proxies)
+            kwargs['proxies'] = proxy
+            if auth:
+                kwargs['auth'] = auth
+            return self._session.original_post(url, *args, **kwargs)
+
+        self._session.original_get = self._session.get
+        self._session.get = get_with_random_proxy
+        self._session.original_post = self._session.post
+        self._session.post = post_with_random_proxy
+
+    def remove_proxy_pool(self):
+        """
+        移除代理池
+        """
+        self.proxies = None
+        self._session.get = self._session.original_get
+        self._session.post = self._session.original_post
+        del self._session.original_get
+        del self._session.original_post
 
     # ===== getter staff ======
 

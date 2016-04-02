@@ -778,6 +778,25 @@ def test_anonymous():
     assert anonymous_follower_count >= 3
 
 
+def test_proxy():
+    # visit http://cn-proxy.com/ to get available proxies if test failed
+    proxy_ips = ['112.25.41.136', '180.97.29.57']
+    client.set_proxy_pool(proxy_ips)
+    for _ in range(5):
+        result = client._session.get('http://httpbin.org/ip').json()
+        assert result['origin'] in proxy_ips
+        result = client._session.post('http://httpbin.org/post',
+                                      data={'m':'1'}).json()
+        assert result['form'] == {'m': '1'}
+        assert result['origin'] in proxy_ips
+
+    client.remove_proxy_pool()
+    client.set_proxy_pool(proxy_ips, https=False)
+    for _ in range(5):
+        result = client._session.get('http://httpbin.org/ip').json()
+        assert result['origin'] in proxy_ips
+
+
 def test():
     test_question()
     test_answer()
@@ -787,6 +806,7 @@ def test():
     test_post()
     test_topic()
     test_anonymous()
+    test_proxy()
     # test_me()
 
 
