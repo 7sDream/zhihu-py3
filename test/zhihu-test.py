@@ -39,8 +39,9 @@ def test_question():
     # ...
 
     # 获取该问题所属话题
-    print(question.topics)
-    # ['心理学', '恋爱', '社会', '礼仪', '亲密关系']
+    for topic in question.topics:
+        print(topic.name)
+    # '心理学', '恋爱', '社会', '礼仪', '亲密关系'
 
     # 获取排名第一的回答的点赞数
     print(question.top_answer.upvote_num)

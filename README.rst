@@ -3,21 +3,23 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 |Author| |Build| |DocumentationStatus| |PypiVersion| |License| |PypiDownloadStatus|
 
-**紧急：知乎改用 https 了，遇到 invalid url 的朋友们请尽快 pypi 更新到 0.3.3 以上版本！**
+通知
+----
 
-Dev 分支coding内容：
+由于知乎前端老是改阿改的，每次我都要更新弄的我好烦的说……
 
- - unittest
- - 忙着跟上知乎的节奏（dog fuck's zhihu）
+所以我开发了一个新的项目\ `Zhihu-OAuth <https://github.com/7sDream/zhihu-oauth>`__。
 
+这个新项目用了一些黑科技手段，反正应该是更加稳定和快速了！**而且还支持 Python 2 哟！**
+稳定我倒是没测，但是这里有一个
+`速度对比 <https://github.com/7sDream/zhihu-oauth/blob/master/compare.md>`__。
 
-具体请看\ `ChangeLog <https://github.com/7sDream/zhihu-py3/blob/master/ChangeLog.rst>`__\ 。
+如果你是准备新开一个项目的话，我强烈建议你看看我的新项目~
 
-**有问题请开Issue，几个小时后无回应可加最后面的QQ群询问。**
+如果你已经用 Zhihu-py3 写了一些代码的话，我最近会写一个从 Zhihu-py3 转到 Zhihu-OAuth
+的简易指南，你也可以关注一下哟。
 
-友链：
-
--  \ `zhihurss <https://github.com/SimplyY/zhihu-rss>`__\ ：一个基于 zhihu-py3 做的跨平台知乎 rss(any user) 的客户端。
+毕竟嘛，有更好的方案的话，为什么不试试呢？
 
 功能
 ----
@@ -146,6 +148,16 @@ PS 若在安装lxml时出错，请安装libxml和libxslt后重试：
 `Master版文档 <http://zhihu-py3.readthedocs.org/zh_CN/latest>`__
 
 `Dev版文档 <http://zhihu-py3.readthedocs.org/zh_CN/dev>`__
+
+其他
+----
+
+**有问题请开Issue，几个小时后无回应可加最后面的QQ群询问。**
+
+友链：
+
+-  \ `zhihurss <https://github.com/SimplyY/zhihu-rss>`__\ ：一个基于 zhihu-py3 做的跨平台知乎 rss(any user) 的客户端。
+
 
 TODO List
 ---------

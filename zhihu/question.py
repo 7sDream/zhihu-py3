@@ -151,12 +151,13 @@ class Question(BaseZhihu):
         """获取问题所属话题.
 
         :return: 问题所属话题
-        :rtype: list(str)
+        :rtype: Topic.Iterable
         """
-        topics_list = []
+        from .topic import Topic
+
         for topic in self.soup.find_all('a', class_='zm-item-tag'):
-            topics_list.append(topic.text.replace('\n', ''))
-        return topics_list
+            yield Topic(Zhihu_URL + topic['href'], topic.text.replace('\n', ''),
+                        session=self._session)
 
     @property
     def followers(self):
