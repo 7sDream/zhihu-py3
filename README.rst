@@ -198,4 +198,4 @@ Github：\ `@7sDream <https://github.com/7sDream>`__
 .. |License| image:: https://img.shields.io/pypi/l/zhihu-py3.svg
    :target: https://github.com/7sDream/zhihu-py3/blob/master/LICENSE
 .. |Build| image:: https://travis-ci.org/7sDream/zhihu-py3.svg?branch=dev
-   :target: http://www.zhihu.com/people/7sdream
+   :target: https://travis-ci.org/7sDream/zhihu-py3
