@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = '7sDream'
-__version__ = '0.3.15'
-
 from .client import ZhihuClient
 from .question import Question
 from .author import Author, ANONYMOUS
@@ -18,3 +15,5 @@ from .topic import Topic
 __all__ = ['ZhihuClient', 'Question', 'Author', 'ActType', 'Activity',
            'Answer', 'Collection', 'CollectActType', 'Column', 'Post', 'Topic',
            'ANONYMOUS']
+
+__version__ = '0.3.16'
