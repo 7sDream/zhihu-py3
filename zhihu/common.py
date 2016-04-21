@@ -24,7 +24,7 @@ Default_Header = {'X-Requested-With': 'XMLHttpRequest',
 
 Zhihu_URL = 'https://www.zhihu.com'
 Login_URL = Zhihu_URL + '/login/email'
-Captcha_URL_Prefix = Zhihu_URL + '/captcha.gif?r='
+Captcha_URL = Zhihu_URL + '/captcha.gif'
 Get_Profile_Card_URL = Zhihu_URL + '/node/MemberProfileCardV2'
 Question_Get_More_Answer_URL = Zhihu_URL + '/node/QuestionAnswerListV2'
 Answer_Add_Comment_URL = Zhihu_URL + '/node/AnswerCommentAddV2'

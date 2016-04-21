@@ -8,13 +8,21 @@ class BaseZhihu:
         self.soup = BeautifulSoup(content)
 
     def _get_content(self):
-        resp = self._session.get(self.url[:-1])
+        # use _url for question
+        url = self._url if hasattr(self, '_url') else self.url
+        if url.endswith('/'):
+            resp = self._session.get(url[:-1])
+        else:
+            resp = self._session.get(url)
 
-        if self.__class__.__name__ == 'Answer':
+        class_name = self.__class__.__name__
+        if class_name == 'Answer':
             if 'answer' in resp.url:
                 self._deleted = False
             else:
                 self._deleted = True
+        elif class_name == 'Question':
+            self._deleted = resp.status_code == 404
 
         return resp.content
 

@@ -406,17 +406,3 @@ class Question(BaseZhihu):
                         session=self._session)
         return Answer(answer_url, self, author, upvote_num, content,
                       session=self._session)
-
-    def _get_content(self):
-        # override base class's method cause we need self._url not self.url
-        if self._url.endswith('/'):
-            resp = self._session.get(self._url[:-1])
-        else:
-            resp = self._session.get(self._url)
-
-        if resp.status_code == 404:
-            self._deleted = True
-        else:
-            self._deleted = False
-
-        return resp.content

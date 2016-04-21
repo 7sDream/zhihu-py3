@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import time
-import json
-import requests
-import importlib
 import getpass
+import importlib
+import json
+import time
+from urllib.parse import urlencode
+
+import requests
 
 from .common import *
 
@@ -32,7 +34,11 @@ class ZhihuClient:
 
     @staticmethod
     def _get_captcha_url():
-        return Captcha_URL_Prefix + str(int(time.time() * 1000))
+        params = {
+            'r': str(int(time.time() * 1000)),
+            'type': 'login',
+        }
+        return Captcha_URL + '?' + urlencode(params)
 
     def get_captcha(self):
         """获取验证码数据。
@@ -40,11 +46,7 @@ class ZhihuClient:
         :return: 验证码图片数据。
         :rtype: bytes
         """
-        # some unbelievable zhihu logic
         self._session.get(Zhihu_URL)
-        data = {'email': '', 'password': '', 'remember_me': 'true'}
-        self._session.post(Login_URL, data=data)
-
         r = self._session.get(self._get_captcha_url())
         return r.content
 
