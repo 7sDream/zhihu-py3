@@ -245,7 +245,11 @@ class Topic(BaseZhihu):
                 answer_url = Zhihu_URL + ans['href']
                 question_url = Zhihu_URL + q['href']
                 question_title = q.text
-                upvote = int(up['data-votecount'])
+                upvote = up.text
+                if upvote.isdigit():
+                    upvote = int(upvote)
+                else:
+                    upvote = None
                 question = Question(question_url, question_title,
                                     session=self._session)
                 if au.a is None:
@@ -344,8 +348,11 @@ class Topic(BaseZhihu):
                 ans = div.find('a', class_='answer-date-link')
                 answer_url = Zhihu_URL + ans['href']
 
-                up = div.find('a', class_='zm-item-vote-count')
-                upvote = int(up['data-votecount'])
+                upvote = div.find('a', class_='zm-item-vote-count').text
+                if upvote.isdigit():
+                    upvote = int(upvote)
+                else:
+                    upvote = None
 
                 au = div.find('div', class_='zm-item-answer-author-info')
                 if au.a is None:
@@ -442,10 +449,10 @@ class Topic(BaseZhihu):
                 author = Author(author_url, author_name, author_motto,
                                 session=self._session)
 
-                body = div.find('div', class_='entry-body')
-                answer_url = question_url + "/answer/" + body['data-atoken']
+                body = div.find('div', class_='zm-item-rich-text')
+                answer_url = Zhihu_URL + body['data-entry-url']
                 upvote_num = int(div.find(
-                    'a', class_='zm-item-vote-count')['data-votecount'])
+                    'div', class_='zm-item-vote-info')['data-votecount'])
 
                 yield Answer(answer_url, question, author, upvote_num,
                              session=self._session)
