@@ -269,7 +269,8 @@ class Answer(BaseZhihu):
         :return: 答案下评论的数量
         :rtype: int
         """
-        comment_num_string = self.soup.find('a', class_=' meta-item toggle-comment').text
+        comment = self.soup.select_one("div.answer-actions a.toggle-comment")
+        comment_num_string = comment.text
         number = comment_num_string.split()[0]
         return int(number) if number.isdigit() else 0
 

@@ -410,10 +410,14 @@ class Author(BaseZhihu):
                 answer_url = Zhihu_URL + q['href']
                 question_url = Zhihu_URL + re_a2q.match(q['href']).group(1)
                 question_title = q.text
-                upvote = int(upvote['data-votecount'])
+                upvote_num = upvote.text
+                if upvote_num.isdigit():
+                    upvote_num = int(upvote_num)
+                else:
+                    upvote_num = None
                 question = Question(question_url, question_title,
                                     session=self._session)
-                yield Answer(answer_url, question, self, upvote,
+                yield Answer(answer_url, question, self, upvote_num,
                              session=self._session)
 
     @property

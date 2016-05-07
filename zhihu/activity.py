@@ -176,7 +176,11 @@ class Activity:
 
     @staticmethod
     def _parse_un_cn(act):
-        upvote_num = int(act.find('a', class_='zm-item-vote-count')['data-votecount'])
+        upvote_num = act.find('a', class_='zm-item-vote-count').text
+        if upvote_num.isdigit():
+            upvote_num = int(upvote_num)
+        else:
+            upvote_num = None
         comment = act.find('a', class_='toggle-comment')
         comment_text = next(comment.stripped_strings)
         comment_num_match = re_get_number.match(comment_text)

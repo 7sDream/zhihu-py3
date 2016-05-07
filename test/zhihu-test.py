@@ -80,7 +80,8 @@ def test_question():
     print(question.follower_num)
     for _, follower in zip(range(10), question.followers):
         print(follower.name)
-    print(question.topics)
+    for topic in question.topics:
+        print(topic.name)
     print(question.last_edit_time)
 
     # with sort parameter, repeat above tests
@@ -93,7 +94,8 @@ def test_question():
     print(question.follower_num)
     for _, follower in zip(range(10), question.followers):
         print(follower.name)
-    print(question.topics)
+    for topic in question.topics:
+        print(topic.name)
     print(question.top_answer.upvote_num)
     for answer in question.top_i_answers(10):
         print(answer.author.name, answer.upvote_num, answer.author.motto)
@@ -117,7 +119,8 @@ def test_question():
     print(question.follower_num)
     for _, follower in zip(range(10), question.followers):
         print(follower.name)
-    print(question.topics)
+    for topic in question.topics:
+        print(topic.name)
     print(question.last_edit_time)
 
     # test fetching all sorted answers
@@ -278,11 +281,14 @@ def test_author():
             print('%s 在 %s 提了个问题 %s' %
                   (author.name, act.time, act.question.title))
         elif act.type == ActType.UPVOTE_POST:
-            print('%s 在 %s 赞同了专栏 %s 中 %s 的文章 %s, '
+            print('%s 在 %s 赞同了%s 的文章 %s, '
                   '此文章赞同数 %d, 评论数 %d' %
-                  (author.name, act.time, act.post.column.name,
-                   act.post.author.name, act.post.title, act.post.upvote_num,
-                   act.post.comment_num))
+                  (author.name, act.time, act.post.author.name, act.post.title,
+                   act.post.upvote_num, act.post.comment_num), end='')
+            if act.post.column:
+                print("，此文章属于专栏 %s" % act.post.column.name)
+            else:
+                print()
         elif act.type == ActType.PUBLISH_POST:
             print('%s 在 %s 在专栏 %s 中发布了文章 %s, '
                   '此文章赞同数 %d, 评论数 %d' %

@@ -98,8 +98,7 @@ class QuestionTest(unittest.TestCase):
                          answer.upvote_num)
 
     def test_parse_answer_html(self):
-        answer = self.question._parse_answer_html(self.more_ans_html, Author,
-                                                  Answer)
+        answer = self.question._parse_answer_html(self.more_ans_html)
         self.assertEqual(self.expected['more_ans_id'], answer.id)
         self.assertEqual(self.expected['more_ans_author_name'],
                          answer.author.name)

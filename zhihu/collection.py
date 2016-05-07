@@ -261,10 +261,13 @@ class Collection(BaseZhihu):
                                     session=self._session)
                 else:
                     author = ANONYMOUS
-                upvote = int(tag.find(
-                    'a', class_='zm-item-vote-count')['data-votecount'])
+                upvote_num = tag.find('a', class_='zm-item-vote-count').text
+                if upvote_num.isdigit():
+                    upvote_num = int(upvote_num)
+                else:
+                    upvote_num = None
                 answer = Answer(answer_url, question, author,
-                                upvote, session=self._session)
+                                upvote_num, session=self._session)
                 yield answer
 
 
