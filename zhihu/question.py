@@ -141,7 +141,7 @@ class Question(BaseZhihu):
         """
         follower_num_block = self.soup.find('div', class_='zg-gray-normal')
         # 无人关注时 找不到对应block，直接返回0 （感谢知乎用户 段晓晨 提出此问题）
-        if follower_num_block.strong is None:
+        if follower_num_block is None or follower_num_block.strong is None:
             return 0
         return int(follower_num_block.strong.text)
 

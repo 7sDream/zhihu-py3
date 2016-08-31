@@ -379,7 +379,7 @@ class Author(BaseZhihu):
                 'div', class_='zm-profile-section-main')
             for link, data in zip(question_links, question_datas):
                 url = Zhihu_URL + link['href']
-                title = link.text
+                title = link.text.strip()
                 answer_num = int(
                     re_get_number.match(data.div.contents[4]).group(1))
                 follower_num = int(
@@ -468,7 +468,7 @@ class Author(BaseZhihu):
                 h2 = soup.find('h2')
                 author_name = h2.a.text
                 author_url = h2.a['href']
-                author_motto = soup.find('div', class_='zg-big-gray').text
+                author_motto = soup.find('span', class_='bio').text
                 author_photo = PROTOCOL + soup.a.img['src'].replace('_m', '_r')
                 numbers = [int(re_get_number.match(x.text).group(1))
                            for x in soup.find_all('a', target='_blank')]

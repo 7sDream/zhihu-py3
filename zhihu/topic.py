@@ -164,7 +164,7 @@ class Topic(BaseZhihu):
                 h2 = div.h2
                 url = Zhihu_URL + h2.a['href']
                 name = h2.a.text
-                motto = h2.parent.div.text
+                motto = h2.parent.div.text.strip()
                 try:
                     yield Author(url, name, motto, session=self._session)
                 except ValueError:  # invalid url
@@ -208,7 +208,7 @@ class Topic(BaseZhihu):
         for d in t.find_all('div', class_='zm-topic-side-person-item-content'):
             url = Zhihu_URL + d.a['href']
             name = d.a.text
-            motto = d.div['title']
+            motto = d.find('span', class_='bio')['title']
             try:
                 yield Author(url, name, motto, session=self._session)
             except ValueError:  # invalid url
@@ -244,7 +244,7 @@ class Topic(BaseZhihu):
             for ans, up, q, au in zip(answers, upvotes, questions, authors):
                 answer_url = Zhihu_URL + ans['href']
                 question_url = Zhihu_URL + q['href']
-                question_title = q.text
+                question_title = q.text.strip()
                 upvote = up.text
                 if upvote.isdigit():
                     upvote = int(upvote)
@@ -285,7 +285,7 @@ class Topic(BaseZhihu):
                 questions))
             for qu_div in questions:
                 url = Zhihu_URL + qu_div.h2.a['href']
-                title = qu_div.h2.a.text
+                title = qu_div.h2.a.text.strip()
                 creation_time = datetime.fromtimestamp(
                         int(qu_div.h2.span['data-timestamp']) // 1000)
                 yield Question(url, title, creation_time=creation_time,
@@ -313,7 +313,7 @@ class Topic(BaseZhihu):
             questions = soup.find_all('div', class_='question-item')
             for qu_div in questions:
                 url = Zhihu_URL + qu_div.h2.a['href']
-                title = qu_div.h2.a.text
+                title = qu_div.h2.a.text.strip()
                 yield Question(url, title, session=self._session)
             params['page'] += 1
 
@@ -341,7 +341,7 @@ class Topic(BaseZhihu):
             for div in divs:
                 q = div.find('a', class_="question_link")
                 question_url = Zhihu_URL + q['href']
-                question_title = q.text
+                question_title = q.text.strip()
                 question = Question(question_url, question_title,
                                     session=self._session)
 
@@ -398,7 +398,7 @@ class Topic(BaseZhihu):
                 'div', class_='feed-item')[-1]['data-score']
             for q in questions:
                 question_url = Zhihu_URL + q['href']
-                question_title = q.text
+                question_title = q.text.strip()
                 question = Question(question_url, question_title,
                                     session=self._session)
                 yield question
@@ -432,7 +432,7 @@ class Topic(BaseZhihu):
                 if not div.textarea:
                     continue
                 question_url = Zhihu_URL + div.h2.a['href']
-                question_title = div.h2.a.text
+                question_title = div.h2.a.text.strip()
                 question = Question(question_url, question_title,
                                     session=self._session)
                 author_link = div.find('a', class_='author-link')

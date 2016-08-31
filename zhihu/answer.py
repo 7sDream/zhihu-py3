@@ -103,9 +103,9 @@ class Answer(BaseZhihu):
         from .question import Question
 
         question_link = self.soup.find(
-            "h2", class_="zm-item-title zm-editable-content").a
+            "h2", class_="zm-item-title").a
         url = Zhihu_URL + question_link["href"]
-        title = question_link.text
+        title = question_link.text.strip()
         followers_num = int(self.soup.find(
             'div', class_='zh-question-followers-sidebar').div.a.strong.text)
         answers_num = int(re_get_number.match(self.soup.find(

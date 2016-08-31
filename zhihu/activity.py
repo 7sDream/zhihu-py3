@@ -3,20 +3,20 @@
 
 from datetime import datetime
 
-from .common import *
 from .acttype import ActType
-from .question import Question
 from .answer import Answer
-from .column import Column
-from .post import Post
-from .topic import Topic
 from .author import Author, ANONYMOUS
 from .collection import Collection
+from .column import Column
+from .common import *
+from .post import Post
+from .question import Question
+from .topic import Topic
 
 
 class Activity:
-
     """用户动态类，请使用Author.activities获取."""
+
     def __init__(self, act, session, author):
         """创建用户动态类实例.
 
@@ -106,49 +106,51 @@ class Activity:
         return Topic(topic_url, topic_name, session=self._session)
 
     def _assemble_answer_question(self, act):
-        question_url = Zhihu_URL + re_a2q.match(act.div.find_all('a')[-1]['href']).group(1)
-        question_title = act.div.find_all('a')[-1].text
+        question_url = Zhihu_URL + re_a2q.match(
+            act.div.find_all('a')[-1]['href']).group(1)
+        question_title = act.div.find_all('a')[-1].text.strip()
         question = Question(question_url, question_title, session=self._session)
         answer_url = Zhihu_URL + act.div.find_all('a')[-1]['href']
         answer_comment_num, answer_upvote_num = self._parse_un_cn(act)
-        return Answer(answer_url, question, self._author, answer_upvote_num, session=self._session)
+        return Answer(answer_url, question, self._author, answer_upvote_num,
+                      session=self._session)
 
     def _assemble_voteup_answer(self, act):
         question_url = Zhihu_URL + re_a2q.match(act.div.a['href']).group(1)
-        question_title = act.div.a.text
+        question_title = act.div.a.text.strip()
         question = Question(question_url, question_title, session=self._session)
-        try_find_author = act.find_all('a', class_='author-link', href=re.compile('^/people/[^/]*$'))
+        try_find_author = act.find_all('a', class_='author-link',
+                                       href=re.compile('^/people/[^/]*$'))
 
         if len(try_find_author) == 0:
             author_url = None
             author_name = '匿名用户'
             author_motto = ''
-            photo_url = None
         else:
             try_find_author = try_find_author[-1]
             author_url = Zhihu_URL + try_find_author['href']
             author_name = try_find_author.text
-            try_find_motto = try_find_author.parent.span
+            try_find_motto = act.find('span', class_='bio')
             if try_find_motto is None:
                 author_motto = ''
             else:
                 author_motto = try_find_motto['title']
-            photo_url = PROTOCOL + try_find_author.parent.a.img[
-                'src'].replace('_s', '_r')
 
         author = Author(author_url, author_name, author_motto,
-                        photo_url=photo_url, session=self._session)
+                        session=self._session)
         answer_url = Zhihu_URL + act.div.a['href']
         answer_comment_num, answer_upvote_num = self._parse_un_cn(act)
-        return Answer(answer_url, question, author, answer_upvote_num, session=self._session)
+        return Answer(answer_url, question, author, answer_upvote_num,
+                      session=self._session)
 
     def _assemble_ask_question(self, act):
         return Question(Zhihu_URL + act.div.contents[3]['href'],
-                        list(act.div.children)[3].text,
+                        list(act.div.children)[3].text.strip(),
                         session=self._session)
 
     def _assemble_follow_question(self, act):
-        return Question(Zhihu_URL + act.div.a['href'], act.div.a.text, session=self._session)
+        return Question(Zhihu_URL + act.div.a['href'], act.div.a.text.strip(),
+                        session=self._session)
 
     def _assemble_follow_collection(self, act):
         url = act.div.a['href']
@@ -184,5 +186,6 @@ class Activity:
         comment = act.find('a', class_='toggle-comment')
         comment_text = next(comment.stripped_strings)
         comment_num_match = re_get_number.match(comment_text)
-        comment_num = int(comment_num_match.group(1)) if comment_num_match is not None else 0
+        comment_num = int(
+            comment_num_match.group(1)) if comment_num_match is not None else 0
         return comment_num, upvote_num

@@ -58,12 +58,14 @@ def test_question():
     # 获取提问时间
     ctime = question.creation_time
     print(ctime)
-    assert ctime == datetime.strptime('2014-08-12 17:58:07', "%Y-%m-%d %H:%M:%S")
+    assert ctime == datetime.strptime('2014-08-12 17:58:07',
+                                      "%Y-%m-%d %H:%M:%S")
 
     # 获取最后编辑时间
     last_edit_time = question.last_edit_time
     print(last_edit_time)
-    assert last_edit_time >= datetime.strptime('2015-04-01 00:39:21', "%Y-%m-%d %H:%M:%S")
+    assert last_edit_time >= datetime.strptime('2015-04-01 00:39:21',
+                                               "%Y-%m-%d %H:%M:%S")
 
     # 获取提问者
     assert question.author is ANONYMOUS
@@ -101,10 +103,12 @@ def test_question():
         print(answer.author.name, answer.upvote_num, answer.author.motto)
     ctime = question.creation_time
     print(ctime)
-    assert ctime == datetime.strptime('2014-08-12 17:58:07', "%Y-%m-%d %H:%M:%S")
+    assert ctime == datetime.strptime('2014-08-12 17:58:07',
+                                      "%Y-%m-%d %H:%M:%S")
     last_edit_time = question.last_edit_time
     print(last_edit_time)
-    assert last_edit_time >= datetime.strptime('2015-04-01 00:39:21', "%Y-%m-%d %H:%M:%S")
+    assert last_edit_time >= datetime.strptime('2015-04-01 00:39:21',
+                                               "%Y-%m-%d %H:%M:%S")
     assert question.author is ANONYMOUS
     question = client.question('https://www.zhihu.com/question/38531356')
     assert question.author.name == '杨捷'
@@ -124,7 +128,8 @@ def test_question():
     print(question.last_edit_time)
 
     # test fetching all sorted answers
-    question = client.question('https://www.zhihu.com/question/27459050?sort=created')
+    question = client.question(
+        'https://www.zhihu.com/question/27459050?sort=created')
     count = 0
     for answer in question.answers:
         count += 1
@@ -192,16 +197,15 @@ def test_answer():
             print(comment.author.name, comment.content)
 
     assert i >= 161
-    
+
     for i, comment in enumerate(answer.latest_comments, 1):
         if i == 1:
             assert comment.creation_time >= datetime(2015, 9, 21, 19, 50, 42)
         if i < 11:
             print(comment.author.name, comment.content)
-    
+
     assert comment.creation_time == datetime(2014, 9, 25, 9, 18, 56)
     assert i >= 161
-
 
     # 获取答案内容的HTML
     print(answer.content)
@@ -445,9 +449,9 @@ def test_author():
     # 获取用户关注的话题
     for topic in author.followed_topics:
         print(topic.name, topic.url)
-    # Python http://www.zhihu.com/topic/19552832/
-    # 计算机 http://www.zhihu.com/topic/19555547/
-    # 生活 http://www.zhihu.com/topic/19551147/
+        # Python http://www.zhihu.com/topic/19552832/
+        # 计算机 http://www.zhihu.com/topic/19555547/
+        # 生活 http://www.zhihu.com/topic/19551147/
 
 
 def test_collection():
@@ -503,7 +507,8 @@ def test_collection():
             print(log.type, log.time, log.owner.name, "create the collection")
 
     assert log.answer is None
-    assert log.time == datetime.strptime('2013-11-08 00:55:43', "%Y-%m-%d %H:%M:%S")
+    assert log.time == datetime.strptime('2013-11-08 00:55:43',
+                                         "%Y-%m-%d %H:%M:%S")
 
 
 def test_column():
@@ -525,10 +530,10 @@ def test_column():
     # 获取所有文章标题
     for _, post in zip(range(10), column.posts):
         print(post.title)
-    # 伦敦，再见。London, Pride.
-    # 为什么你来到伦敦?——没有抽到h1b
-    # “城邦之国”新加坡强在哪？
-    # ...
+        # 伦敦，再见。London, Pride.
+        # 为什么你来到伦敦?——没有抽到h1b
+        # “城邦之国”新加坡强在哪？
+        # ...
 
 
 def test_post():
@@ -667,10 +672,10 @@ def test_topic():
     # 获取等待回答的问题
     for _, q in zip(range(10), topic.unanswered_questions):
         print(q.title)
-    # 如何用tor登陆qq? 匿名用户 0
-    # 想看一下暗网（deep web），但是怕中病毒，所以有谁能发发截图？？ tor 0
-    # icq是什么 为什么暗网交流一般都用icq？ tor 0
-    # ...
+        # 如何用tor登陆qq? 匿名用户 0
+        # 想看一下暗网（deep web），但是怕中病毒，所以有谁能发发截图？？ tor 0
+        # icq是什么 为什么暗网交流一般都用icq？ tor 0
+        # ...
 
 
 def test_me():
@@ -682,73 +687,73 @@ def test_me():
 
     如果确认有能力，请填写代码中的空白，并将test函数中相关行注释取消
     """
-    answer = client.answer('')          # 填写答案Url
-    post = client.post('')              # 填写文章Url
-    author = client.author('')          # 填写用户Url
-    question = client.question('')      # 填写问题Url
-    topic = client.topic('')            # 填写话题Url
+    answer = client.answer('')  # 填写答案Url
+    post = client.post('')  # 填写文章Url
+    author = client.author('')  # 填写用户Url
+    question = client.question('')  # 填写问题Url
+    topic = client.topic('')  # 填写话题Url
     collection = client.collection('')  # 填写收藏夹Url
 
     me = client.me()
 
     print('赞同答案...', end='')
-    assert me.vote(answer, 'up')        # 赞同
-    assert me.vote(answer, 'down')      # 反对
-    assert me.vote(answer, 'clear')     # 清除
+    assert me.vote(answer, 'up')  # 赞同
+    assert me.vote(answer, 'down')  # 反对
+    assert me.vote(answer, 'clear')  # 清除
     print('通过')
 
     print('感谢答案...', end='')
-    assert me.thanks(answer)            # 感谢
-    assert me.thanks(answer, False)     # 取消感谢
+    assert me.thanks(answer)  # 感谢
+    assert me.thanks(answer, False)  # 取消感谢
     print('通过')
 
     print('赞同文章...', end='')
-    assert me.vote(post, 'up')          # 赞同
-    assert me.vote(post, 'down')        # 反对
-    assert me.vote(post, 'clear')       # 清除
+    assert me.vote(post, 'up')  # 赞同
+    assert me.vote(post, 'down')  # 反对
+    assert me.vote(post, 'clear')  # 清除
     print('通过')
 
     print('关注用户...', end='')
-    assert me.follow(author)            # 关注
-    assert me.follow(author, False)     # 取消关注
+    assert me.follow(author)  # 关注
+    assert me.follow(author, False)  # 取消关注
     print('通过')
 
     print('关注问题...', end='')
-    assert me.follow(question)          # 关注
-    assert me.follow(question, False)   # 取消关注
+    assert me.follow(question)  # 关注
+    assert me.follow(question, False)  # 取消关注
     print('通过')
 
     print('关注话题...', end='')
-    assert me.follow(topic)             # 关注
-    assert me.follow(topic, False)      # 取消关注
+    assert me.follow(topic)  # 关注
+    assert me.follow(topic, False)  # 取消关注
     print('通过')
 
     print('关注收藏夹...', end='')
-    assert me.follow(collection)         # 关注
+    assert me.follow(collection)  # 关注
     assert me.follow(collection, False)  # 取消关注
     print('通过')
 
     print('发送评论...', end='')
-    assert me.add_comment(answer, 'test') # 评论
+    assert me.add_comment(answer, 'test')  # 评论
     print('通过')
 
     print('发送私信...', end='')
-    assert me.send_message(author, 'test') # 私信
+    assert me.send_message(author, 'test')  # 私信
     print('通过')
 
     print('屏蔽用户...', end='')
-    assert me.block(author, True)        # 屏蔽
-    assert me.block(author, False)       # 取消屏蔽
+    assert me.block(author, True)  # 屏蔽
+    assert me.block(author, False)  # 取消屏蔽
     print('通过')
 
     print('屏蔽话题...', end='')
-    assert me.block(topic, True)         # 屏蔽
-    assert me.block(topic, False)        # 取消屏蔽
+    assert me.block(topic, True)  # 屏蔽
+    assert me.block(topic, False)  # 取消屏蔽
     print('通过')
 
     print('对问题点没有帮助...', end='')
-    assert me.unhelpful(answer, True)         # 没有帮助
-    assert me.unhelpful(answer, False)        # 取消没有帮助
+    assert me.unhelpful(answer, True)  # 没有帮助
+    assert me.unhelpful(answer, False)  # 取消没有帮助
     print('通过')
 
 
@@ -818,7 +823,7 @@ def test():
     test_post()
     test_topic()
     test_anonymous()
-    test_proxy()
+    # test_proxy()
     # test_me()
 
 

@@ -231,7 +231,7 @@ def common_follower(url, xsrf, session):
             if div.a is not None:
                 author_name = div.a['title']
                 author_url = Zhihu_URL + div.a['href']
-                author_motto = div.find('div', class_='zg-big-gray').text
+                author_motto = div.find('span', class_='bio').text
                 author_photo = PROTOCOL + div.img['src'].replace('_m', '_r')
                 numbers = [re_get_number.match(a.text).group(1)
                            for a in div.find_all('a', target='_blank')]
