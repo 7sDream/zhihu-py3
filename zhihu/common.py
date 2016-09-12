@@ -75,7 +75,7 @@ re_question_url = re.compile(
 re_question_url_std = re.compile(r'^https?://www\.zhihu\.com/question/\d+/?')
 re_ans_url = re.compile(
     r'^https?://www\.zhihu\.com/question/\d+/answer/\d+/?$')
-re_author_url = re.compile(r'^https?://www\.zhihu\.com/people/[^/]+/?$')
+re_author_url = re.compile(r'^https?://www\.zhihu\.com/(?:people|org)/[^/]+/?$')
 re_collection_url = re.compile(r'^https?://www\.zhihu\.com/collection/\d+/?$')
 re_column_url = re.compile(r'^http://zhuanlan\.zhihu\.com/([^/]+)/?$')
 re_post_url = re.compile(r'^http://zhuanlan\.zhihu\.com/p/(\d+)/?$')
