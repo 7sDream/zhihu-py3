@@ -16,4 +16,4 @@ __all__ = ['ZhihuClient', 'Question', 'Author', 'ActType', 'Activity',
            'Answer', 'Collection', 'CollectActType', 'Column', 'Post', 'Topic',
            'ANONYMOUS']
 
-__version__ = '0.3.19'
+__version__ = '0.3.20'
