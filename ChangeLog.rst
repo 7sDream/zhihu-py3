@@ -1,7 +1,7 @@
 更新日志
 ========
 
-WIP
+0.3.19
 ------
 
 - [Fix] 现在允许通过 `https://www.zhihu.com/org/abcde` 这种 URL 获取机构号对象。
