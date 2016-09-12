@@ -98,17 +98,22 @@ class ZhihuClient:
         cookies_dict = json.loads(cookies)
         self._session.cookies.update(cookies_dict)
 
-    def login_in_terminal(self, need_captcha=False):
+    def login_in_terminal(self, need_captcha=False, use_getpass=True):
         """不使用cookies，在终端中根据提示登陆知乎
 
         :param bool need_captcha: 是否要求输入验证码，如果登录失败请设为 True
+        :param bool use_getpass: 是否使用安全模式输入密码，默认为 True，
+            如果在某些 Windows IDE 中无法正常输入密码，请把此参数设置为 False 试试
         :return: 如果成功返回cookies字符串
         :rtype: str
         """
         print('====== zhihu login =====')
 
         email = input('email: ')
-        password = getpass.getpass('password: ')
+        if use_getpass:
+            password = getpass.getpass('password: ')
+        else:
+            password = input("password: ")
 
         if need_captcha:
             captcha_data = self.get_captcha()
@@ -132,14 +137,16 @@ class ZhihuClient:
 
         return cookies
 
-    def create_cookies(self, file, need_captcha=False):
+    def create_cookies(self, file, need_captcha=False, use_getpass=True):
         """在终端中执行登录流程，将 cookies 存放在文件中以便后续使用
 
         :param str file: 文件名
         :param bool need_captcha: 登录过程中是否使用验证码， 默认为 False
+        :param bool use_getpass: 是否使用安全模式输入密码，默认为 True，
+            如果在某些 Windows IDE 中无法正常输入密码，请把此参数设置为 False 试试
         :return:
         """
-        cookies_str = self.login_in_terminal(need_captcha)
+        cookies_str = self.login_in_terminal(need_captcha, use_getpass)
         if cookies_str:
             with open(file, 'w') as f:
                 f.write(cookies_str)

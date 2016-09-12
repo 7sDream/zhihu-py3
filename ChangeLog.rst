@@ -1,6 +1,12 @@
 更新日志
 ========
 
+WIP
+------
+
+- [Fix] 现在允许通过 `https://www.zhihu.com/org/abcde` 这种 URL 获取机构号对象。
+- [Add] `ZhihuClient.login_in_termianl` 和 `ZhihuClient.create_cookies` 增加了参数 `use_getpass` 来设置是否使用安全模式输入密码，以解决在某些 Windows 上的 IDE 中运行时无法输入密码的问题。。
+
 0.3.18
 ------
 
