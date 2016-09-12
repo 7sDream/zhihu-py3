@@ -7,6 +7,11 @@ from .base import BaseZhihu
 from .common import *
 
 
+class BanException(Exception):
+    """当尝试获取被反屏蔽系统限制的用户资料时，将会引发此异常"""
+    pass
+
+
 class Author(BaseZhihu):
     """用户类，请使用``ZhihuClient.answer``方法构造对象."""
 
@@ -44,6 +49,9 @@ class Author(BaseZhihu):
 
     def _gen_soup(self, content):
         self.soup = BeautifulSoup(content)
+        ban_title = self.soup.find("div", class_="ProfileBan-title")
+        if ban_title is not None:
+            raise BanException(ban_title.text)
         self._nav_list = self.soup.find(
             'div', class_='profile-navbar').find_all('a')
 
