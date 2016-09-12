@@ -3,12 +3,11 @@
 
 import json
 
-from .common import *
 from .base import BaseZhihu
+from .common import *
 
 
 class Author(BaseZhihu):
-
     """用户类，请使用``ZhihuClient.answer``方法构造对象."""
 
     @class_common_init(re_author_url, True)
@@ -142,7 +141,7 @@ class Author(BaseZhihu):
                 img = self.soup.find('img', class_='Avatar Avatar--l')['src']
                 return img.replace('_l', '_r')
             else:
-                assert(self.card is not None)
+                assert (self.card is not None)
                 return PROTOCOL + self.card.img['src'].replace('_xs', '_r')
         else:
             return 'http://pic1.zhimg.com/da8e974dc_r.jpg'
@@ -341,7 +340,7 @@ class Author(BaseZhihu):
             tag = self.soup.find('div', class_='zm-profile-side-columns')
             if tag is not None:
                 return int(re_get_number.match(
-                        tag.parent.strong.text).group(1))
+                    tag.parent.strong.text).group(1))
         return 0
 
     @property
@@ -356,7 +355,7 @@ class Author(BaseZhihu):
             tag = self.soup.find('div', class_='zm-profile-side-topics')
             if tag is not None:
                 return int(re_get_number.match(
-                        tag.parent.strong.text).group(1))
+                    tag.parent.strong.text).group(1))
         return 0
 
     @property
@@ -470,10 +469,13 @@ class Author(BaseZhihu):
                 author_url = h2.a['href']
                 author_motto = soup.find('span', class_='bio').text
                 author_photo = PROTOCOL + soup.a.img['src'].replace('_m', '_r')
-                numbers = [int(re_get_number.match(x.text).group(1))
-                           for x in soup.find_all('a', target='_blank')]
+                numbers = [
+                    int(re_get_number.match(x.text).group(1))
+                    for x in soup.find_all('a', class_="zg-link-gray-normal")
+                ]
                 try:
-                    yield Author(author_url, author_name, author_motto, *numbers,
+                    yield Author(author_url, author_name, author_motto,
+                                 *numbers,
                                  photo_url=author_photo, session=self._session)
                 except ValueError:  # invalid url
                     yield ANONYMOUS
@@ -571,7 +573,7 @@ class Author(BaseZhihu):
                         name = msg.strong.text
                         url = msg.a['href']
                         post_num = int(re_get_number.match(
-                                msg.span.text).group(1))
+                            msg.span.text).group(1))
                         yield Column(url, name, post_num=post_num,
                                      session=self._session)
 
@@ -597,12 +599,12 @@ class Author(BaseZhihu):
                 while gotten_data_num == 20:
                     data = {'start': 0, 'offset': offset, '_xsrf': self.xsrf}
                     j = self._session.post(
-                            Author_Get_More_Follow_Topic_URL.format(self.id),
-                            data=data).json()
+                        Author_Get_More_Follow_Topic_URL.format(self.id),
+                        data=data).json()
                     gotten_data_num = j['msg'][0]
                     offset += gotten_data_num
                     topic_item = BeautifulSoup(j['msg'][1]).find_all(
-                            'div', class_='zm-profile-section-item')
+                        'div', class_='zm-profile-section-item')
                     for div in topic_item:
                         name = div.strong.text
                         url = Zhihu_URL + div.a['href']
@@ -629,7 +631,7 @@ class Author(BaseZhihu):
             gotten_feed_num = res.json()['msg'][0]
             soup = BeautifulSoup(res.json()['msg'][1])
             acts = soup.find_all(
-                    'div', class_='zm-profile-section-item zm-item clearfix')
+                'div', class_='zm-profile-section-item zm-item clearfix')
 
             start = acts[-1]['data-time'] if len(acts) > 0 else 0
             for act in acts:
@@ -658,7 +660,7 @@ class Author(BaseZhihu):
         :rtype: bool
         """
         return self.upvote_num + self.thank_num + \
-            self.question_num + self.answer_num == 0
+               self.question_num + self.answer_num == 0
 
 
 class _Anonymous:
