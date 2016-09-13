@@ -447,7 +447,25 @@ class Author(BaseZhihu):
         for x in self._follow_ee_ers('ee'):
             yield x
 
-    def _follow_ee_ers(self, t):
+    def followers_skip(self, skip):
+        """获取关注此用户的人，跳过前 skip 个用户。
+
+        :return: 关注此用户的人，返回生成器
+        :rtype: Author.Iterable
+        """
+        for x in self._follow_ee_ers('er', skip):
+            yield x
+
+    def followees_skip(self, skip):
+        """获取用户关注的人，跳过前 skip 个用户。
+
+        :return: 用户关注的人的，返回生成器
+        :rtype: Author.Iterable
+        """
+        for x in self._follow_ee_ers('ee', skip):
+            yield x
+
+    def _follow_ee_ers(self, t, skip=0):
         if self.url is None:
             return
         if t == 'er':
@@ -462,7 +480,7 @@ class Author(BaseZhihu):
         params = {"order_by": "created", "offset": 0, "hash_id": self.hash_id}
         data = {'_xsrf': self.xsrf, 'method': 'next', 'params': ''}
         gotten_date_num = 20
-        offset = 0
+        offset = skip
         while gotten_date_num == 20:
             params['offset'] = offset
             data['params'] = json.dumps(params)
