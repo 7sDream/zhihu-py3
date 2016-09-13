@@ -1,8 +1,8 @@
 更新日志
 ========
 
-WIP
----
+0.3.22
+------
 
 - [Add] 增加了 `Author.followers_skip()` 和 `Author.followees.skip()` 函数，可以在获取用户关注者时跳过前 n 个用户。
 
