@@ -144,9 +144,10 @@ class Activity:
                       session=self._session)
 
     def _assemble_ask_question(self, act):
-        return Question(Zhihu_URL + act.div.contents[3]['href'],
-                        list(act.div.children)[3].text.strip(),
-                        session=self._session)
+        a = act.find("a", class_="question_link")
+        url = Zhihu_URL + a['href']
+        title = a.text.strip(' \n')
+        return Question(url, title, session=self._session)
 
     def _assemble_follow_question(self, act):
         return Question(Zhihu_URL + act.div.a['href'], act.div.a.text.strip(),
