@@ -21,6 +21,8 @@ zhihu-py3 : 知乎非官方API库 with Python3
 
 毕竟嘛，有更好的方案的话，为什么不试试呢？
 
+友链： \ `zhihurss <https://github.com/SimplyY/zhihu-rss>`__\  一个基于 zhihu-py3 做的跨平台知乎 rss(any user) 的客户端 \ `github 仓库 <https://github.com/SimplyY/zhihu-rss>`__\
+
 功能
 ----
 
